@@ -3,8 +3,10 @@ package com.aistudy.aistudy.ui.shell
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.aistudy.aistudy.ui.auth.LoginScreen
 import com.aistudy.aistudy.ui.auth.RegisterScreen
 import com.aistudy.aistudy.ui.auth.WelcomeScreen
@@ -95,7 +97,12 @@ fun AppNavHost(
                 }
             )
         }
-        composable(Routes.QUESTION_DETAIL) { backStackEntry ->
+        composable(
+            route = Routes.QUESTION_DETAIL,
+            arguments = listOf(
+                navArgument(Routes.ARG_QUESTION_ID) { type = NavType.LongType }
+            )
+        ) { backStackEntry ->
             QuestionDetailScreen(
                 deps = deps,
                 questionId = backStackEntry.arguments?.getLong(Routes.ARG_QUESTION_ID) ?: 0L,

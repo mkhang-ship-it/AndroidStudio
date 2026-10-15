@@ -14,15 +14,12 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -40,7 +37,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
@@ -49,8 +45,12 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.aistudy.aistudy.R
 import com.aistudy.aistudy.data.repository.AuthRepository
+import com.aistudy.aistudy.ui.common.DuoButton
+import com.aistudy.aistudy.ui.common.DuoButtonColors
 import com.aistudy.aistudy.ui.common.ErrorBanner
+import com.aistudy.aistudy.ui.common.PaperSheet
 import com.aistudy.aistudy.ui.root.AppDependencies
+import com.aistudy.aistudy.ui.theme.Spacing
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -71,7 +71,7 @@ fun WelcomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(24.dp)
+                .padding(Spacing.xl)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -83,15 +83,15 @@ fun WelcomeScreen(
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 24.dp)
+                        .padding(bottom = Spacing.xl)
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
+                    Column(modifier = Modifier.padding(Spacing.lg)) {
                         Text(
                             text = stringResource(R.string.ask_fake_mode_banner),
                             style = MaterialTheme.typography.titleSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(Spacing.xxs))
                         Text(
                             text = stringResource(R.string.ask_fake_mode_body),
                             style = MaterialTheme.typography.bodySmall,
@@ -101,47 +101,42 @@ fun WelcomeScreen(
                 }
             }
 
-            Text(
-                text = stringResource(R.string.auth_welcome_title),
-                style = MaterialTheme.typography.headlineMedium,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = stringResource(R.string.auth_welcome_subtitle),
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            PaperSheet(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = stringResource(R.string.auth_welcome_title),
+                        style = MaterialTheme.typography.displaySmall,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(Spacing.md))
+                    Text(
+                        text = stringResource(R.string.auth_welcome_subtitle),
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(Spacing.xxl))
 
-            Button(
+            DuoButton(
+                text = stringResource(R.string.auth_sign_in),
                 onClick = onSignIn,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.auth_sign_in),
-                    style = MaterialTheme.typography.titleMedium
-                )
-            }
+                modifier = Modifier.fillMaxWidth()
+            )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.lg))
 
-            OutlinedButton(
+            DuoButton(
+                text = stringResource(R.string.auth_sign_up),
                 onClick = onSignUp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.auth_sign_up),
-                    style = MaterialTheme.typography.titleMedium
-                )
-            }
+                modifier = Modifier.fillMaxWidth(),
+                colors = DuoButtonColors.Secondary
+            )
         }
     }
 }
@@ -215,7 +210,12 @@ fun LoginScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.auth_sign_in)) },
+                title = {
+                    Text(
+                        text = stringResource(R.string.auth_sign_in),
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
@@ -232,14 +232,14 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(24.dp)
+                .padding(Spacing.xl)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (state.errorMessage != null) {
                 ErrorBanner(
                     message = state.errorMessage!!,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    modifier = Modifier.padding(bottom = Spacing.lg)
                 )
             }
 
@@ -247,6 +247,16 @@ fun LoginScreen(
                 value = state.email,
                 onValueChange = vm::onEmailChange,
                 label = { Text(stringResource(R.string.auth_email)) },
+                isError = state.errorMessage != null,
+                supportingText = {
+                    if (state.errorMessage != null) {
+                        Text(
+                            text = state.errorMessage!!,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
@@ -255,12 +265,22 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.lg))
 
             OutlinedTextField(
                 value = state.password,
                 onValueChange = vm::onPasswordChange,
                 label = { Text(stringResource(R.string.auth_password)) },
+                isError = state.errorMessage != null,
+                supportingText = {
+                    if (state.errorMessage != null) {
+                        Text(
+                            text = state.errorMessage!!,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
                 singleLine = true,
                 visualTransformation = if (state.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
@@ -281,24 +301,14 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(Spacing.xxl))
 
-            Button(
+            DuoButton(
+                text = stringResource(R.string.auth_sign_in),
                 onClick = { vm.login(onSignedIn) },
                 enabled = !state.isLoading && state.email.isNotBlank() && state.password.isNotBlank(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-            ) {
-                if (state.isLoading) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
-                } else {
-                    Text(
-                        text = stringResource(R.string.auth_sign_in),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                }
-            }
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
@@ -414,7 +424,12 @@ fun RegisterScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.auth_sign_up)) },
+                title = {
+                    Text(
+                        text = stringResource(R.string.auth_sign_up),
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
@@ -431,7 +446,7 @@ fun RegisterScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(24.dp)
+                .padding(Spacing.xl)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -443,7 +458,7 @@ fun RegisterScreen(
             if (errorText != null) {
                 ErrorBanner(
                     message = errorText,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    modifier = Modifier.padding(bottom = Spacing.lg)
                 )
             }
 
@@ -451,17 +466,43 @@ fun RegisterScreen(
                 value = state.displayName,
                 onValueChange = vm::onDisplayNameChange,
                 label = { Text(stringResource(R.string.auth_display_name)) },
+                isError = state.validationErrorRes == R.string.auth_error_display_name_empty,
+                supportingText = {
+                    if (state.validationErrorRes == R.string.auth_error_display_name_empty) {
+                        Text(
+                            text = stringResource(R.string.auth_error_display_name_empty),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.lg))
 
             OutlinedTextField(
                 value = state.email,
                 onValueChange = vm::onEmailChange,
                 label = { Text(stringResource(R.string.auth_email)) },
+                isError = state.validationErrorRes == R.string.auth_error_email_invalid || state.validationErrorRes == R.string.auth_error_email_taken || state.apiErrorMessage != null,
+                supportingText = {
+                    val msg = when {
+                        state.validationErrorRes == R.string.auth_error_email_invalid -> stringResource(R.string.auth_error_email_invalid)
+                        state.validationErrorRes == R.string.auth_error_email_taken -> stringResource(R.string.auth_error_email_taken)
+                        state.apiErrorMessage != null -> state.apiErrorMessage
+                        else -> null
+                    }
+                    if (msg != null) {
+                        Text(
+                            text = msg,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
@@ -470,13 +511,30 @@ fun RegisterScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.lg))
 
             OutlinedTextField(
                 value = state.password,
                 onValueChange = vm::onPasswordChange,
                 label = { Text(stringResource(R.string.auth_password)) },
-                supportingText = { Text(stringResource(R.string.auth_password_helper)) },
+                isError = state.validationErrorRes == R.string.auth_error_password_short || state.validationErrorRes == R.string.auth_error_password_weak || state.validationErrorRes == R.string.auth_error_password_mismatch,
+                supportingText = {
+                    val errorMsg = when (state.validationErrorRes) {
+                        R.string.auth_error_password_short -> stringResource(R.string.auth_error_password_short)
+                        R.string.auth_error_password_weak -> stringResource(R.string.auth_error_password_weak)
+                        R.string.auth_error_password_mismatch -> stringResource(R.string.auth_error_password_mismatch)
+                        else -> null
+                    }
+                    if (errorMsg != null) {
+                        Text(
+                            text = errorMsg,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    } else {
+                        Text(stringResource(R.string.auth_password_helper))
+                    }
+                },
                 singleLine = true,
                 visualTransformation = if (state.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
@@ -494,12 +552,22 @@ fun RegisterScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.lg))
 
             OutlinedTextField(
                 value = state.confirmPassword,
                 onValueChange = vm::onConfirmPasswordChange,
                 label = { Text(stringResource(R.string.auth_confirm_password)) },
+                isError = state.validationErrorRes == R.string.auth_error_password_mismatch,
+                supportingText = {
+                    if (state.validationErrorRes == R.string.auth_error_password_mismatch) {
+                        Text(
+                            text = stringResource(R.string.auth_error_password_mismatch),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
                 singleLine = true,
                 visualTransformation = if (state.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
@@ -512,24 +580,14 @@ fun RegisterScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(Spacing.xxl))
 
-            Button(
+            DuoButton(
+                text = stringResource(R.string.auth_sign_up),
                 onClick = { vm.register(onRegistered) },
                 enabled = !state.isLoading,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-            ) {
-                if (state.isLoading) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
-                } else {
-                    Text(
-                        text = stringResource(R.string.auth_sign_up),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                }
-            }
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }

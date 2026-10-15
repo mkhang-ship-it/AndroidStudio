@@ -14,6 +14,7 @@ import com.aistudy.aistudy.domain.model.enums.Subject
 import com.aistudy.aistudy.domain.model.enums.XpReason
 import com.aistudy.aistudy.domain.rules.BadgeCatalog
 import com.aistudy.aistudy.domain.rules.QuestionSimilarity
+import com.aistudy.aistudy.domain.rules.SubjectDetector
 import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 
@@ -182,20 +183,37 @@ class QuestionRepositoryImpl(
             )
         }
 
+        try {
+            gamificationRepository.recordActivity(
+                userId = userId,
+                reason = XpReason.REVIEW_ANSWER,
+                nowEpochDay = LocalDate.now().toEpochDay()
+            )
+        } catch (_: Exception) {
+        }
+
+        val lowerQ = trimmed.lowercase()
+        if (MISTAKE_KEYWORDS.any(lowerQ::contains)) {
+            try {
+                notificationRepository.notify(
+                    userId = userId,
+                    type = NotificationType.MISTAKE_ALERT,
+                    title = "Lỗi thường gặp",
+                    body = "Câu này dễ sai công thức. Xem lại phần lỗi thường gặp nhé.",
+                    deepLink = DEEP_LINK_PROGRESS
+                )
+            } catch (_: Exception) {
+            }
+        }
+
         row.copy(id = id)
     }
 
     /**
      * Doan mon tu chuoi trong cau hoi, kiem truoc mon da chon trong profile.
-     * Doan theo chuoi de tranh ban them mot ban do tu khoa - cau hoi ngan
-     * kiem thu o `question_answers.subjectCode` bang cach khop chuoi.
+     * Dung chung [SubjectDetector] voi UI de mon hien thi va mon luu khop nhau.
      */
-    private fun subjectFromText(text: String): Subject? {
-        val normalised = QuestionSimilarity.normalise(text)
-        return SUBJECT_KEYWORDS.entries
-            .firstOrNull { (_, keywords) -> keywords.any(normalised::contains) }
-            ?.key
-    }
+    private fun subjectFromText(text: String): Subject? = SubjectDetector.detect(text)
 
     private fun promptFor(kind: ImprovementKind, target: QuestionAnswer): String =
         IMPROVE_TEMPLATES.getValue(kind).replace(
@@ -210,6 +228,8 @@ class QuestionRepositoryImpl(
         const val MAX_SOURCE_CHARS = 1500
         const val SOURCE_PLACEHOLDER = "{SOURCE}"
 
+        val MISTAKE_KEYWORDS = listOf("algebra", "equation", "formula", "grammar", "syntax")
+
         /**
          * `Notification.deepLink` luu route de UI `navController.navigate` truc
          * tiep. Gia tri phai khop `Routes.PROGRESS` o `ui/shell`, nhung data
@@ -217,14 +237,6 @@ class QuestionRepositoryImpl(
          * buoc phoi khop lai neu route doi.
          */
         const val DEEP_LINK_PROGRESS = "progress"
-
-        val SUBJECT_KEYWORDS: Map<Subject, List<String>> = mapOf(
-            Subject.MATHEMATICS to listOf("toan", "phuong trinh", "dao ham", "tich phan", "ma tran"),
-            Subject.SCIENCE to listOf("sinh", "hoa", "vat ly", "khoa hoc", "nguyen tu", "huyen"),
-            Subject.PROGRAMMING to listOf("lap trinh", "code", "thuat toan", "python", "java", "sql"),
-            Subject.HISTORY to listOf("lich su", "cu", "thoi dai", "su kien"),
-            Subject.LANGUAGE to listOf("ngu phap", "tu vung", "diem cau", "giao tiep")
-        )
 
         val IMPROVE_TEMPLATES: Map<ImprovementKind, String> = mapOf(
             ImprovementKind.SIMPLIFIED_EXPLANATION to

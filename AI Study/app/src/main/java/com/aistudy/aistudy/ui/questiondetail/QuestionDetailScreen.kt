@@ -15,11 +15,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +30,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import com.aistudy.aistudy.ui.theme.Spacing
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -50,8 +54,11 @@ import com.aistudy.aistudy.R
 import com.aistudy.aistudy.data.repository.ImprovementKind
 import com.aistudy.aistudy.data.repository.QuestionRepository
 import com.aistudy.aistudy.domain.model.entity.QuestionAnswer
+import com.aistudy.aistudy.ui.common.DuoButton
+import com.aistudy.aistudy.ui.common.DuoButtonColors
 import com.aistudy.aistudy.ui.common.ErrorBanner
 import com.aistudy.aistudy.ui.common.LoadingBox
+import com.aistudy.aistudy.ui.common.MarkdownText
 import com.aistudy.aistudy.ui.label
 import com.aistudy.aistudy.ui.root.AppDependencies
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -192,7 +199,10 @@ fun QuestionDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.detail_title)) },
+                title = { Text(
+                    stringResource(R.string.detail_title),
+                    style = MaterialTheme.typography.headlineSmall
+                ) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
@@ -205,9 +215,24 @@ fun QuestionDetailScreen(
                     val q = state.question
                     if (q != null) {
                         IconButton(onClick = vm::toggleBookmark) {
-                            Text(
-                                text = if (q.isBookmarked) "★" else "☆",
-                                style = MaterialTheme.typography.titleLarge
+                            Icon(
+                                imageVector = if (q.isBookmarked) {
+                                    Icons.Filled.Star
+                                } else {
+                                    Icons.Outlined.Star
+                                },
+                                contentDescription = stringResource(
+                                    if (q.isBookmarked) {
+                                        R.string.history_bookmark_remove
+                                    } else {
+                                        R.string.history_bookmark_add
+                                    }
+                                ),
+                                tint = if (q.isBookmarked) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                }
                             )
                         }
                     }
@@ -236,7 +261,7 @@ fun QuestionDetailScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(16.dp)
+                            .padding(Spacing.lg)
                             .verticalScroll(rememberScrollState())
                     ) {
                         Row(
@@ -259,51 +284,57 @@ fun QuestionDetailScreen(
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(Spacing.lg))
 
                         // Question section
                         Text(
                             text = stringResource(R.string.detail_question_label),
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.secondary
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(Spacing.xs))
                         Card(
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
                             ),
+                            shape = MaterialTheme.shapes.large,
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
                                 text = q.questionText.ifBlank { stringResource(R.string.ask_image_attached) },
                                 style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier.padding(16.dp)
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(Spacing.lg)
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(Spacing.lg))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        Spacer(modifier = Modifier.height(Spacing.lg))
 
                         // Answer section
                         Text(
                             text = stringResource(R.string.detail_answer_label),
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.secondary
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(Spacing.xs))
                         Card(
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
                             ),
+                            shape = MaterialTheme.shapes.large,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(
+                            MarkdownText(
                                 text = q.answerText,
                                 style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(16.dp)
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(Spacing.lg)
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(Spacing.lg))
 
                         val reviewMinutes = (q.reviewTimeSeconds / 60)
                         Text(
@@ -312,14 +343,17 @@ fun QuestionDetailScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(Spacing.lg))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        Spacer(modifier = Modifier.height(Spacing.lg))
 
                         // FR5: 5 Improvement Blocks
                         Text(
                             text = stringResource(R.string.improve_title),
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(Spacing.md))
 
                         ImprovementBlockItem(
                             kind = ImprovementKind.SIMPLIFIED_EXPLANATION,
@@ -370,11 +404,15 @@ private fun ImprovementBlockItem(
     onGenerate: () -> Unit
 ) {
     Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ),
+        shape = MaterialTheme.shapes.medium,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp)
+            .padding(vertical = Spacing.xs)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(Spacing.lg)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -382,49 +420,54 @@ private fun ImprovementBlockItem(
             ) {
                 Text(
                     text = kind.label(),
-                    style = MaterialTheme.typography.titleSmall
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 if (isGenerating) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         CircularProgressIndicator(modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
+                        Spacer(modifier = Modifier.width(Spacing.xs))
                         Text(
                             text = stringResource(R.string.improve_loading),
-                            style = MaterialTheme.typography.labelSmall
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.sm))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            Spacer(modifier = Modifier.height(Spacing.sm))
 
             if (!content.isNullOrBlank()) {
-                Text(
+                MarkdownText(
                     text = content,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedButton(
+                Spacer(Modifier.height(Spacing.sm))
+                DuoButton(
+                    text = stringResource(R.string.improve_regenerate),
                     onClick = onGenerate,
+                    modifier = Modifier.align(Alignment.End),
                     enabled = !isGenerating,
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Text(stringResource(R.string.improve_regenerate))
-                }
+                    colors = DuoButtonColors.Secondary
+                )
             } else {
                 Text(
                     text = stringResource(R.string.improve_empty),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                Button(
+                Spacer(Modifier.height(Spacing.sm))
+                DuoButton(
+                    text = stringResource(R.string.improve_generate),
                     onClick = onGenerate,
+                    modifier = Modifier.align(Alignment.End),
                     enabled = !isGenerating,
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Text(stringResource(R.string.improve_generate))
-                }
+                    colors = DuoButtonColors.Primary
+                )
             }
         }
     }

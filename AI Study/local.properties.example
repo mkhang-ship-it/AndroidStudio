@@ -1,0 +1,21 @@
+# ---------------------------------------------------------------------------
+# local.properties.example — bản mẫu, AN TOÀN để commit.
+#
+# Cách dùng:
+#   1. Copy file này thành `local.properties` (cùng thư mục).
+#   2. Điền sdk.dir đúng máy của bạn.
+#   3. Điền GEMINI_API_KEY nếu muốn gọi AI thật; để trống thì app tự chạy
+#      FakeAiClient (chế độ mô phỏng) — unit test vẫn xanh.
+#
+# `local.properties` nằm trong .gitignore → TUYỆT ĐỐI không commit file thật.
+# ---------------------------------------------------------------------------
+
+# Đường dẫn Android SDK trên máy bạn (Android Studio tự ghi dòng này).
+# Windows: sdk.dir=C\:\\Users\\<ten ban>\\AppData\\Local\\Android\\Sdk
+# macOS  : sdk.dir=/Users/<ten ban>/Library/Android/sdk
+# Linux  : sdk.dir=/home/<ten ban>/Android/Sdk
+sdk.dir=
+
+# Lấy key miễn phí tại https://aistudio.google.com/app/apikey
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-3.8-flash

@@ -45,7 +45,8 @@ class HistoryViewModel(
         loadJob = viewModelScope.launch {
             _state.value = HistoryUiState(isLoading = true)
             try {
-                questionRepository.observeHistory(userId).collect { list ->
+                questionRepository.observeHistory(userId).collect { raw ->
+                    val list = dedupeQuestions(raw)
                     val result = applyFiltersToList(list, searchKeyword.value.trim(), filterBookmarked.value)
                     _state.value = _state.value.copy(
                         isLoading = false,
@@ -117,4 +118,18 @@ class HistoryViewModel(
         }
         return result
     }
+
+    /**
+     * Cau hoi da hoi roi chi hien mot lan: gop theo `questionHash` (hash cua van
+     * ban da chuan hoa) va giu ban moi nhat. Cau hoi chi gui anh, khong co van
+     * ban, dung chung mot hash rong nen duoc tach rieng theo id de khong gop nham.
+     */
+    private fun dedupeQuestions(list: List<QuestionAnswer>): List<QuestionAnswer> =
+        list.groupBy { item ->
+            if (item.questionText.isBlank()) "id:${item.id}" else item.questionHash
+        }.map { (_, group) ->
+            group.maxWithOrNull(
+                compareBy<QuestionAnswer> { it.isBookmarked }.thenBy { it.createdAt }
+            ) ?: group.first()
+        }.sortedByDescending { it.createdAt }
 }

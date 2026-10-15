@@ -1,5 +1,9 @@
 package com.aistudy.aistudy.ui.screens.practice
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,9 +13,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -19,11 +33,12 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,7 +48,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,13 +59,20 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.aistudy.aistudy.R
 import com.aistudy.aistudy.domain.model.enums.QuestionType
+import com.aistudy.aistudy.ui.common.DuoButton
+import com.aistudy.aistudy.ui.common.DuoProgress
 import com.aistudy.aistudy.ui.common.EmptyState
 import com.aistudy.aistudy.ui.common.ErrorBanner
+import com.aistudy.aistudy.ui.common.MarkerChip
+import com.aistudy.aistudy.ui.common.PaperSheet
+import com.aistudy.aistudy.ui.common.StickerBadge
 import com.aistudy.aistudy.ui.label
 import com.aistudy.aistudy.ui.practice.PracticeUiState
 import com.aistudy.aistudy.ui.practice.PracticeViewModel
 import com.aistudy.aistudy.ui.practice.answerOptions
 import com.aistudy.aistudy.ui.root.AppDependencies
+import com.aistudy.aistudy.ui.theme.Spacing
+import com.aistudy.aistudy.ui.theme.AppMotion
 
 @Composable
 fun PracticeScreen(
@@ -110,7 +135,7 @@ private fun PracticeContent(
                     verticalArrangement = Arrangement.Center
                 ) {
                     CircularProgressIndicator()
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(Spacing.md))
                     Text(
                         text = stringResource(R.string.practice_generating),
                         style = MaterialTheme.typography.bodyMedium,
@@ -149,48 +174,65 @@ private fun ResultState(state: PracticeUiState, onRestart: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
+            .verticalScroll(rememberScrollState())
+            .padding(Spacing.xl),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = stringResource(R.string.practice_result_title),
-            style = MaterialTheme.typography.headlineSmall
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface
         )
-        Spacer(Modifier.height(16.dp))
-        Card(
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            ),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier.padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+        Spacer(Modifier.height(Spacing.xl))
+
+        Box(contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(
+                progress = { state.accuracy / 100f },
+                modifier = Modifier.size(160.dp),
+                color = MaterialTheme.colorScheme.primary,
+                strokeWidth = 12.dp,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "${state.accuracy}%",
+                    style = MaterialTheme.typography.displaySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
                 Text(
                     text = stringResource(
                         R.string.practice_result_score,
                         state.correctCount,
                         state.progressTotal
                     ),
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.practice_result_accuracy, state.accuracy),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.practice_result_xp, state.xpGained),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.primary
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
-        Spacer(Modifier.height(24.dp))
-        Button(onClick = onRestart) {
+
+        Spacer(Modifier.height(Spacing.xl))
+
+        StickerBadge(
+            text = stringResource(R.string.practice_result_xp, state.xpGained),
+            icon = {
+                Icon(
+                    imageVector = Icons.Filled.Star,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.tertiary
+                )
+            }
+        )
+
+        Spacer(Modifier.height(Spacing.xl))
+
+        Button(
+            onClick = onRestart,
+            modifier = Modifier
+                .fillMaxWidth()
+                .sizeIn(minHeight = 48.dp)
+        ) {
             Text(stringResource(R.string.practice_result_done))
         }
     }
@@ -205,84 +247,68 @@ private fun QuestionState(
 ) {
     val item = state.currentItem ?: return
     val scroll = rememberScrollState()
+    val isCorrect = state.userAnswer.trim().equals(item.correctAnswer.trim(), ignoreCase = true)
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(scroll)
-            .padding(16.dp)
+            .padding(Spacing.lg)
     ) {
-        Text(
-            text = stringResource(R.string.practice_progress, state.progressIndex, state.progressTotal),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(Modifier.height(8.dp))
-        LinearProgressIndicator(
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(
+                    R.string.practice_progress,
+                    state.progressIndex,
+                    state.progressTotal
+                ),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            TypeChip(text = item.questionType.label())
+        }
+        Spacer(Modifier.height(Spacing.sm))
+        DuoProgress(
             progress = {
                 state.progressIndex.toFloat() / state.progressTotal.coerceAtLeast(1).toFloat()
             },
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(Spacing.lg))
+
         Card(
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
             ),
+            shape = MaterialTheme.shapes.large,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(Spacing.lg)) {
                 Text(
-                    text = item.questionType.label(),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary
+                    text = item.prompt,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
-                Spacer(Modifier.height(8.dp))
-                Text(text = item.prompt, style = MaterialTheme.typography.bodyLarge)
             }
         }
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(Spacing.lg))
 
         val options = item.answerOptions
         if (item.questionType == QuestionType.MULTIPLE_CHOICE && options.isNotEmpty()) {
             options.forEach { (index, optionText) ->
-                val selected = state.userAnswer.trim().equals(optionText, ignoreCase = true)
-                Card(
-                    onClick = { if (!state.submitted) onAnswerChange(optionText) },
-                    enabled = !state.submitted,
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (selected) {
-                            MaterialTheme.colorScheme.primaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.surface
-                        }
-                    ),
-                    border = androidx.compose.foundation.BorderStroke(
-                        width = 1.dp,
-                        color = if (selected) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.outlineVariant
-                        }
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(selected = selected, onClick = null)
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            text = "${stringResource(OPTION_LETTER_RES[index])}. $optionText",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                }
+                OptionCard(
+                    letter = stringResource(OPTION_LETTER_RES[index]),
+                    text = optionText,
+                    isChosen = state.userAnswer.trim().equals(optionText.trim(), ignoreCase = true),
+                    isCorrectOption = optionText.trim().equals(item.correctAnswer.trim(), ignoreCase = true),
+                    submitted = state.submitted,
+                    onClick = { onAnswerChange(optionText) }
+                )
+                Spacer(Modifier.height(Spacing.sm))
             }
         } else {
             OutlinedTextField(
@@ -290,22 +316,24 @@ private fun QuestionState(
                 onValueChange = onAnswerChange,
                 enabled = !state.submitted,
                 label = { Text(stringResource(R.string.practice_your_answer)) },
+                shape = MaterialTheme.shapes.medium,
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(Spacing.md))
 
         if (!state.submitted) {
-            Button(
+            DuoButton(
+                text = stringResource(R.string.practice_submit_answer),
                 onClick = onSubmit,
-                enabled = state.userAnswer.isNotBlank(),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.practice_submit_answer))
-            }
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .sizeIn(minHeight = 48.dp),
+                enabled = state.userAnswer.isNotBlank()
+            )
             if (state.userAnswer.isBlank()) {
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(Spacing.xs))
                 Text(
                     text = stringResource(R.string.practice_answer_required),
                     style = MaterialTheme.typography.bodySmall,
@@ -314,13 +342,108 @@ private fun QuestionState(
             }
         } else {
             FeedbackCard(
-                isCorrect = state.userAnswer.trim().equals(item.correctAnswer, ignoreCase = true),
+                isCorrect = isCorrect,
                 correctAnswer = item.correctAnswer,
                 explanation = item.explanation
             )
-            Spacer(Modifier.height(16.dp))
-            Button(onClick = onNext, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.practice_next))
+            Spacer(Modifier.height(Spacing.lg))
+            DuoButton(
+                text = stringResource(R.string.practice_next),
+                onClick = onNext,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .sizeIn(minHeight = 48.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun OptionCard(
+    letter: String,
+    text: String,
+    isChosen: Boolean,
+    isCorrectOption: Boolean,
+    submitted: Boolean,
+    onClick: () -> Unit
+) {
+    val container = when {
+        submitted && isCorrectOption -> MaterialTheme.colorScheme.primaryContainer
+        submitted && isChosen -> MaterialTheme.colorScheme.errorContainer
+        isChosen -> MaterialTheme.colorScheme.secondaryContainer
+        else -> MaterialTheme.colorScheme.surface
+    }
+    val borderColor = when {
+        submitted && isCorrectOption -> MaterialTheme.colorScheme.primary
+        submitted && isChosen -> MaterialTheme.colorScheme.error
+        isChosen -> MaterialTheme.colorScheme.secondary
+        else -> MaterialTheme.colorScheme.outlineVariant
+    }
+    val content = when {
+        submitted && isCorrectOption -> MaterialTheme.colorScheme.onPrimaryContainer
+        submitted && isChosen -> MaterialTheme.colorScheme.onErrorContainer
+        isChosen -> MaterialTheme.colorScheme.onSecondaryContainer
+        else -> MaterialTheme.colorScheme.onSurface
+    }
+    val badgeColor = when {
+        submitted && isCorrectOption -> MaterialTheme.colorScheme.primary
+        submitted && isChosen -> MaterialTheme.colorScheme.error
+        isChosen -> MaterialTheme.colorScheme.secondary
+        else -> MaterialTheme.colorScheme.surfaceVariant
+    }
+    val onBadgeColor = when {
+        submitted && isCorrectOption -> MaterialTheme.colorScheme.onPrimary
+        submitted && isChosen -> MaterialTheme.colorScheme.onError
+        isChosen -> MaterialTheme.colorScheme.onSecondary
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+
+    Card(
+        onClick = onClick,
+        enabled = !submitted,
+        colors = CardDefaults.cardColors(containerColor = container),
+        border = BorderStroke(width = 1.dp, color = borderColor),
+        shape = MaterialTheme.shapes.medium,
+        modifier = Modifier
+            .fillMaxWidth()
+            .sizeIn(minHeight = 56.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Spacing.md, vertical = Spacing.sm),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .background(color = badgeColor, shape = CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = letter,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = onBadgeColor
+                )
+            }
+            Spacer(Modifier.width(Spacing.md))
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyLarge,
+                color = content,
+                modifier = Modifier.weight(1f)
+            )
+            when {
+                submitted && isCorrectOption -> Icon(
+                    imageVector = Icons.Filled.CheckCircle,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                submitted && isChosen -> Icon(
+                    imageVector = Icons.Filled.Close,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error
+                )
             }
         }
     }
@@ -332,35 +455,84 @@ private fun FeedbackCard(
     correctAnswer: String,
     explanation: String?
 ) {
+    val containerColor = if (isCorrect) {
+        MaterialTheme.colorScheme.primaryContainer
+    } else {
+        MaterialTheme.colorScheme.errorContainer
+    }
+    val onContainerColor = if (isCorrect) {
+        MaterialTheme.colorScheme.onPrimaryContainer
+    } else {
+        MaterialTheme.colorScheme.onErrorContainer
+    }
+    val hasBack = !explanation.isNullOrBlank()
+    var flipped by remember(isCorrect, correctAnswer, explanation) { mutableStateOf(false) }
+    val rotation by animateFloatAsState(
+        targetValue = if (flipped) 180f else 0f,
+        animationSpec = AppMotion.bouncyFlip(),
+        label = "feedbackFlip"
+    )
     Card(
-        colors = CardDefaults.cardColors(
-            containerColor = if (isCorrect) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.errorContainer
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        shape = MaterialTheme.shapes.medium,
+        modifier = Modifier
+            .fillMaxWidth()
+            .graphicsLayer {
+                rotationY = rotation
+                cameraDistance = 12f
             }
-        ),
-        modifier = Modifier.fillMaxWidth()
+            .then(if (hasBack) Modifier.clickable { flipped = !flipped } else Modifier)
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text(
-                text = stringResource(
-                    if (isCorrect) R.string.practice_correct else R.string.practice_incorrect
-                ),
-                style = MaterialTheme.typography.titleMedium
-            )
-            Spacer(Modifier.height(6.dp))
-            Text(
-                text = stringResource(R.string.practice_correct_answer, correctAnswer),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            if (!explanation.isNullOrBlank()) {
-                Spacer(Modifier.height(8.dp))
+        if (rotation <= 90f) {
+            Column(modifier = Modifier.padding(Spacing.lg)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = if (isCorrect) Icons.Filled.CheckCircle else Icons.Filled.Warning,
+                        contentDescription = null,
+                        tint = onContainerColor
+                    )
+                    Spacer(Modifier.width(Spacing.sm))
+                    Text(
+                        text = stringResource(
+                            if (isCorrect) R.string.practice_correct else R.string.practice_incorrect
+                        ),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = onContainerColor
+                    )
+                }
+                if (!isCorrect) {
+                    Spacer(Modifier.height(Spacing.xs))
+                    Text(
+                        text = stringResource(R.string.practice_correct_answer, correctAnswer),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = onContainerColor
+                    )
+                }
+                if (hasBack) {
+                    Spacer(Modifier.height(Spacing.xs))
+                    Text(
+                        text = stringResource(R.string.practice_tap_for_explanation),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = onContainerColor.copy(alpha = 0.7f)
+                    )
+                }
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .graphicsLayer { rotationY = 180f }
+                    .padding(Spacing.lg)
+            ) {
                 Text(
                     text = stringResource(R.string.practice_explanation),
-                    style = MaterialTheme.typography.labelMedium
+                    style = MaterialTheme.typography.labelMedium,
+                    color = onContainerColor
                 )
-                Text(text = explanation, style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    text = explanation.orEmpty(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = onContainerColor
+                )
             }
         }
     }
@@ -385,39 +557,53 @@ private fun GenerateState(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .verticalScroll(rememberScrollState())
+            .padding(Spacing.lg),
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = stringResource(R.string.practice_title),
-            style = MaterialTheme.typography.titleLarge
-        )
-        Spacer(Modifier.height(4.dp))
-        Text(
-            text = stringResource(R.string.practice_generate_hint),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(Modifier.height(20.dp))
+        PaperSheet {
+            Column {
+                Text(
+                    text = stringResource(R.string.practice_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(Modifier.height(Spacing.xs))
+                Text(
+                    text = stringResource(R.string.practice_generate_hint),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        Spacer(Modifier.height(Spacing.xl))
 
         Card(
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
             ),
+            shape = MaterialTheme.shapes.large,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(Spacing.lg)) {
                 SourcePicker(state = state, onSourceSelected = onSourceSelected)
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(Spacing.lg))
 
                 CountPicker(state = state, onCountSelected = onCountSelected)
             }
         }
 
-        Spacer(Modifier.height(28.dp))
+        Spacer(Modifier.height(Spacing.xl))
 
-        Button(onClick = onGenerate, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = onGenerate,
+            modifier = Modifier
+                .fillMaxWidth()
+                .sizeIn(minHeight = 48.dp)
+        ) {
+            Icon(Icons.Filled.PlayArrow, contentDescription = null)
+            Spacer(Modifier.width(Spacing.sm))
             Text(stringResource(R.string.practice_generate))
         }
     }
@@ -435,14 +621,17 @@ private fun SourcePicker(
 
     Column {
         Text(
-            text = stringResource(R.string.practice_pick_source),
-            style = MaterialTheme.typography.labelLarge
+            text = placeholder,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface
         )
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(Spacing.xs))
         Box {
             OutlinedButton(
                 onClick = { expanded = true },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .sizeIn(minHeight = 48.dp)
             ) {
                 Text(
                     text = selected?.questionText?.take(MAX_SOURCE_LABEL) ?: placeholder,
@@ -474,29 +663,41 @@ private fun SourcePicker(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CountPicker(state: PracticeUiState, onCountSelected: (Int) -> Unit) {
     Column {
         Text(
             text = stringResource(R.string.practice_count_label),
-            style = MaterialTheme.typography.labelLarge
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface
         )
-        Spacer(Modifier.height(4.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Spacer(Modifier.height(Spacing.xs))
+        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
             COUNT_OPTIONS.forEach { option ->
-                val selected = option == state.count
-                OutlinedButton(onClick = { onCountSelected(option) }) {
-                    Text(
-                        text = option.toString(),
-                        color = if (selected) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        }
-                    )
-                }
+                MarkerChip(
+                    label = option.toString(),
+                    selected = option == state.count,
+                    onClick = { onCountSelected(option) }
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun TypeChip(text: String) {
+    Surface(
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        shape = MaterialTheme.shapes.small
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelMedium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = Spacing.sm, vertical = Spacing.xs)
+        )
     }
 }
 

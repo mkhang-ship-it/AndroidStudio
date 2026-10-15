@@ -1,5 +1,7 @@
 package com.aistudy.aistudy.ui.notifications
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,16 +9,26 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -25,11 +37,14 @@ import androidx.lifecycle.viewmodel.initializer
 import com.aistudy.aistudy.R
 import com.aistudy.aistudy.ui.common.EmptyState
 import com.aistudy.aistudy.ui.common.LoadingBox
+import com.aistudy.aistudy.ui.common.PaperSheet
+import com.aistudy.aistudy.ui.common.ScreenHeader
+import com.aistudy.aistudy.ui.common.StickerBadge
 import com.aistudy.aistudy.ui.notifications.NotificationsUiState
 import com.aistudy.aistudy.ui.notifications.NotificationsViewModel
 import com.aistudy.aistudy.ui.root.AppDependencies
 import com.aistudy.aistudy.ui.label
-import androidx.compose.ui.res.stringResource
+import com.aistudy.aistudy.ui.theme.Spacing
 
 @Composable
 fun NotificationsScreen(
@@ -70,16 +85,30 @@ private fun NotificationsContent(
     onOpenNotification: (com.aistudy.aistudy.domain.model.entity.Notification) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(modifier = modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize()) {
+        PaperSheet(
+            modifier = Modifier.padding(horizontal = Spacing.lg, vertical = Spacing.lg)
+        ) {
+            ScreenHeader(
+                titleRes = R.string.notifications_title
+            )
+        }
+        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
         when {
             state.isLoading -> LoadingBox()
             state.hasError -> {
-                Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
                     com.aistudy.aistudy.ui.common.ErrorBanner(
                         message = state.errorMessage ?: "",
-                        modifier = Modifier.fillMaxWidth().padding(16.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(Spacing.lg)
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.width(Spacing.sm))
                     Button(onClick = onBack) {
                         Text(stringResource(R.string.notifications_back))
                     }
@@ -96,57 +125,117 @@ private fun NotificationsContent(
                 }
             )
             else -> {
-                Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(Spacing.lg)
+                ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
+                        StickerBadge(
                             text = stringResource(R.string.notifications_unread_count, state.unreadCount),
-                            style = MaterialTheme.typography.bodyMedium
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Filled.Star,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.tertiary
+                                )
+                            }
                         )
-                        Button(onClick = onMarkAllRead) {
+                        TextButton(onClick = onMarkAllRead) {
                             Text(stringResource(R.string.notifications_mark_all_read))
                         }
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    state.notifications.forEach { notification ->
-                        val isUnread = !notification.isRead
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.Top
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = notification.title,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = if (isUnread) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
-                                    text = notification.body,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Text(
-                                    text = notification.type.label(),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            Button(onClick = { onOpenNotification(notification) }) {
-                                Text(stringResource(R.string.notifications_open))
-                            }
+
+                    Spacer(modifier = Modifier.size(Spacing.sm))
+
+                    LazyColumn(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(Spacing.sm)
+                    ) {
+                        items(state.notifications) { notification ->
+                            NotificationCard(
+                                title = notification.title,
+                                body = notification.body,
+                                typeLabel = notification.type.label(),
+                                isUnread = !notification.isRead,
+                                onClick = { onOpenNotification(notification) }
+                            )
                         }
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
+
+                    Spacer(modifier = Modifier.size(Spacing.md))
+
+                    TextButton(
+                        onClick = onBack,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         Text(stringResource(R.string.notifications_back))
                     }
                 }
             }
         }
+        }
     }
 }
 
+@Composable
+private fun NotificationCard(
+    title: String,
+    body: String,
+    typeLabel: String,
+    isUnread: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isUnread) {
+                MaterialTheme.colorScheme.surfaceContainerHigh
+            } else {
+                MaterialTheme.colorScheme.surfaceContainerLow
+            }
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(Spacing.lg),
+            verticalAlignment = Alignment.Top
+        ) {
+            Box(
+                modifier = Modifier
+                    .padding(top = Spacing.xs)
+                    .size(8.dp)
+                    .background(
+                        color = if (isUnread) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                        shape = CircleShape
+                    )
+            )
+            Spacer(modifier = Modifier.width(Spacing.md))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = if (isUnread) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = body,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = typeLabel,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}

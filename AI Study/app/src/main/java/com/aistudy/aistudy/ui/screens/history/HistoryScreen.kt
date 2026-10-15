@@ -1,18 +1,28 @@
 package com.aistudy.aistudy.ui.screens.history
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.FilterChip
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Icon
+import com.aistudy.aistudy.ui.common.MarkerChip
+import com.aistudy.aistudy.ui.common.PaperSheet
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -20,20 +30,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.lifecycle.viewmodel.initializer
 import com.aistudy.aistudy.R
 import com.aistudy.aistudy.domain.model.entity.QuestionAnswer
+import com.aistudy.aistudy.domain.rules.SubjectDetector
 import com.aistudy.aistudy.ui.common.EmptyState
 import com.aistudy.aistudy.ui.common.LoadingBox
+import com.aistudy.aistudy.ui.common.ScreenHeader
 import com.aistudy.aistudy.ui.history.HistoryUiState
 import com.aistudy.aistudy.ui.history.HistoryViewModel
-import androidx.compose.ui.res.stringResource
 import com.aistudy.aistudy.ui.root.AppDependencies
 import com.aistudy.aistudy.ui.label
+import com.aistudy.aistudy.ui.theme.Spacing
 
 @Composable
 fun HistoryScreen(
@@ -74,54 +87,61 @@ private fun HistoryContent(
     onToggleBookmark: (Long, Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
-        // Search field
-        OutlinedTextField(
-            value = state.searchKeyword,
-            onValueChange = onSearch,
-            label = { Text(stringResource(R.string.history_search_hint)) },
-            modifier = Modifier.fillMaxWidth()
-        )
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = Spacing.lg, vertical = Spacing.lg)
+    ) {
+        PaperSheet {
+            ScreenHeader(titleRes = R.string.history_title)
 
-        Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.lg))
 
-        // Filter chips
-        Row(modifier = Modifier.fillMaxWidth()) {
-            FilterChip(
-                selected = !state.filterBookmarked,
-                onClick = { onToggleFilter(false) },
-                label = { Text(stringResource(R.string.history_filter_all)) }
+            OutlinedTextField(
+                value = state.searchKeyword,
+                onValueChange = onSearch,
+                label = { Text(stringResource(R.string.history_search_hint)) },
+                leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                singleLine = true,
+                shape = MaterialTheme.shapes.large,
+                modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            FilterChip(
-                selected = state.filterBookmarked,
-                onClick = { onToggleFilter(true) },
-                label = { Text(stringResource(R.string.history_filter_bookmarked)) }
-            )
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.md))
 
-        // Group toggle
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            FilterChip(
-                selected = state.groupBySubject,
-                onClick = { onToggleGroup(!state.groupBySubject) },
-                label = { Text(stringResource(R.string.history_group_by_subject)) }
-            )
-            if (state.items.isNotEmpty()) {
-                Text(
-                    text = stringResource(R.string.history_result_count, state.items.size),
-                    style = MaterialTheme.typography.bodyMedium
+            Row(
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
+            ) {
+                MarkerChip(
+                    label = stringResource(R.string.history_filter_all),
+                    selected = !state.filterBookmarked,
+                    onClick = { onToggleFilter(false) }
+                )
+                MarkerChip(
+                    label = stringResource(R.string.history_filter_bookmarked),
+                    selected = state.filterBookmarked,
+                    onClick = { onToggleFilter(true) }
+                )
+                MarkerChip(
+                    label = stringResource(R.string.history_group_by_subject),
+                    selected = state.groupBySubject,
+                    onClick = { onToggleGroup(!state.groupBySubject) }
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(Spacing.sm))
+
+        if (state.items.isNotEmpty()) {
+            Text(
+                text = stringResource(R.string.history_result_count, state.items.size),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        Spacer(modifier = Modifier.height(Spacing.md))
 
         when {
             state.isLoading -> LoadingBox(modifier = Modifier.fillMaxSize())
@@ -134,7 +154,9 @@ private fun HistoryContent(
                     com.aistudy.aistudy.ui.common.ErrorBanner(
                         message = state.errorMessage?.takeIf { it.isNotBlank() }
                             ?: stringResource(R.string.common_error_generic),
-                        modifier = Modifier.fillMaxWidth().padding(16.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(Spacing.lg)
                     )
                 }
             }
@@ -155,12 +177,21 @@ private fun HistoryContent(
                 } else {
                     state.items.map { item -> SubjectGroup(null, listOf(item)) }
                 }
-                Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                ) {
                     list.forEach { group ->
                         if (group.subject != null) {
                             Text(
                                 text = group.subject.label(),
-                                style = MaterialTheme.typography.titleMedium
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(
+                                    top = Spacing.sm,
+                                    bottom = Spacing.xs
+                                )
                             )
                         }
                         group.items.forEach { item ->
@@ -169,8 +200,9 @@ private fun HistoryContent(
                                 onOpenQuestion = { onOpenQuestion(item.id) },
                                 onToggleBookmark = { value -> onToggleBookmark(item.id, value) }
                             )
+                            Spacer(modifier = Modifier.height(Spacing.sm))
                         }
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(Spacing.sm))
                     }
                 }
             }
@@ -190,31 +222,53 @@ private fun HistoryRow(
     onToggleBookmark: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth().padding(vertical = 8.dp),
-        verticalAlignment = Alignment.Top
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onOpenQuestion),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = item.questionText,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 2
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = item.subjectCode.label(),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        Column(horizontalAlignment = Alignment.End) {
-            androidx.compose.material3.TextButton(onClick = { onToggleBookmark(!item.isBookmarked) }) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = Spacing.md, end = Spacing.xs, top = Spacing.xs, bottom = Spacing.xs),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = if (item.isBookmarked) stringResource(R.string.history_bookmark_remove) else stringResource(R.string.history_bookmark_add),
-                    style = MaterialTheme.typography.bodySmall
+                    text = item.questionText,
+                    style = MaterialTheme.typography.titleSmall,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (SubjectDetector.detect(item.questionText) != null) {
+                    Spacer(modifier = Modifier.height(Spacing.xxs))
+                    AssistChip(
+                        onClick = onOpenQuestion,
+                        label = {
+                            Text(
+                                text = item.subjectCode.label(),
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+                    )
+                }
+            }
+            IconButton(onClick = { onToggleBookmark(!item.isBookmarked) }) {
+                Icon(
+                    imageVector = if (item.isBookmarked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                    contentDescription = stringResource(
+                        if (item.isBookmarked) R.string.history_bookmark_remove else R.string.history_bookmark_add
+                    ),
+                    tint = if (item.isBookmarked) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    }
                 )
             }
         }
     }
 }
-

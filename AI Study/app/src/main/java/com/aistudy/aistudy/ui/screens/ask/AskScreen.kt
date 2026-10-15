@@ -7,7 +7,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,11 +15,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -30,13 +33,14 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import com.aistudy.aistudy.ui.theme.Spacing
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -60,13 +64,18 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.aistudy.aistudy.R
 import com.aistudy.aistudy.data.repository.AuthRepository
+import com.aistudy.aistudy.data.repository.ProfileRepository
 import com.aistudy.aistudy.data.repository.QuestionRepository
 import com.aistudy.aistudy.domain.ai.AiException
 import com.aistudy.aistudy.domain.model.entity.QuestionAnswer
 import com.aistudy.aistudy.domain.model.enums.Subject
 import com.aistudy.aistudy.domain.rules.QuestionSimilarity
+import com.aistudy.aistudy.domain.rules.SubjectDetector
 import com.aistudy.aistudy.platform.ServiceLocator
 import com.aistudy.aistudy.ui.common.ErrorBanner
+import com.aistudy.aistudy.ui.common.StickerBadge
+import com.aistudy.aistudy.ui.common.DuoButton
+import com.aistudy.aistudy.ui.common.MarkdownText
 import com.aistudy.aistudy.ui.label
 import com.aistudy.aistudy.ui.root.AppDependencies
 import kotlinx.coroutines.Dispatchers
@@ -79,7 +88,7 @@ import kotlinx.coroutines.withContext
 
 data class AskUiState(
     val questionText: String = "",
-    val selectedSubject: Subject = Subject.MATHEMATICS,
+    val detectedSubject: Subject? = null,
     val selectedImageUri: Uri? = null,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
@@ -88,18 +97,21 @@ data class AskUiState(
 
 class AskViewModel(
     private val questionRepository: QuestionRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val profileRepository: ProfileRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AskUiState())
     val state: StateFlow<AskUiState> = _state.asStateFlow()
 
     fun onTextChange(text: String) {
-        _state.update { it.copy(questionText = text, errorMessage = null) }
-    }
-
-    fun onSubjectChange(subject: Subject) {
-        _state.update { it.copy(selectedSubject = subject) }
+        _state.update {
+            it.copy(
+                questionText = text,
+                detectedSubject = SubjectDetector.detect(text),
+                errorMessage = null
+            )
+        }
     }
 
     fun onImagePicked(uri: Uri?) {
@@ -107,7 +119,14 @@ class AskViewModel(
     }
 
     fun clearInput() {
-        _state.update { it.copy(questionText = "", selectedImageUri = null, errorMessage = null) }
+        _state.update {
+            it.copy(
+                questionText = "",
+                detectedSubject = null,
+                selectedImageUri = null,
+                errorMessage = null
+            )
+        }
     }
 
     fun submitQuestion(context: android.content.Context) {
@@ -156,6 +175,7 @@ class AskViewModel(
                     it.copy(
                         isLoading = false,
                         questionText = "",
+                        detectedSubject = null,
                         selectedImageUri = null,
                         lastResult = qa,
                         errorMessage = null
@@ -190,7 +210,8 @@ fun AskScreen(
             initializer {
                 AskViewModel(
                     questionRepository = deps.questionRepository,
-                    authRepository = deps.authRepository
+                    authRepository = deps.authRepository,
+                    profileRepository = deps.profileRepository
                 )
             }
         }
@@ -216,19 +237,20 @@ fun AskScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp)
+                .padding(Spacing.lg)
                 .verticalScroll(rememberScrollState())
         ) {
             if (!deps.aiClient.isConfigured) {
                 Card(
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
                     ),
+                    shape = MaterialTheme.shapes.medium,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 16.dp)
+                        .padding(bottom = Spacing.lg)
                 ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
+                    Column(modifier = Modifier.padding(Spacing.md)) {
                         Text(
                             text = stringResource(R.string.ask_fake_mode_banner),
                             style = MaterialTheme.typography.titleSmall,
@@ -243,27 +265,7 @@ fun AskScreen(
                 }
             }
 
-            Text(
-                text = stringResource(R.string.ask_subject_label),
-                style = MaterialTheme.typography.labelLarge
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Subject.values().forEach { subject ->
-                    FilterChip(
-                        selected = (state.selectedSubject == subject),
-                        onClick = { vm.onSubjectChange(subject) },
-                        label = { Text(subject.label()) }
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.lg))
 
             OutlinedTextField(
                 value = state.questionText,
@@ -272,30 +274,60 @@ fun AskScreen(
                 placeholder = { Text(stringResource(R.string.ask_input_hint)) },
                 minLines = 4,
                 maxLines = 8,
+                shape = MaterialTheme.shapes.medium,
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(Spacing.sm))
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                val detected = state.detectedSubject
+                if (detected != null) {
+                    StickerBadge(
+                        text = detected.label(),
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Filled.Star,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.tertiary
+                            )
+                        }
+                    )
+                } else if (state.questionText.isNotBlank()) {
+                    Text(
+                        text = stringResource(R.string.ask_subject_detecting),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(Spacing.md))
 
             if (state.selectedImageUri != null) {
                 Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                    ),
+                    shape = MaterialTheme.shapes.medium,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 12.dp)
+                        .padding(bottom = Spacing.md)
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(12.dp),
+                            .padding(Spacing.md),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             ThumbnailPreview(uri = state.selectedImageUri!!)
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(Spacing.md))
                             Text(
                                 text = stringResource(R.string.ask_image_attached),
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                         TextButton(onClick = { vm.onImagePicked(null) }) {
@@ -307,7 +339,7 @@ fun AskScreen(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(Spacing.md)
             ) {
                 OutlinedButton(
                     onClick = {
@@ -332,35 +364,31 @@ fun AskScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.lg))
 
             if (state.errorMessage != null) {
                 ErrorBanner(
                     message = state.errorMessage!!,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    modifier = Modifier.padding(bottom = Spacing.lg)
                 )
             }
 
-            Button(
-                onClick = { vm.submitQuestion(context) },
-                enabled = !state.isLoading && (state.questionText.isNotBlank() || state.selectedImageUri != null),
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
+                    .heightIn(min = 48.dp),
+                contentAlignment = Alignment.Center
             ) {
+                DuoButton(
+                    text = if (state.isLoading) stringResource(R.string.ask_answer_loading)
+                    else stringResource(R.string.ask_submit),
+                    onClick = { vm.submitQuestion(context) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !state.isLoading && (state.questionText.isNotBlank() || state.selectedImageUri != null)
+                )
                 if (state.isLoading) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(stringResource(R.string.ask_answer_loading))
-                    }
-                } else {
-                    Text(
-                        text = stringResource(R.string.ask_submit),
-                        style = MaterialTheme.typography.titleMedium
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
@@ -368,14 +396,15 @@ fun AskScreen(
             // Answer Result Display Section
             if (state.lastResult != null) {
                 val qa = state.lastResult!!
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(Spacing.xl))
                 Card(
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
                     ),
+                    shape = MaterialTheme.shapes.large,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
+                    Column(modifier = Modifier.padding(Spacing.lg)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -395,7 +424,7 @@ fun AskScreen(
                         }
 
                         if (qa.servedFromCache) {
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(Spacing.xs))
                             Text(
                                 text = stringResource(R.string.ask_matched_note),
                                 style = MaterialTheme.typography.bodySmall,
@@ -403,7 +432,7 @@ fun AskScreen(
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(Spacing.sm))
 
                         if (qa.detectedDifficulty != null) {
                             Text(
@@ -411,13 +440,21 @@ fun AskScreen(
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.secondary
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(Spacing.sm))
                         }
 
-                        Text(
-                            text = qa.answerText,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        Surface(
+                            color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                            shape = MaterialTheme.shapes.medium,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            MarkdownText(
+                                text = qa.answerText,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(Spacing.md)
+                            )
+                        }
                     }
                 }
             }
@@ -445,7 +482,7 @@ private fun ThumbnailPreview(uri: Uri) {
     if (bitmap != null) {
         Image(
             bitmap = bitmap!!.asImageBitmap(),
-            contentDescription = null,
+            contentDescription = stringResource(R.string.ask_image_attached),
             modifier = Modifier.size(48.dp)
         )
     } else {

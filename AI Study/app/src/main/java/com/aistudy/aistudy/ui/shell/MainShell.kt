@@ -8,6 +8,8 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -20,6 +22,14 @@ import com.aistudy.aistudy.ui.root.AppDependencies
 
 @Composable
 fun MainShell(deps: AppDependencies) {
+    val sessionUserId by deps.authRepository.sessionUserId.collectAsState()
+    LaunchedEffect(sessionUserId) {
+        val uid = sessionUserId ?: return@LaunchedEffect
+        try {
+            deps.notificationRepository.postDailySummaryIfDue(uid, System.currentTimeMillis())
+        } catch (_: Exception) {
+        }
+    }
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
@@ -36,8 +46,14 @@ fun MainShell(deps: AppDependencies) {
                     NavigationBarItem(
                         selected = selected,
                         onClick = { navController.navigateToTopLevel(destination) },
-                        icon = { Icon(destination.icon, contentDescription = null) },
-                        label = { Text(stringResource(destination.labelRes)) }
+                        icon = {
+                            Icon(
+                                if (selected) destination.icon else destination.outlinedIcon,
+                                contentDescription = stringResource(destination.labelRes)
+                            )
+                        },
+                        label = { Text(stringResource(destination.labelRes)) },
+                        alwaysShowLabel = true
                     )
                 }
             }

@@ -53,6 +53,7 @@
 
     <!-- ============ FR2 - Onboarding ============ -->
     <string name="onboarding_step_of">Bước %1$d/%2$d</string>
+    <string name="coppa_age_feedback">Dưới 13 tuổi cần phụ huynh đồng ý</string>
     <string name="onboarding_title_level">Bạn đang học ở cấp nào?</string>
     <string name="onboarding_subtitle_level">Câu trả lời sẽ được viết theo đúng trình độ này.</string>
     <string name="onboarding_title_subjects">Bạn đang học môn nào?</string>
@@ -80,6 +81,7 @@
     <string name="ask_input_hint">Nhập câu hỏi của bạn…</string>
     <string name="ask_input_label">Câu hỏi</string>
     <string name="ask_subject_label">Môn học</string>
+    <string name="ask_subject_detecting">Đang nhận diện môn học…</string>
     <string name="ask_pick_image">Chụp / chọn ảnh bài tập</string>
     <string name="ask_change_image">Đổi ảnh</string>
     <string name="ask_remove_image">Bỏ ảnh</string>
@@ -162,6 +164,7 @@
     <string name="practice_incorrect">Chưa đúng.</string>
     <string name="practice_correct_answer">Đáp án đúng: %1$s</string>
     <string name="practice_explanation">Giải thích</string>
+    <string name="practice_tap_for_explanation">Chạm để xem giải thích</string>
     <string name="practice_next">Câu tiếp theo</string>
     <string name="practice_finish">Xem kết quả</string>
     <string name="practice_result_title">Kết quả luyện tập</string>
@@ -243,7 +246,7 @@
 
     <!-- ============ Ho so ============ -->
     <string name="profile_title">Hồ sơ</string>
-    <string name="profile_level_label">Cấp học</string>
+    <string name="profile_level_label">Cấp độ</string>
     <string name="profile_subjects_label">Môn quan tâm</string>
     <string name="profile_style_label">Phong cách giải thích</string>
     <string name="profile_edit_preferences">Sửa tuỳ chọn học tập</string>

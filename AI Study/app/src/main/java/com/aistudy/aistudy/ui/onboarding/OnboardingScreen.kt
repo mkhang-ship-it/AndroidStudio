@@ -13,10 +13,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,11 +42,11 @@ import com.aistudy.aistudy.data.repository.AuthRepository
 import com.aistudy.aistudy.data.repository.ProfileRepository
 import com.aistudy.aistudy.domain.model.enums.EducationLevel
 import com.aistudy.aistudy.domain.model.enums.ExplanationStyle
-import com.aistudy.aistudy.domain.model.enums.Subject
-import com.aistudy.aistudy.ui.common.ErrorBanner
-import com.aistudy.aistudy.ui.common.SubjectChipRow
+import com.aistudy.aistudy.ui.common.DuoButton
+import com.aistudy.aistudy.ui.common.RuledDivider
 import com.aistudy.aistudy.ui.label
 import com.aistudy.aistudy.ui.root.AppDependencies
+import com.aistudy.aistudy.ui.theme.Spacing
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -58,7 +56,6 @@ import kotlinx.coroutines.launch
 data class OnboardingUiState(
     val currentStep: Int = 1,
     val selectedLevel: EducationLevel = EducationLevel.HIGH,
-    val selectedSubjects: Set<Subject> = setOf(Subject.MATHEMATICS),
     val selectedStyle: ExplanationStyle = ExplanationStyle.STEP_BY_STEP,
     val isLoading: Boolean = false,
     val errorMessageRes: Int? = null
@@ -85,7 +82,6 @@ class OnboardingViewModel(
                 _state.update { s ->
                     s.copy(
                         selectedLevel = profile.educationLevel,
-                        selectedSubjects = if (profile.subjectCodes.isNotEmpty()) profile.subjectCodes else setOf(Subject.MATHEMATICS),
                         selectedStyle = profile.preferredStyle
                     )
                 }
@@ -95,18 +91,6 @@ class OnboardingViewModel(
 
     fun selectLevel(level: EducationLevel) {
         _state.update { it.copy(selectedLevel = level) }
-    }
-
-    fun toggleSubject(subject: Subject) {
-        _state.update { s ->
-            val updated = s.selectedSubjects.toMutableSet()
-            if (updated.contains(subject)) {
-                updated.remove(subject)
-            } else {
-                updated.add(subject)
-            }
-            s.copy(selectedSubjects = updated, errorMessageRes = null)
-        }
     }
 
     fun selectStyle(style: ExplanationStyle) {
@@ -120,13 +104,6 @@ class OnboardingViewModel(
                 _state.update { it.copy(currentStep = 2) }
             }
             2 -> {
-                if (s.selectedSubjects.isEmpty()) {
-                    _state.update { it.copy(errorMessageRes = R.string.onboarding_subjects_error) }
-                } else {
-                    _state.update { it.copy(currentStep = 3, errorMessageRes = null) }
-                }
-            }
-            3 -> {
                 submitOnboarding(onFinish)
             }
         }
@@ -148,7 +125,7 @@ class OnboardingViewModel(
                 profileRepository.completeOnboarding(
                     userId = userId,
                     level = s.selectedLevel,
-                    subjects = s.selectedSubjects,
+                    subjects = emptySet(),
                     style = s.selectedStyle
                 )
             }.onSuccess {
@@ -191,7 +168,7 @@ fun OnboardingScreen(
                         stringResource(
                             R.string.onboarding_step_of,
                             state.currentStep,
-                            3
+                            2
                         )
                     )
                 },
@@ -219,7 +196,7 @@ fun OnboardingScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(24.dp)
+                .padding(Spacing.xl)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
@@ -229,23 +206,18 @@ fun OnboardingScreen(
                         selected = state.selectedLevel,
                         onSelect = vm::selectLevel
                     )
-                    2 -> SubjectStepContent(
-                        selected = state.selectedSubjects,
-                        onToggle = vm::toggleSubject,
-                        errorMessageRes = state.errorMessageRes
-                    )
-                    3 -> StyleStepContent(
+                    2 -> StyleStepContent(
                         selected = state.selectedStyle,
                         onSelect = vm::selectStyle
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(Spacing.xl))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(Spacing.lg)
             ) {
                 if (state.currentStep > 1 || onBack != null) {
                     OutlinedButton(
@@ -264,25 +236,16 @@ fun OnboardingScreen(
                     }
                 }
 
-                Button(
+                DuoButton(
+                    text = if (state.currentStep == 2) {
+                        if (editMode) stringResource(R.string.common_save) else stringResource(R.string.common_done)
+                    } else {
+                        stringResource(R.string.common_next)
+                    },
                     onClick = { vm.nextStep(onFinish = { onBack?.invoke() }) },
                     enabled = !state.isLoading,
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(50.dp)
-                ) {
-                    if (state.isLoading) {
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
-                    } else {
-                        Text(
-                            text = if (state.currentStep == 3) {
-                                if (editMode) stringResource(R.string.common_save) else stringResource(R.string.common_done)
-                            } else {
-                                stringResource(R.string.common_next)
-                            }
-                        )
-                    }
-                }
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
     }
@@ -295,29 +258,40 @@ private fun LevelStepContent(
 ) {
     Text(
         text = stringResource(R.string.onboarding_title_level),
-        style = MaterialTheme.typography.titleLarge
+        style = MaterialTheme.typography.headlineSmall
     )
-    Spacer(modifier = Modifier.height(8.dp))
+    Spacer(modifier = Modifier.height(Spacing.sm))
     Text(
         text = stringResource(R.string.onboarding_subtitle_level),
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
-    Spacer(modifier = Modifier.height(24.dp))
+    RuledDivider()
+    Spacer(modifier = Modifier.height(Spacing.xs))
+    Spacer(modifier = Modifier.height(Spacing.xl))
+
+    // COPPA age verification - children under 13 need parental consent
+    Text(
+        text = stringResource(R.string.coppa_age_feedback),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(vertical = Spacing.xs)
+    )
 
     EducationLevel.values().forEach { level ->
         Card(
+            shape = MaterialTheme.shapes.medium,
             colors = CardDefaults.cardColors(
                 containerColor = if (selected == level) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 6.dp)
+                .padding(vertical = Spacing.xs)
                 .clickable { onSelect(level) }
         ) {
             Row(
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(Spacing.lg)
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -328,66 +302,8 @@ private fun LevelStepContent(
                 Text(
                     text = level.label(),
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(start = 12.dp)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun SubjectStepContent(
-    selected: Set<Subject>,
-    onToggle: (Subject) -> Unit,
-    errorMessageRes: Int?
-) {
-    Text(
-        text = stringResource(R.string.onboarding_title_subjects),
-        style = MaterialTheme.typography.titleLarge
-    )
-    Spacer(modifier = Modifier.height(8.dp))
-    Text(
-        text = stringResource(R.string.onboarding_subtitle_subjects),
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-    Spacer(modifier = Modifier.height(16.dp))
-
-    if (errorMessageRes != null) {
-        ErrorBanner(
-            message = stringResource(errorMessageRes),
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-    }
-
-    SubjectChipRow(
-        subjects = Subject.values().toList(),
-        selected = selected,
-        onToggle = onToggle
-    )
-
-    Spacer(modifier = Modifier.height(16.dp))
-
-    Subject.values().forEach { subject ->
-        val isSelected = subject in selected
-        Card(
-            colors = CardDefaults.cardColors(
-                containerColor = if (isSelected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceVariant
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp)
-                .clickable { onToggle(subject) }
-        ) {
-            Row(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = subject.label(),
-                    style = MaterialTheme.typography.bodyLarge
+                    color = if (selected == level) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(start = Spacing.md)
                 )
             }
         }
@@ -401,29 +317,32 @@ private fun StyleStepContent(
 ) {
     Text(
         text = stringResource(R.string.onboarding_title_style),
-        style = MaterialTheme.typography.titleLarge
+        style = MaterialTheme.typography.headlineSmall
     )
-    Spacer(modifier = Modifier.height(8.dp))
+    Spacer(modifier = Modifier.height(Spacing.sm))
     Text(
         text = stringResource(R.string.onboarding_subtitle_style),
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
-    Spacer(modifier = Modifier.height(24.dp))
+    RuledDivider()
+    Spacer(modifier = Modifier.height(Spacing.xs))
+    Spacer(modifier = Modifier.height(Spacing.xl))
 
     ExplanationStyle.values().forEach { style ->
         Card(
+            shape = MaterialTheme.shapes.medium,
             colors = CardDefaults.cardColors(
                 containerColor = if (selected == style) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 6.dp)
+                .padding(vertical = Spacing.xs)
                 .clickable { onSelect(style) }
         ) {
             Row(
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(Spacing.lg)
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -434,7 +353,8 @@ private fun StyleStepContent(
                 Text(
                     text = style.label(),
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(start = 12.dp)
+                    color = if (selected == style) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(start = Spacing.md)
                 )
             }
         }

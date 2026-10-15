@@ -3,17 +3,23 @@ package com.aistudy.aistudy.ui.shell
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.automirrored.outlined.List
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.aistudy.aistudy.R
 
 data class TopLevelDestination(
     val route: String,
     @StringRes val labelRes: Int,
-    val icon: ImageVector
+    val icon: ImageVector,
+    val outlinedIcon: ImageVector
 )
 
 /**
@@ -49,9 +55,34 @@ object Routes {
 }
 
 val TOP_LEVEL_DESTINATIONS = listOf(
-    TopLevelDestination(Routes.ASK, R.string.nav_ask, Icons.Filled.Home),
-    TopLevelDestination(Routes.HISTORY, R.string.nav_history, Icons.AutoMirrored.Filled.List),
-    TopLevelDestination(Routes.PRACTICE, R.string.nav_practice, Icons.Filled.Star),
-    TopLevelDestination(Routes.PROGRESS, R.string.nav_progress, Icons.Filled.Refresh),
-    TopLevelDestination(Routes.PROFILE, R.string.nav_profile, Icons.Filled.Person)
+    TopLevelDestination(
+        Routes.ASK,
+        R.string.nav_ask,
+        Icons.Filled.Search,
+        Icons.Outlined.Search
+    ),
+    TopLevelDestination(
+        Routes.HISTORY,
+        R.string.nav_history,
+        Icons.AutoMirrored.Filled.List,
+        Icons.AutoMirrored.Outlined.List
+    ),
+    TopLevelDestination(
+        Routes.PRACTICE,
+        R.string.nav_practice,
+        Icons.Filled.Edit,
+        Icons.Outlined.Edit
+    ),
+    TopLevelDestination(
+        Routes.PROGRESS,
+        R.string.nav_progress,
+        Icons.Filled.Star,
+        Icons.Outlined.Star
+    ),
+    TopLevelDestination(
+        Routes.PROFILE,
+        R.string.nav_profile,
+        Icons.Filled.Person,
+        Icons.Outlined.Person
+    )
 )
