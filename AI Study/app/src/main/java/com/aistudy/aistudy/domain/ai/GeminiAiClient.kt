@@ -4,7 +4,6 @@ import android.util.Base64
 import android.util.Log
 import com.aistudy.aistudy.BuildConfig
 import com.aistudy.aistudy.domain.model.entity.QuestionAnswer
-import com.aistudy.aistudy.domain.model.enums.Difficulty
 import com.aistudy.aistudy.domain.model.enums.EducationLevel
 import com.aistudy.aistudy.domain.model.enums.ExplanationStyle
 import com.aistudy.aistudy.domain.model.enums.QuestionType
@@ -76,7 +75,13 @@ class GeminiAiClient(
             val root = post(body)
             val text = extractText(root)
             val (inputTokens, outputTokens) = usageTokens(root)
-            parseAnswer(text, request.subject, inputTokens, outputTokens)
+            parseAnswer(
+                text = text,
+                fallbackSubject = request.subject,
+                questionText = request.questionText,
+                inputTokens = inputTokens,
+                outputTokens = outputTokens
+            )
         }.recoverCatching { error -> throw error.toAiError() }
     }
 
@@ -205,40 +210,41 @@ class GeminiAiClient(
     }.getOrNull()?.takeIf { it.isNotBlank() } ?: raw.take(200)
 
     private fun answerPrompt(request: AiRequest): String {
-        val levelVi = when (request.level) {
-            EducationLevel.MIDDLE -> "trung hoc co so"
-            EducationLevel.HIGH -> "trung hoc pho thong"
-            EducationLevel.UNIVERSITY -> "dai hoc co so"
+        val levelText = when (request.level) {
+            EducationLevel.MIDDLE -> "lower secondary school"
+            EducationLevel.HIGH -> "upper secondary school"
+            EducationLevel.UNIVERSITY -> "undergraduate"
         }
-        val styleVi = when (request.style) {
-            ExplanationStyle.SHORT -> "ngan gon, toi da 5 dong"
-            ExplanationStyle.DETAILED -> "chi tiet, kem vi du so"
-            ExplanationStyle.STEP_BY_STEP -> "tung buoc, dinh so thu tu"
+        val styleText = when (request.style) {
+            ExplanationStyle.SHORT ->
+                "Keep the explanation short: at most five lines in total."
+            ExplanationStyle.DETAILED ->
+                "Explain in detail and add a worked numeric example when useful."
+            ExplanationStyle.STEP_BY_STEP ->
+                "Explain step by step, one idea per step."
         }
-        val hasImage = if (request.imageBytes != null) " kem anh bai tap" else ""
+        val imageNote = if (request.imageBytes != null) {
+            " The question includes an attached photo of the exercise."
+        } else {
+            ""
+        }
 
         return """
-            Ban la gia su vien giai toan. Tra loi cau hoi sau$hasImage, muc do $levelVi, phong cach $styleVi.
-            Mon hoc: ${request.subject.name}.
+            You are AI Study Mentor, a study tutor for a student at $levelText level.
+            $styleText
+            Always answer in the same language as the question.
+            If the question is Vietnamese, write Vietnamese with full diacritics in every field (title, body, finalAnswer), even when the question is typed without diacritics.
+            Put math formulas in the "expr" field of the matching step.
+            Classify the subject correctly (math/science/code/history/language/other).$imageNote
 
-            Dinh dang answerText: dung markdown (tieu de ##, gach dau dong -). Moi cong thuc
-            toan dat trong ${'$'}...${'$'} theo LaTeX, vi du ${'$'}\frac{a}{b}${'$'} hoac ${'$'}x^2${'$'}.
-            Khong dung anh, khong dung \[ \].
-
-            Tra ve DUY NHAT mot JSON dung cu phap sau, khong them y giai hay doan ma:
+            Return ONLY valid JSON (no markdown) with this structure:
             {
-              "answerText": "loi giai day du, co the dung markdown",
-              "difficulty": "EASY" | "MEDIUM" | "HARD",
-              "subject": "MATHEMATICS" | "SCIENCE" | "PROGRAMMING" | "HISTORY" | "LANGUAGE",
-              "simplifiedExplanation": "giai thich rut gon trong 2-3 cau",
-              "alternativeApproach": "mot cach giai khac",
-              "keyConcepts": "cac khai niem chinh, phan cach bang dau cham",
-              "commonMistakes": "loi thuong gap va cach tranh",
-              "followUpQuestions": "hai cau hoi nen hoi tiep, phan cach bang dau cham"
+              "subject": "math|science|code|history|language|other",
+              "steps": [{"title": "optional", "body": "required", "expr": "optional"}],
+              "finalAnswer": "string"
             }
 
-            Cau hoi:
-            ${request.questionText}
+            Question: ${request.questionText}
         """.trimIndent()
     }
 
@@ -275,6 +281,7 @@ class GeminiAiClient(
     internal fun parseAnswer(
         text: String,
         fallbackSubject: Subject,
+        questionText: String = "",
         inputTokens: Int = 0,
         outputTokens: Int = 0
     ): AiAnswer {
@@ -282,23 +289,22 @@ class GeminiAiClient(
             runCatching { JSONObject(candidate) }
                 .recoverCatching { JSONObject(escapeInnerControlChars(candidate)) }
                 .getOrNull()
-                ?.takeIf { it.optString("answerText").isNotBlank() }
+                ?.takeIf { it.hasAnswerPayload() }
         } ?: throw AiException.Malformed("Khong parse duoc JSON tu Gemini")
 
-        val answerText = repairStoredLatex(obj.optString("answerText").trim())
+        val answerText = stepsToMarkdown(
+            obj = obj,
+            vietnamese = answerLanguageIsVietnamese(questionText)
+        )
         if (answerText.isBlank()) {
-            throw AiException.Malformed("Gemini tra ve answerText rong")
+            throw AiException.Malformed("Gemini tra ve steps/finalAnswer rong")
         }
 
         return AiAnswer(
             answerText = answerText,
-            subject = obj.optString("subject").enumOrNull<Subject>() ?: fallbackSubject,
-            difficulty = obj.optString("difficulty").enumOrNull<Difficulty>(),
-            simplifiedExplanation = obj.optStringOrNull("simplifiedExplanation"),
-            alternativeApproach = obj.optStringOrNull("alternativeApproach"),
-            keyConcepts = obj.optStringOrNull("keyConcepts"),
-            commonMistakes = obj.optStringOrNull("commonMistakes"),
-            followUpQuestions = obj.optStringOrNull("followUpQuestions"),
+            subject = subjectFromCode(obj.optString("subject")) ?: fallbackSubject,
+            // Schema moi khong con difficulty; UI tu an chip khi null.
+            difficulty = null,
             inputTokens = inputTokens,
             outputTokens = outputTokens
         )
@@ -558,6 +564,121 @@ internal fun extractJson(text: String): String {
 
     return text.substring(start, end + 1)
 }
+
+// ---------------------------------------------------------------- answer schema
+
+/** Schema moi: steps + finalAnswer. Thieu ca hai coi nhu model tra loi hong. */
+private fun JSONObject.hasAnswerPayload(): Boolean =
+    (optJSONArray("steps")?.length() ?: 0) > 0 || optString("finalAnswer").isNotBlank()
+
+/**
+ * Gop steps thanh markdown de luu vao `answerText` (khong doi schema Room).
+ * `expr` duoc dua vao block `$$...$$` de MarkdownText render thanh cong thuc
+ * can giua, tach khoi phan chu cua buoc.
+ */
+private fun stepsToMarkdown(obj: JSONObject, vietnamese: Boolean): String {
+    val out = StringBuilder()
+    var rendered = 0
+    val steps = obj.optJSONArray("steps")
+
+    if (steps != null) {
+        for (index in 0 until steps.length()) {
+            val step = steps.optJSONObject(index) ?: continue
+            val body = repairStoredLatex(step.optString("body").trim())
+            val expr = stripMathDelimiters(
+                repairStoredLatex(step.optString("expr").trim())
+            )
+            val title = repairStoredLatex(step.optString("title").trim())
+            if (body.isBlank() && expr.isBlank()) continue
+
+            rendered++
+            if (out.isNotEmpty()) out.append("\n\n")
+            val defaultLabel = if (vietnamese) "Bước $rendered" else "Step $rendered"
+            val heading = when {
+                title.isBlank() -> defaultLabel
+                title.startsWith("Bước", ignoreCase = true) ||
+                    title.startsWith("Step", ignoreCase = true) ||
+                    title.startsWith("$rendered.") -> title
+
+                else -> "$defaultLabel: $title"
+            }
+            out.append("### ").append(heading)
+            if (body.isNotBlank()) out.append("\n\n").append(body)
+            if (expr.isNotBlank()) {
+                out.append("\n\n$$\n").append(expr).append("\n$$")
+            }
+        }
+    }
+
+    val finalAnswer = repairStoredLatex(obj.optString("finalAnswer").trim())
+    if (finalAnswer.isNotBlank()) {
+        if (out.isNotEmpty()) out.append("\n\n---\n\n")
+        out.append("## ").append(if (vietnamese) "Đáp án" else "Final answer")
+        out.append("\n\n").append(finalAnswer)
+    }
+    return out.toString().trim()
+}
+
+/** `expr` co the kem san `$...$`, `$$...$$` hoac `\[...\]` - bo vo de khong nhan doi. */
+private fun stripMathDelimiters(raw: String): String {
+    var value = raw.trim()
+    value = when {
+        value.length > 4 && value.startsWith("$$") && value.endsWith("$$") ->
+            value.substring(2, value.length - 2)
+
+        value.length > 4 && value.startsWith("\\[") && value.endsWith("\\]") ->
+            value.substring(2, value.length - 2)
+
+        value.length > 2 && value.startsWith("$") && value.endsWith("$") ->
+            value.substring(1, value.length - 1)
+
+        else -> value
+    }
+    return value.trim()
+}
+
+/**
+ * Prompt tra ve `math|science|code|history|language|other`; `other` va gia tri
+ * la deu roi ve fallback ma nguoi dung da chon luc hoi.
+ */
+private fun subjectFromCode(raw: String): Subject? = when (raw.trim().lowercase()) {
+    "math", "mathematics", "maths", "toan" -> Subject.MATHEMATICS
+    "science", "physics", "chemistry", "biology", "khoa_hoc" -> Subject.SCIENCE
+    "code", "programming", "computer_science", "cs" -> Subject.PROGRAMMING
+    "history", "lich_su" -> Subject.HISTORY
+    "language", "english", "literature", "ngon_ngu" -> Subject.LANGUAGE
+    else -> null
+}
+
+/**
+ * Cau tra loi theo ngon ngu cau hoi. Tieng Viet nhan dien qua dau tieng Viet
+ * hoac vai tu khoa ASCII thong dung ("giai", "phuong", "trinh"...). Cau hoi
+ * khong co chu (vi du "2 + 2 = ?") mac dinh dung nhan tieng Viet vi UI la
+ * tieng Viet.
+ */
+internal fun answerLanguageIsVietnamese(questionText: String): Boolean {
+    val text = questionText.trim()
+    if (text.isEmpty()) return true
+    if (text.any { it in VIETNAMESE_CHARS }) return true
+
+    val letters = text.filter { it.isLetter() }
+    if (letters.isEmpty()) return true
+    // Chu khong phai Latin ASCII (Trung/Nhat/Han...) -> khong phai tieng Viet.
+    if (letters.none { it.code < 128 }) return false
+
+    return VIETNAMESE_ASCII_REGEX.containsMatchIn(text.lowercase())
+}
+
+private const val VIETNAMESE_CHARS =
+    "ăâđêôơưàáảãạằắẳẵặầấẩẫậèéẻẽẹềếểễệìíỉĩịòóỏõọồốổỗộờớởỡợùúủũụừứửữựỳýỷỹỵ"
+
+private val VIETNAMESE_ASCII_WORDS = setOf(
+    "khong", "duoc", "giup", "giai", "tinh", "phuong", "trinh", "cau", "hoi",
+    "bai", "nhu", "nao", "nay", "khi", "voi", "mot", "trong", "cua", "gi"
+)
+
+private val VIETNAMESE_ASCII_REGEX =
+    Regex("\\b(${VIETNAMESE_ASCII_WORDS.joinToString("|")})\\b")
 
 /**
  * Thu thap tat ca cac doan ung cu cho JSON cua Gemini: moi code fence rieng

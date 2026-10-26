@@ -25,6 +25,7 @@
 | 16 | Badge chưa đọc | Icon sao vàng + "0 chưa đọc" khó hiểu | Icon chuông + "N chưa đọc"; 0 → "Đã đọc tất cả" | `NotificationsScreen.kt` |
 | 17 | LaTeX trong JSON | `\frac` bị JSON hiểu thành form-feed, `\right` thành CR → công thức hỏng | Repair escape trước khi parse + repair chuỗi đã lưu | `GeminiAiClient.kt`, `Latex.kt` |
 | 18 | Debug API | Không thấy body gửi/nhận | Log `GeminiAPI`: request body + raw response, chia chunk, ẩn base64/key | `GeminiAiClient.kt` |
+| 19 | Schema trả lời | JSON cũ gộp mọi thứ vào `answerText` | Schema `steps[{title,body,expr}]` + `finalAnswer`; render công thức thành block | `GeminiAiClient.kt`, `GeminiParsingTest.kt` |
 
 ## 2. Chi tiết kỹ thuật
 
@@ -118,6 +119,26 @@
 - Logcat cắt message ~4KB nên chia **3.000 ký tự/chunk** với nhãn `[part N]`.
 - Xem log: `adb logcat -s GeminiAPI`.
 
+### 2.10. Schema trả lời mới: steps + finalAnswer
+
+- **Prompt** (`answerPrompt`): chuyển sang cấu trúc
+  `{subject, steps:[{title, body, expr}], finalAnswer}`. Prompt viết bằng tiếng Anh
+  nhưng yêu cầu **trả lời cùng ngôn ngữ với câu hỏi** (không ép tiếng Anh).
+- **Parse** (`parseAnswer`): gộp steps thành markdown để lưu `answerText` —
+  `### Bước N: title`, body, rồi `$$expr$$` (block công thức căn giữa). `finalAnswer`
+  thành `## Đáp án` (hoặc `## Final answer` nếu câu hỏi tiếng Anh). Không đổi schema Room.
+- **Nhãn ngôn ngữ:** `answerLanguageIsVietnamese()` nhận diện dấu tiếng Việt và từ khoá
+  ASCII ("giai", "phuong", "trinh"…); câu không có chữ ("2 + 2 = ?") mặc định tiếng Việt.
+- **Buộc tiếng Việt có dấu:** prompt yêu cầu ghi đầy đủ dấu ở cả `title`, `body`,
+  `finalAnswer` kể cả khi người dùng gõ không dấu. Đã test: hỏi "Hai dien tro 6 ohm va
+  3 ohm mac song song…" → trả lời "Xác định công thức tính điện trở tương đương…".
+- **Subject:** map `math→MATHEMATICS`, `science→SCIENCE`, `code→PROGRAMMING`,
+  `history→HISTORY`, `language→LANGUAGE`; `other`/giá trị lạ → fallback môn người dùng chọn.
+- **Difficulty:** schema mới không trả về → `null`, UI tự ẩn chip "Độ khó".
+- **FR5 giữ nguyên:** 5 mục "Học thêm" vẫn dùng prompt riêng, sinh khi người dùng bấm.
+- **Đã kiểm tra tay:** hỏi bài rơi tự do → 5 bước + công thức `v = g·t` + mục "Đáp án";
+  Lịch sử → Chi tiết hiển thị đúng, môn "Khoa học", 5 mục FR5 hiện nút "Tạo nội dung này".
+
 ## 3. Test & build evidence
 
 | Lệnh | Kết quả |
@@ -125,12 +146,12 @@
 | `.\build.ps1 :app:testDebugUnitTest` | **BUILD SUCCESSFUL** — toàn bộ unit test xanh |
 | `.\build.ps1 :app:connectedDebugAndroidTest` | **39/39 test pass** trên `Medium_Phone(AVD)` (DAO, repository, auth lockout, smoke test) |
 | `.\build.ps1 :app:assembleDebug` | **BUILD SUCCESSFUL** — APK debug tạo thành công |
-| Smoke test tay trên emulator | Hỏi AI → nhận câu trả lời toán có phân số → Lịch sử → Luyện tập → Tiến độ → Hồ sơ; không crash |
+| Smoke test tay trên emulator | Hỏi AI → nhận 5 bước + block công thức + "Đáp án" → Lịch sử → Chi tiết; không crash |
 
-**Test case mới:** ~34 case
+**Test case mới:** ~39 case
 - 19 case `LatexTest`
 - 7 case `ProgressInsightsTest`
-- 6 case mới trong `GeminiParsingTest` (token usage + repair LaTeX JSON)
+- 25 case `GeminiParsingTest` (schema steps/finalAnswer, token usage, repair LaTeX JSON)
 - 1 case lockout restart trong `AuthRepositoryTest` (instrumented)
 - 1 case xoá theo hash trong `QuestionAnswerDaoTest` (instrumented)
 

@@ -1,6 +1,5 @@
 package com.aistudy.aistudy.domain.ai
 
-import com.aistudy.aistudy.domain.model.enums.Difficulty
 import com.aistudy.aistudy.domain.model.enums.EducationLevel
 import com.aistudy.aistudy.domain.model.enums.QuestionType
 import com.aistudy.aistudy.domain.model.enums.Subject
@@ -20,67 +19,150 @@ class GeminiParsingTest {
 
     private val fullAnswerJson = """
         {
-          "answerText": "Dap an la 3.",
-          "difficulty": "HARD",
-          "subject": "SCIENCE",
-          "simplifiedExplanation": "Rat gon.",
-          "alternativeApproach": "Dung hinh ve.",
-          "keyConcepts": "Luc; Mo bien",
-          "commonMistakes": "Quen dau am",
-          "followUpQuestions": "Tinh nang?; Bai tiep?"
+          "subject": "science",
+          "steps": [
+            {
+              "title": "Xác định dữ kiện",
+              "body": "Đề cho **lực** và khối lượng.",
+              "expr": "F = m \cdot a"
+            },
+            {
+              "body": "Thay số vào công thức."
+            }
+          ],
+          "finalAnswer": "Gia tốc là 3 m/s²."
         }
     """.trimIndent()
 
-    @Test
-    fun `doc duoc JSON boc trong fences`() {
-        val answer = client.parseAnswer("```json\n$fullAnswerJson\n```", Subject.MATHEMATICS)
+    private val expectedMarkdown = """
+        ### Bước 1: Xác định dữ kiện
 
-        assertEquals("Dap an la 3.", answer.answerText)
-        assertEquals(Difficulty.HARD, answer.difficulty)
+        Đề cho **lực** và khối lượng.
+
+        $$
+        F = m \cdot a
+        $$
+
+        ### Bước 2
+
+        Thay số vào công thức.
+
+        ---
+
+        ## Đáp án
+
+        Gia tốc là 3 m/s².
+    """.trimIndent()
+
+    @Test
+    fun `doc duoc schema steps va finalAnswer`() {
+        val answer = client.parseAnswer(
+            text = "```json\n$fullAnswerJson\n```",
+            fallbackSubject = Subject.MATHEMATICS,
+            questionText = "Một vật khối lượng 2 kg chịu lực 6 N. Tính gia tốc."
+        )
+
         assertEquals(Subject.SCIENCE, answer.subject)
-        assertEquals("Rat gon.", answer.simplifiedExplanation)
-        assertEquals("Dung hinh ve.", answer.alternativeApproach)
-        assertEquals("Luc; Mo bien", answer.keyConcepts)
-        assertEquals("Quen dau am", answer.commonMistakes)
-        assertEquals("Tinh nang?; Bai tiep?", answer.followUpQuestions)
+        assertNull("schema moi khong con difficulty", answer.difficulty)
+        assertEquals(expectedMarkdown, answer.answerText)
     }
 
     @Test
     fun `doc duoc JSON khong co fences va co text bao quanh`() {
         val answer = client.parseAnswer(
-            "Day la loi giai cua ban:\n$fullAnswerJson\n\nHet.",
-            Subject.MATHEMATICS
+            text = "Day la loi giai cua ban:\n$fullAnswerJson\n\nHet.",
+            fallbackSubject = Subject.MATHEMATICS,
+            questionText = "Một vật khối lượng 2 kg chịu lực 6 N. Tính gia tốc."
         )
-        assertEquals("Dap an la 3.", answer.answerText)
+        assertEquals(expectedMarkdown, answer.answerText)
     }
 
     @Test
-    fun `thieu answerText phai nem Malformed chu khong tra rong`() {
+    fun `cau hoi tieng Anh dung nhan tieng Anh`() {
+        val answer = client.parseAnswer(
+            text = fullAnswerJson,
+            fallbackSubject = Subject.MATHEMATICS,
+            questionText = "A 2 kg object is pushed with 6 N. Find its acceleration."
+        )
+
+        assertTrue(answer.answerText.contains("### Step 1: "))
+        assertTrue(answer.answerText.contains("## Final answer"))
+        assertTrue(!answer.answerText.contains("## Đáp án"))
+    }
+
+    @Test
+    fun `thieu ca steps va finalAnswer phai nem Malformed`() {
         val error = runCatching {
-            client.parseAnswer("""{"difficulty":"EASY"}""", Subject.MATHEMATICS)
+            client.parseAnswer("""{"subject":"math"}""", Subject.MATHEMATICS)
         }.exceptionOrNull()
 
         assertTrue("phai la AiException.Malformed", error is AiException.Malformed)
     }
 
     @Test
-    fun `enum sai gia tri tra null thay vi crash`() {
+    fun `chi co finalAnswer van hop le`() {
         val answer = client.parseAnswer(
-            """{"answerText":"x","difficulty":"KHONG_TON_TAI","subject":"TOAN_HOC"}""",
-            Subject.PROGRAMMING
+            """{"finalAnswer":"42"}""",
+            Subject.MATHEMATICS
         )
 
-        assertNull(answer.difficulty)
-        assertEquals("subject la optional nen phai dung gia tri fallback", Subject.PROGRAMMING, answer.subject)
+        assertEquals("## Đáp án\n\n42", answer.answerText)
     }
 
     @Test
-    fun `subject hop le duoc ghi de fallback`() {
+    fun `subject la thi fallback ve mon nguoi dung chon`() {
         val answer = client.parseAnswer(
-            """{"answerText":"x","subject":"HISTORY"}""",
+            """{"steps":[{"body":"x"}],"subject":"other"}""",
             Subject.PROGRAMMING
         )
-        assertEquals(Subject.HISTORY, answer.subject)
+
+        assertEquals(
+            "subject la optional nen phai dung gia tri fallback",
+            Subject.PROGRAMMING,
+            answer.subject
+        )
+    }
+
+    @Test
+    fun `subject code duoc map sang PROGRAMMING`() {
+        val answer = client.parseAnswer(
+            """{"steps":[{"body":"x"}],"subject":"code"}""",
+            Subject.MATHEMATICS
+        )
+
+        assertEquals(Subject.PROGRAMMING, answer.subject)
+    }
+
+    @Test
+    fun `subject math duoc map sang MATHEMATICS`() {
+        val answer = client.parseAnswer(
+            """{"steps":[{"body":"x"}],"subject":"math"}""",
+            Subject.HISTORY
+        )
+
+        assertEquals(Subject.MATHEMATICS, answer.subject)
+    }
+
+    @Test
+    fun `expr co san dau dollar khong bi nhan doi`() {
+        val answer = client.parseAnswer(
+            """{"steps":[{"body":"Tinh","expr":"${'$'}x^2${'$'}"}],"finalAnswer":"x"}""",
+            Subject.MATHEMATICS
+        )
+
+        assertTrue(answer.answerText.contains("$$\nx^2\n$$"))
+        assertTrue("khong duoc co ba dau dollar", !answer.answerText.contains("$$$"))
+    }
+
+    @Test
+    fun `nhan dien ngon ngu cau hoi`() {
+        assertTrue(answerLanguageIsVietnamese("Giải phương trình bậc hai"))
+        assertTrue(answerLanguageIsVietnamese("Giai phuong trinh 2x + 3 = 7"))
+        assertTrue(answerLanguageIsVietnamese("2 + 2 = ?"))
+        assertTrue(answerLanguageIsVietnamese("AND khác với ARN như thế nào"))
+
+        assertTrue(!answerLanguageIsVietnamese("Solve 2x + 3 = 7"))
+        assertTrue(!answerLanguageIsVietnamese("What is the difference between DNA and RNA?"))
     }
 
     @Test
@@ -223,10 +305,10 @@ class GeminiParsingTest {
 
     @Test
     fun `parseAnswer sua form feed do JSON parse sai`() {
-        val raw = "{\"answerText\":\"x = \u000Crac{1}{2}\"}"
+        val raw = "{\"steps\":[{\"body\":\"x = \u000Crac{1}{2}\"}],\"finalAnswer\":\"x\"}"
 
-        val answer = client.parseAnswer(raw, Subject.MATHEMATICS)
+        val answer = client.parseAnswer(raw, Subject.MATHEMATICS, questionText = "Tính x")
 
-        assertEquals("x = \\frac{1}{2}", answer.answerText)
+        assertTrue(answer.answerText.contains("x = \\frac{1}{2}"))
     }
 }
