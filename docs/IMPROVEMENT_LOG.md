@@ -158,7 +158,7 @@
   sửa row Java trong DB thành `MATHEMATICS`: hỏi lại → có POST mới, lưu môn "Lập trình";
   hỏi lần nữa → cache hit, không tốn thêm lượt gọi.
 
-**Ma trận test tay 9/9 pass** (`ai_matrix.py`, emulator `Medium_Phone`):
+**Ma trận test tay 9/9 pass** (`docs/tools/ai_matrix.py`, emulator `Medium_Phone`):
 
 | # | Câu hỏi | Môn | Cache | Kết quả |
 |---|---|---|---|---|
