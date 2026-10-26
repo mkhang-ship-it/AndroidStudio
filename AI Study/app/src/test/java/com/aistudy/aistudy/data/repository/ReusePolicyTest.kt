@@ -95,6 +95,26 @@ class ReusePolicyTest {
     }
 
     @Test
+    fun `cau khac ngon ngu lap trinh phai miss`() {
+        val chosen = ReusePolicy.select(
+            exact = null,
+            candidates = listOf(row(60L, "hàm số trong Java là gì")),
+            text = "hàm số trong C# là gì"
+        )
+        assertNull(chosen)
+    }
+
+    @Test
+    fun `cau chung khong duoc tai dung cho cau co them ngon ngu`() {
+        val chosen = ReusePolicy.select(
+            exact = null,
+            candidates = listOf(row(61L, "hàm số là gì")),
+            text = "hàm số trong Java là gì"
+        )
+        assertNull(chosen)
+    }
+
+    @Test
     fun `danh sach rong thi khong tai dung gi`() {
         assertNull(ReusePolicy.select(null, emptyList(), "bat ky cau hoi nao"))
     }

@@ -25,6 +25,8 @@
 | BUG-14 | Badge thông báo dùng icon ngôi sao vô nghĩa và hiện "0 chưa đọc" | Low | FR10 (Notifications) | **Fixed** (post-MVP 2026-10-26) — chuông/check + "Đã đọc tất cả" | `ui/notifications/NotificationsScreen.kt`; ảnh `docs/screenshots/09_notifications.png` |
 | BUG-15 | Số câu luyện tập chỉ chọn được 3/5/10 | Low | FR7 (Practice) | **Fixed** (post-MVP 2026-10-26) — ô nhập + stepper 1–20 | `ui/screens/practice/PracticeScreen.kt`, `PracticeViewModel.kt`; ảnh `docs/screenshots/05_practice.png` |
 | BUG-16 | Gemini trả JSON chứa LaTeX không escape đúng (`\frac` → form-feed + "rac", `\right` → CR + "ight") → công thức hỏng | Med | FR4 (AI answer) | **Fixed** (post-MVP 2026-10-26) — repair trước khi parse JSON + repair chuỗi đã lưu | `domain/ai/GeminiAiClient.kt`, `ui/common/Latex.kt`; test `repairLatexEscapes`, `khoi phuc ky tu dieu khien do JSON parse sai` |
+| BUG-17 | "hàm số trong Java" bị nhận là Toán dù detector đã thấy "java" | Med | FR3 (Subject) | **Fixed** (post-MVP 2026-10-26) — ưu tiên subject người dùng/keyword detector; prompt thêm quy tắc code | `data/repository/QuestionRepositoryImpl.kt`, `domain/ai/GeminiAiClient.kt`, `domain/rules/SubjectDetector.kt`; test `hamSoInJavaIsProgramming`, `hamSoInCSharpIsProgramming` |
+| BUG-18 | Hỏi "hàm số trong C#" bị trả nhầm đáp án Java từ cache (`C#`/`C++` mất token sau khi bỏ dấu câu) | Med | FR3 / AI-cost | **Fixed** (post-MVP 2026-10-26) — chuẩn hoá `c#→csharp`, `c++→cpp` + key-token guard cho số liệu/ngôn ngữ | `domain/rules/QuestionSimilarity.kt`; test `isSimilar phan biet ngon ngu lap trinh`, `cau khac ngon ngu lap trinh phai miss`; ma trận 9/9 |
 
 ## Fixed trong MVP (evidence cho P6 "feedback handled")
 
@@ -41,10 +43,10 @@
 |---|---|---|---|
 | Blocker | 0 | 0 | 0 |
 | High | 0 | 2 (BUG-01, BUG-F1) | 2 |
-| Med | 1 (BUG-02) | 11 (BUG-03, 07, 08, 09, 11, 12, 13, 16, F2, F3, F4) | 12 |
+| Med | 1 (BUG-02) | 13 (BUG-03, 07, 08, 09, 11, 12, 13, 16, 17, 18, F2, F3, F4) | 14 |
 | Low | 3 (BUG-04, 05, 06) | 3 (BUG-10, 14, 15) | 6 |
-| **Tổng** | **4** | **16** | **20** |
+| **Tổng** | **4** | **18** | **22** |
 
-> **Cập nhật 2026-10-26:** đóng thêm BUG-12 (xoá lịch sử theo hash), BUG-13 (chi tiết thông báo), BUG-14 (badge thông báo), BUG-15 (số câu tuỳ chọn), BUG-16 (LaTeX JSON bị lỗi escape). BUG-02 và 3 mục Low (leaderboard, 2FA, sync) vẫn chuyển sang D2 future.
+> **Cập nhật 2026-10-26:** đóng thêm BUG-12 (xoá lịch sử theo hash), BUG-13 (chi tiết thông báo), BUG-14 (badge thông báo), BUG-15 (số câu tuỳ chọn), BUG-16 (LaTeX JSON bị lỗi escape), BUG-17 (nhầm môn Java), BUG-18 (cache nhầm C#/Java). BUG-02 và 3 mục Low (leaderboard, 2FA, sync) vẫn chuyển sang D2 future.
 >
 > **DoD NP5:** Blocker Open = 0 ✔ (đạt). BUG-01 từng được chấp nhận rủi ro để không phá schema freeze; nay đã đóng bằng giải pháp không đổi schema (SharedPreferences).

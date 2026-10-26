@@ -73,7 +73,9 @@ object SubjectDetector {
             "swift", "sql", "html", "css", "react", "flutter",
             "android studio", "github", "api", "json", "bug",
             "debug", "bien so", "vong lap", "chuong trinh",
-            "backend", "frontend", "co so du lieu", "he quan tri"
+            "backend", "frontend", "co so du lieu", "he quan tri",
+            "csharp", "cpp", "fsharp", "golang", "go", "rust", "php",
+            "ruby", "scala", "dotnet", "nodejs"
         ),
         Subject.HISTORY to listOf(
             "lich su", "chien tranh", "the chien", "cach mang",

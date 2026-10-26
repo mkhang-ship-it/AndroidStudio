@@ -98,6 +98,58 @@ class QuestionSimilarityTest {
         assertFalse(QuestionSimilarity.isSimilar(a, b))
     }
 
+    @Test
+    fun `isSimilar phan biet ngon ngu lap trinh trong cau hoi`() {
+        assertFalse(
+            QuestionSimilarity.isSimilar(
+                "hàm số trong Java là gì",
+                "hàm số trong C# là gì"
+            )
+        )
+        assertFalse(
+            QuestionSimilarity.isSimilar(
+                "hàm số trong C++ là gì",
+                "hàm số trong C# là gì"
+            )
+        )
+        assertTrue(
+            QuestionSimilarity.isSimilar(
+                "hàm số trong Java là gì",
+                "hàm số trong java là gì?"
+            )
+        )
+    }
+
+    @Test
+    fun `isSimilar khong tai dung cau chung cho cau co them ngon ngu`() {
+        assertFalse(
+            QuestionSimilarity.isSimilar(
+                "hàm số là gì",
+                "hàm số trong Java là gì"
+            )
+        )
+    }
+
+    @Test
+    fun `isSimilar phan biet bai toan khac so lieu`() {
+        assertFalse(
+            QuestionSimilarity.isSimilar(
+                "Giải phương trình x^2 - 5x + 6 = 0",
+                "Giải phương trình x^2 - 5x + 6 = 1"
+            )
+        )
+    }
+
+    @Test
+    fun `normalise giu ten ngon ngu co ky hieu`() {
+        assertEquals("csharp", QuestionSimilarity.normalise("C#"))
+        assertEquals("cpp", QuestionSimilarity.normalise("C++"))
+        assertTrue(
+            "token C phai duoc giu de phan biet ngon ngu C",
+            "c" in QuestionSimilarity.tokenize("hàm số trong C")
+        )
+    }
+
     /** Câu hỏi quá ngắn không đủ từ khoá — tránh khớp nhầm với câu khác. */
     @Test
     fun `chuoi rong duoc coi la giong nhung khong dung de gui di`() {

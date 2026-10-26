@@ -60,6 +60,34 @@ object QuestionSimilarity {
         "giup", "tim", "xem", "noi", "biet", "ban", "minh", "chung", "toan"
     )
 
+    /** Giữ lại vài token 1 ký tự vì chúng là tên ngôn ngữ (C, R). */
+    private val SINGLE_CHAR_TOKENS = setOf("c", "r")
+
+    /**
+     * Token quyết định ngữ cảnh: con số và tên ngôn ngữ lập trình.
+     * "hàm số trong Java" khác "hàm số trong C#", "x^2" khác "x^3" — không được
+     * tái dùng đáp án chỉ vì phần chữ giống nhau.
+     */
+    private val KEY_TOKENS = setOf(
+        "java", "csharp", "cpp", "fsharp", "python", "kotlin", "javascript",
+        "typescript", "swift", "sql", "html", "css", "react", "flutter",
+        "golang", "go", "rust", "php", "ruby", "scala", "dotnet", "nodejs",
+        "c", "r"
+    )
+
+    /** Đổi tên ngôn ngữ có ký hiệu thành token chữ trước khi bỏ dấu câu. */
+    private val LANGUAGE_ALIASES = listOf(
+        Regex("(?<![\\p{L}\\p{N}])c\\s*#") to "csharp",
+        Regex("(?<![\\p{L}\\p{N}])c\\s*\\+\\+") to "cpp",
+        Regex("(?<![\\p{L}\\p{N}])f\\s*#") to "fsharp",
+        Regex("\\.net") to "dotnet"
+    )
+
+    private fun keyTokens(text: String): Set<String> = tokenize(text)
+        .filterTo(mutableSetOf()) { token ->
+            token in KEY_TOKENS || token.any { ch -> ch.isDigit() }
+        }
+
     /**
      * Bỏ dấu tiếng Việt: "Tính đạo hàm" → "Tinh dao ham".
      *
@@ -88,11 +116,19 @@ object QuestionSimilarity {
      * phải bỏ dấu **trước** khi so khớp với STOP_WORDS, vì danh sách từ dừng cũng
      * đã bỏ dấu.
      */
-    fun normalise(text: String): String = stripDiacritics(text)
-        .lowercase(Locale.ROOT)
-        .replace(PUNCTUATION, " ")
-        .replace(WHITESPACE, " ")
-        .trim()
+    fun normalise(text: String): String {
+        var prepared = stripDiacritics(text).lowercase(Locale.ROOT)
+        // "C#"/"C++" bi bo dau cau thanh "c" (1 ky tu) va bi tokenize loai bo,
+        // khien cau hoi ve C#/C++ bi coi la trung voi cau hoi Java. Doi ten
+        // ngon ngu thanh token on dinh truoc khi bo dau cau.
+        LANGUAGE_ALIASES.forEach { (pattern, replacement) ->
+            prepared = pattern.replace(prepared, replacement)
+        }
+        return prepared
+            .replace(PUNCTUATION, " ")
+            .replace(WHITESPACE, " ")
+            .trim()
+    }
 
     fun hashOf(text: String): String {
         val normalised = normalise(text)
@@ -103,7 +139,9 @@ object QuestionSimilarity {
     fun tokenize(text: String): Set<String> = normalise(text)
         .split(" ")
         .asSequence()
-        .filter { it.length > 1 }
+        // Giu token 1 ky tu khi la ten ngon ngu (C/R) hoac chu so (0-9):
+        // "x^2 ... = 0" va "= 1" la hai bai khac nhau.
+        .filter { it.length > 1 || it in SINGLE_CHAR_TOKENS || it.firstOrNull()?.isDigit() == true }
         .filterNot { it in STOP_WORDS }
         .toSet()
 
@@ -124,7 +162,9 @@ object QuestionSimilarity {
     }
 
     fun isSimilar(a: String, b: String, threshold: Double = SIMILARITY_THRESHOLD): Boolean =
-        containment(a, b) >= threshold && jaccard(a, b) >= MIN_JACCARD_GUARD
+        containment(a, b) >= threshold &&
+            jaccard(a, b) >= MIN_JACCARD_GUARD &&
+            keyTokens(a) == keyTokens(b)
 
     /**
      * Hệ số bao phủ = |A ∩ B| / min(|A|, |B|).

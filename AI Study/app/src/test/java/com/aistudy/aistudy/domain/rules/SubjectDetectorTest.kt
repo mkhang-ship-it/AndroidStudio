@@ -55,4 +55,17 @@ class SubjectDetectorTest {
     @Test fun velocityScience() {
         assertEquals(Subject.SCIENCE, SubjectDetector.detect("Tính vận tốc của xe"))
     }
+
+    // ---- "hàm" trong ngôn ngữ lập trình không phải "hàm số" toán học ----
+    @Test fun hamSoInJavaIsProgramming() {
+        assertEquals(Subject.PROGRAMMING, SubjectDetector.detect("hàm số trong Java là gì"))
+    }
+
+    @Test fun hamSoInCSharpIsProgramming() {
+        assertEquals(Subject.PROGRAMMING, SubjectDetector.detect("hàm số trong C# là gì"))
+    }
+
+    @Test fun hamSoInCppIsProgramming() {
+        assertEquals(Subject.PROGRAMMING, SubjectDetector.detect("hàm số trong C++ là gì"))
+    }
 }

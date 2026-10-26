@@ -5,6 +5,7 @@ import com.aistudy.aistudy.domain.model.enums.QuestionType
 import com.aistudy.aistudy.domain.model.enums.Subject
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -152,6 +153,31 @@ class GeminiParsingTest {
 
         assertTrue(answer.answerText.contains("$$\nx^2\n$$"))
         assertTrue("khong duoc co ba dau dollar", !answer.answerText.contains("$$$"))
+    }
+
+    @Test
+    fun `expr la code duoc render thanh code block`() {
+        val answer = client.parseAnswer(
+            """{"steps":[{"body":"Vi du","expr":"public static int sum(int a, int b) { return a + b; }"}],"finalAnswer":"x"}""",
+            Subject.PROGRAMMING,
+            questionText = "Viết hàm trong Java"
+        )
+
+        assertTrue(
+            answer.answerText.contains("```\npublic static int sum(int a, int b)")
+        )
+        assertFalse(answer.answerText.contains("$$"))
+    }
+
+    @Test
+    fun `expr la cong thuc van dung block latex`() {
+        val answer = client.parseAnswer(
+            """{"steps":[{"body":"Ap dung","expr":"\\frac{1}{2} x^2"}],"finalAnswer":"x"}""",
+            Subject.MATHEMATICS,
+            questionText = "Tính tích phân"
+        )
+
+        assertTrue(answer.answerText.contains("$$\n\\frac{1}{2} x^2\n$$"))
     }
 
     @Test

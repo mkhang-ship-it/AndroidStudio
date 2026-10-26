@@ -143,8 +143,11 @@ class QuestionRepositoryImpl(
 
         // 3. Truot: goi AI that.
         val imageBytes = imagePath?.let { imageStore.read(appContext, it, imageIv) }
-        val subject = overrideSubject
-            ?: subjectFromText(trimmed)
+        // Uu tien tin hieu da xac dinh duoc: nguoi dung chon mon, roi den
+        // keyword detector. Truoc day AI duoc quyen ghi de nen cau "ham so
+        // trong Java" bi tra ve Toan du detector da thay "java".
+        val detectedSubject = overrideSubject ?: subjectFromText(trimmed)
+        val subject = detectedSubject
             ?: profile.subjectCodes.firstOrNull()
             ?: Subject.MATHEMATICS
 
@@ -161,7 +164,7 @@ class QuestionRepositoryImpl(
 
         val row = QuestionAnswer(
             userId = userId,
-            subjectCode = answer.subject ?: subject,
+            subjectCode = detectedSubject ?: answer.subject ?: subject,
             questionText = trimmed,
             questionImagePath = imagePath,
             questionImageIv = imageIv,

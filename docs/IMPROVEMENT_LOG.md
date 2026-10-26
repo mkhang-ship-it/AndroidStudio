@@ -26,6 +26,8 @@
 | 17 | LaTeX trong JSON | `\frac` bị JSON hiểu thành form-feed, `\right` thành CR → công thức hỏng | Repair escape trước khi parse + repair chuỗi đã lưu | `GeminiAiClient.kt`, `Latex.kt` |
 | 18 | Debug API | Không thấy body gửi/nhận | Log `GeminiAPI`: request body + raw response, chia chunk, ẩn base64/key | `GeminiAiClient.kt` |
 | 19 | Schema trả lời | JSON cũ gộp mọi thứ vào `answerText` | Schema `steps[{title,body,expr}]` + `finalAnswer`; render công thức thành block | `GeminiAiClient.kt`, `GeminiParsingTest.kt` |
+| 20 | Nhận diện môn | "hàm số trong Java" bị trả về Toán dù detector đã thấy "java" | Ưu tiên subject người dùng chọn / keyword detector; prompt thêm hint + quy tắc code | `QuestionRepositoryImpl.kt`, `GeminiAiClient.kt`, `SubjectDetector.kt` |
+| 21 | Cache nhầm câu | Hỏi "hàm số trong C#" bị trả đáp án Java do `C#`/`C++` mất token | Chuẩn hoá `c#→csharp`, `c++→cpp`; key-token guard cho số liệu + tên ngôn ngữ | `QuestionSimilarity.kt`, `ReusePolicyTest.kt`, `QuestionSimilarityTest.kt` |
 
 ## 2. Chi tiết kỹ thuật
 
@@ -139,19 +141,55 @@
 - **Đã kiểm tra tay:** hỏi bài rơi tự do → 5 bước + công thức `v = g·t` + mục "Đáp án";
   Lịch sử → Chi tiết hiển thị đúng, môn "Khoa học", 5 mục FR5 hiện nút "Tạo nội dung này".
 
+### 2.11. Sửa nhận diện môn và cache nhầm câu (Java/C#)
+
+- **Nhầm môn:** "hàm số trong Java" từng bị trả về Toán. `SubjectDetector` đã thấy
+  "java" nhưng `answer.subject` của AI lại được ưu tiên khi lưu. Sửa: `detectedSubject`
+  (override của người dùng → keyword detector) được ưu tiên; prompt thêm subject hint
+  và quy tắc "hàm/phương thức trong ngôn ngữ lập trình (Java, C#, C++, Python…) là code".
+- **Cache nhầm:** `C#`/`C++` bị bỏ dấu câu thành token `c` rồi bị loại vì 1 ký tự, nên
+  "hàm số trong C#" và "hàm số trong Java" trùng token nhau. Sửa: chuẩn hoá
+  `C#→csharp`, `C++→cpp`, `F#→fsharp`, `.NET→dotnet`; giữ token `c`/`r`; thêm
+  **key-token guard** — chỉ tái dùng khi tập số liệu + tên ngôn ngữ trùng nhau.
+- **Render code:** model đặt code vào `expr`; parser nhận diện code (dấu `;`, `//`,
+  keyword, ngoặc) và render thành code fence thay vì công thức LaTeX.
+
+**Ma trận test tay 9/9 pass** (`ai_matrix.py`, emulator `Medium_Phone`):
+
+| # | Câu hỏi | Môn | Cache | Kết quả |
+|---|---|---|---|---|
+| 1 | `Giai phuong trinh x^2 - 5x + 6 = 0` | Toán học | Không | PASS |
+| 2 | `Giai phuong trinh x^2 - 5x + 6 = 1` (khác số cuối) | Toán học | Không | PASS |
+| 3 | `Quang hop o thuc vat la gi` | Khoa học | Không | PASS |
+| 4 | `Chien tranh the gioi thu hai ket thuc nam nao` | Lịch sử | Không | PASS |
+| 5 | `Phan tich bai tho Dong chi cua Chinh Huu` | Ngôn ngữ | Không | PASS |
+| 6 | `Ham trong Python la gi` | Lập trình | Không | PASS |
+| 7 | `Tinh dao ham cua x^4 tai x = 2` | Toán học | Không | PASS |
+| 8 | Lặp y hệt câu 1 | Toán học | **Có** | PASS |
+| 9 | Câu 1 + từ dừng "cua" | Toán học | **Có** | PASS |
+
+- Case 2 và 7 chứng minh không còn tái dùng đáp án khi khác số liệu.
+- Case 8/9 chứng minh cache vẫn hoạt động đúng với câu lặp và câu thêm từ dừng.
+- Case 6 cho thấy code Python được render thành code block, giữ nguyên `def ten_ham(...)`.
+- Case "hàm số trong Java" và "hàm số trong C#" (test tay trước ma trận) đều trả môn
+  "Lập trình", nội dung riêng, không lấy đáp án của nhau.
+
 ## 3. Test & build evidence
 
 | Lệnh | Kết quả |
 |---|---|
 | `.\build.ps1 :app:testDebugUnitTest` | **BUILD SUCCESSFUL** — toàn bộ unit test xanh |
-| `.\build.ps1 :app:connectedDebugAndroidTest` | **39/39 test pass** trên `Medium_Phone(AVD)` (DAO, repository, auth lockout, smoke test) |
+| `.\build.ps1 :app:connectedDebugAndroidTest` | **39/39 test pass** trên `Medium_Phone(AVD)` — XML ghi 39 test, 0 failure (Gradle chỉ cảnh báo bước thu output từ emulator) |
 | `.\build.ps1 :app:assembleDebug` | **BUILD SUCCESSFUL** — APK debug tạo thành công |
 | Smoke test tay trên emulator | Hỏi AI → nhận 5 bước + block công thức + "Đáp án" → Lịch sử → Chi tiết; không crash |
+| Ma trận hỏi AI (9 câu) | **9/9 pass**: đúng môn (Toán/Khoa học/Lịch sử/Ngôn ngữ/Lập trình), không cache nhầm, cache đúng câu lặp |
 
-**Test case mới:** ~39 case
+**Test case (unit):** 140 test
 - 19 case `LatexTest`
 - 7 case `ProgressInsightsTest`
-- 25 case `GeminiParsingTest` (schema steps/finalAnswer, token usage, repair LaTeX JSON)
+- 27 case `GeminiParsingTest` (schema steps/finalAnswer, code block, token usage, repair LaTeX JSON)
+- 24 case `QuestionSimilarityTest` (C#/C++, key-token guard, số liệu)
+- 15 case `SubjectDetectorTest` (Java/C#/C++ là Lập trình)
 - 1 case lockout restart trong `AuthRepositoryTest` (instrumented)
 - 1 case xoá theo hash trong `QuestionAnswerDaoTest` (instrumented)
 

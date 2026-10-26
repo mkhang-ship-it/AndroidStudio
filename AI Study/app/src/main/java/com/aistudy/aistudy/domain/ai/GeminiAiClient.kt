@@ -228,6 +228,13 @@ class GeminiAiClient(
         } else {
             ""
         }
+        val subjectHint = when (request.subject) {
+            Subject.MATHEMATICS -> "math"
+            Subject.SCIENCE -> "science"
+            Subject.PROGRAMMING -> "code"
+            Subject.HISTORY -> "history"
+            Subject.LANGUAGE -> "language"
+        }
 
         return """
             You are AI Study Mentor, a study tutor for a student at $levelText level.
@@ -235,7 +242,8 @@ class GeminiAiClient(
             Always answer in the same language as the question.
             If the question is Vietnamese, write Vietnamese with full diacritics in every field (title, body, finalAnswer), even when the question is typed without diacritics.
             Put math formulas in the "expr" field of the matching step.
-            Classify the subject correctly (math/science/code/history/language/other).$imageNote
+            Classify the subject correctly (math/science/code/history/language/other). The current hint is "$subjectHint"; keep it unless the question clearly belongs elsewhere.
+            Questions about functions, methods, syntax or behaviour in a programming language (Java, C#, C++, Python, Kotlin, Go...) are "code", even when the Vietnamese word "hàm" appears.$imageNote
 
             Return ONLY valid JSON (no markdown) with this structure:
             {
@@ -605,7 +613,11 @@ private fun stepsToMarkdown(obj: JSONObject, vietnamese: Boolean): String {
             out.append("### ").append(heading)
             if (body.isNotBlank()) out.append("\n\n").append(body)
             if (expr.isNotBlank()) {
-                out.append("\n\n$$\n").append(expr).append("\n$$")
+                if (looksLikeCode(expr)) {
+                    out.append("\n\n```\n").append(expr).append("\n```")
+                } else {
+                    out.append("\n\n$$\n").append(expr).append("\n$$")
+                }
             }
         }
     }
@@ -636,6 +648,26 @@ private fun stripMathDelimiters(raw: String): String {
     }
     return value.trim()
 }
+
+/**
+ * Model doi khi dat code (Java/C#/Python) vao `expr`. Neu render nhu cong thuc
+ * thi dau `_` thanh subscript va code bi meo, nen dua vao code fence.
+ * Cong thuc LaTeX co dau `\` nen duoc loai truoc.
+ */
+private fun looksLikeCode(expr: String): Boolean {
+    if (expr.contains(';') || expr.contains("//") || expr.contains('\n')) return true
+    if (expr.contains('{') && expr.contains('}') && expr.contains('(') &&
+        !expr.contains('\\')
+    ) {
+        return true
+    }
+    return CODE_HINT_REGEX.containsMatchIn(expr)
+}
+
+private val CODE_HINT_REGEX = Regex(
+    "\\b(public|private|protected|static|class|void|return|def|function|fun|val|var|let|const|using|import|include|console|system|print|println)\\b",
+    RegexOption.IGNORE_CASE
+)
 
 /**
  * Prompt tra ve `math|science|code|history|language|other`; `other` va gia tri
