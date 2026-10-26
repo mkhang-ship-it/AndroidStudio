@@ -4,7 +4,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
 
-// Bo shape Material 3 — bo tron vui nhon kieu Duolingo.
+// Bo shape Material 3 — bo tron vui nhon, than thien.
 // Card/button/dialog... lay tu MaterialTheme.shapes.
 val AppShapes = Shapes(
     extraSmall = RoundedCornerShape(4.dp),

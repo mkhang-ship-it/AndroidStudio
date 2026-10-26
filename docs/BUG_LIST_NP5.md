@@ -20,6 +20,11 @@
 | BUG-09 | Prompt/đáp án luyện tập hiển thị raw `$...$`/LaTeX | Med | FR7 (Practice) | **Fixed** (post-MVP 2026-10-26) — dùng `MarkdownText` cho prompt, option, giải thích | `ui/screens/practice/PracticeScreen.kt`; ảnh `docs/screenshots/05_practice.png` |
 | BUG-10 | Sticker "XP tuần này" thiếu số XP (dùng nhầm string không có placeholder) | Low | FR8/FR9 | **Fixed** (post-MVP 2026-10-26) | `ui/screens/progress/ProgressScreen.kt`, `res/values/strings.xml` (`progress_xp_week_summary`) |
 | BUG-11 | Thời gian ôn tập gần như không lưu: `QuestionDetailScreen` launch trong `onDispose` bằng scope đã bị huỷ; Ask không đếm → hay hiện 0 phút | Med | FR8 (Progress) | **Fixed** (post-MVP 2026-10-26) — cộng 15 giây/lần, lifecycle-aware ở Ask + Detail | `ui/screens/ask/AskScreen.kt`, `ui/questiondetail/QuestionDetailScreen.kt`; ảnh `docs/screenshots/04_progress.png` |
+| BUG-12 | Lịch sử gộp câu trùng để hiển thị nhưng xoá chỉ xoá 1 id đại diện → chọn tất cả vẫn còn câu, cảm giác "chỉ xoá 1 câu" | Med | FR6 (History) | **Fixed** (post-MVP 2026-10-26) — xoá theo `userId` + `questionHash` | `QuestionAnswerDao.kt` (`deleteByHashes`), `QuestionRepositoryImpl.kt`, `HistoryViewModel.kt`; test `deleteByHashes_removesAllDuplicateRowsOfSameQuestion` |
+| BUG-13 | Bấm thông báo không có màn chi tiết; thông báo không có deep-link thì không phản hồi | Med | FR10 (Notifications) | **Fixed** (post-MVP 2026-10-26) — màn `notification/{id}` + nút mở deep-link | `ui/notifications/NotificationDetailScreen.kt`, `NotificationDao.kt`, `AppNavHost.kt`; ảnh `docs/screenshots/10_notification_detail.png` |
+| BUG-14 | Badge thông báo dùng icon ngôi sao vô nghĩa và hiện "0 chưa đọc" | Low | FR10 (Notifications) | **Fixed** (post-MVP 2026-10-26) — chuông/check + "Đã đọc tất cả" | `ui/notifications/NotificationsScreen.kt`; ảnh `docs/screenshots/09_notifications.png` |
+| BUG-15 | Số câu luyện tập chỉ chọn được 3/5/10 | Low | FR7 (Practice) | **Fixed** (post-MVP 2026-10-26) — ô nhập + stepper 1–20 | `ui/screens/practice/PracticeScreen.kt`, `PracticeViewModel.kt`; ảnh `docs/screenshots/05_practice.png` |
+| BUG-16 | Gemini trả JSON chứa LaTeX không escape đúng (`\frac` → form-feed + "rac", `\right` → CR + "ight") → công thức hỏng | Med | FR4 (AI answer) | **Fixed** (post-MVP 2026-10-26) — repair trước khi parse JSON + repair chuỗi đã lưu | `domain/ai/GeminiAiClient.kt`, `ui/common/Latex.kt`; test `repairLatexEscapes`, `khoi phuc ky tu dieu khien do JSON parse sai` |
 
 ## Fixed trong MVP (evidence cho P6 "feedback handled")
 
@@ -36,10 +41,10 @@
 |---|---|---|---|
 | Blocker | 0 | 0 | 0 |
 | High | 0 | 2 (BUG-01, BUG-F1) | 2 |
-| Med | 1 (BUG-02) | 8 (BUG-03, 07, 08, 09, 11, F2, F3, F4) | 9 |
-| Low | 3 (BUG-04, 05, 06) | 1 (BUG-10) | 4 |
-| **Tổng** | **4** | **11** | **15** |
+| Med | 1 (BUG-02) | 11 (BUG-03, 07, 08, 09, 11, 12, 13, 16, F2, F3, F4) | 12 |
+| Low | 3 (BUG-04, 05, 06) | 3 (BUG-10, 14, 15) | 6 |
+| **Tổng** | **4** | **16** | **20** |
 
-> **Cập nhật 2026-10-26:** BUG-01 (High, lockout in-memory) đã được sửa bằng `SharedPrefsLoginThrottle` và có instrumented test restart. BUG-03/07/08/09/10/11 được sửa trong vòng cải thiện sau MVP — xem `docs/IMPROVEMENT_LOG.md`. BUG-02 (keyword tiếng Anh) và 3 mục Low (leaderboard, 2FA, sync) vẫn chuyển sang D2 future.
+> **Cập nhật 2026-10-26:** đóng thêm BUG-12 (xoá lịch sử theo hash), BUG-13 (chi tiết thông báo), BUG-14 (badge thông báo), BUG-15 (số câu tuỳ chọn), BUG-16 (LaTeX JSON bị lỗi escape). BUG-02 và 3 mục Low (leaderboard, 2FA, sync) vẫn chuyển sang D2 future.
 >
-> **DoD NP5:** Blocker Open = 0 ✔ (đạt). Trước vòng cải thiện, BUG-01 từng được chấp nhận rủi ro để không phá schema freeze; nay đã đóng bằng giải pháp không đổi schema (SharedPreferences).
+> **DoD NP5:** Blocker Open = 0 ✔ (đạt). BUG-01 từng được chấp nhận rủi ro để không phá schema freeze; nay đã đóng bằng giải pháp không đổi schema (SharedPreferences).

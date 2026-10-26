@@ -6,7 +6,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Thang typography Material 3 — phong cach Duolingo vui nhon, tron tria:
+// Thang typography Material 3 — phong cach vui nhon, tron tria:
 // tieu de dung sans dam (Default Bold/SemiBold), body/label dung sans.
 // Man hinh chi duoc tham chieu qua MaterialTheme.typography.<role>.
 val BodyFont = FontFamily.Default

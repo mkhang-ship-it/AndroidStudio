@@ -267,7 +267,7 @@ class GeminiAiClient(
                 ?.takeIf { it.optString("answerText").isNotBlank() }
         } ?: throw AiException.Malformed("Khong parse duoc JSON tu Gemini")
 
-        val answerText = obj.optString("answerText").trim()
+        val answerText = repairStoredLatex(obj.optString("answerText").trim())
         if (answerText.isBlank()) {
             throw AiException.Malformed("Gemini tra ve answerText rong")
         }
@@ -350,6 +350,145 @@ internal fun usageTokens(root: JSONObject): Pair<Int, Int> {
 }
 
 /**
+ * Gemini doi khi tra JSON chua escape dung cac lenh LaTeX. Vi du `\frac`
+ * trong JSON hop le la escape `\f` (form feed) + "rac"; `\to` la tab + "o".
+ * Neu khong sua, UI nhan duoc ky tu dieu khien thay vi lenh LaTeX.
+ *
+ * Ham nay chi sua ben trong chuoi JSON: gap backslash + ten lenh LaTeX da biet
+ * thi them mot backslash de JSON tra ve dung `\frac`, `\to`...; cac escape
+ * that nhu `\n`, `\t` (khi khong tao thanh lenh LaTeX) duoc giu nguyen.
+ */
+internal fun repairLatexEscapes(rawJson: String): String {
+    val json = repairLatexControlCharEscapes(rawJson)
+    val out = StringBuilder(json.length + 32)
+    var inString = false
+    var i = 0
+    while (i < json.length) {
+        val ch = json[i]
+        if (ch == '"') {
+            inString = !inString
+            out.append(ch)
+            i++
+            continue
+        }
+        if (!inString || ch != '\\') {
+            out.append(ch)
+            i++
+            continue
+        }
+        if (i + 1 >= json.length) {
+            out.append(ch)
+            i++
+            continue
+        }
+
+        val next = json[i + 1]
+        if (next == '\\' || next == '"' || next == '/') {
+            out.append(ch)
+            i++
+            continue
+        }
+
+        if (next == 'u') {
+            val hex = json.substring(i + 2, minOf(i + 6, json.length))
+            val validUnicode = hex.length == 4 &&
+                hex.all { it.isDigit() || it.lowercaseChar() in 'a'..'f' }
+            if (validUnicode) {
+                out.append(ch)
+                i++
+            } else {
+                out.append("\\\\")
+                i++
+            }
+            continue
+        }
+
+        if (next in "bfnrt") {
+            var end = i + 2
+            while (end < json.length && json[end].isLetter()) end++
+            val word = json.substring(i + 1, end)
+            if (word in LATEX_JSON_COMMANDS) {
+                out.append("\\\\").append(word)
+                i = end
+            } else {
+                out.append(ch)
+                i++
+            }
+            continue
+        }
+
+        // Escape khong hop le trong JSON (vi du \{, \%, \alpha): them backslash.
+        out.append("\\\\")
+        i++
+    }
+    return out.toString()
+}
+
+private fun repairLatexControlCharEscapes(json: String): String {
+    var result = json
+    LATEX_CONTROL_ESCAPES.forEach { (broken, tail) ->
+        val replacement = "\\\\" + tail
+        // Truong hop da co san mot backslash truoc ky tu dieu khien.
+        result = result.replace("\\$broken", replacement)
+        result = result.replace(broken, replacement)
+    }
+    return result
+}
+
+/** Ban sua cho chuoi da parse (de luu DB / hien thi lai). */
+private fun repairStoredLatex(value: String): String {
+    var result = value
+    LATEX_CONTROL_ESCAPES.forEach { (broken, tail) ->
+        val fixed = "\\" + tail
+        result = result.replace("\\$broken", fixed)
+        result = result.replace(broken, fixed)
+    }
+    return result
+}
+
+/**
+ * Cac cap (ky tu dieu khien + phan con lai) do JSON parser tao ra khi model
+ * khong escape LaTeX. Thu tu dai -> ngan de khong cat nham.
+ */
+private val LATEX_CONTROL_ESCAPES = listOf(
+    "\u000Dightarrow" to "rightarrow",
+    "\u000Dight" to "right",
+    "\u000Crac" to "frac",
+    "\u000Corall" to "forall",
+    "\u0009heta" to "theta",
+    "\u0009imes" to "times",
+    "\u0009ext" to "text",
+    "\u0009an" to "tan",
+    "\u0009au" to "tau",
+    "\u0009o" to "to",
+    "\u0008egin" to "begin",
+    "\u0008eta" to "beta",
+    "\u0008inom" to "binom",
+    "\u0008ar" to "bar",
+    "\u000Aabla" to "nabla",
+    "\u000Aotin" to "notin",
+    "\u000Aeq" to "neq",
+    "\u000Dho" to "rho"
+)
+
+private val LATEX_JSON_COMMANDS = setOf(
+    "frac", "dfrac", "tfrac", "sqrt", "lim", "to", "infty",
+    "Delta", "delta", "alpha", "beta", "gamma", "theta", "lambda",
+    "mu", "nu", "pi", "rho", "sigma", "omega", "sum", "prod", "int",
+    "partial", "nabla", "cdot", "times", "div", "pm", "mp", "le", "leq",
+    "ge", "geq", "ne", "neq", "approx", "equiv", "sim", "propto",
+    "left", "right", "text", "mathrm", "mathit", "mathbf", "mathbb",
+    "operatorname", "begin", "end", "overline", "vec", "hat", "bar",
+    "quad", "qquad", "log", "ln", "sin", "cos", "tan", "cot", "sec",
+    "csc", "binom", "angle", "degree", "prime", "ldots", "cdots",
+    "vdots", "ddots", "subset", "supset", "subseteq", "supseteq",
+    "in", "notin", "cup", "cap", "forall", "exists", "emptyset",
+    "Rightarrow", "Leftarrow", "leftrightarrow", "Leftrightarrow",
+    "mapsto", "ast", "star", "bullet", "cong", "parallel", "perp",
+    "therefore", "because", "neg", "land", "lor", "oplus", "otimes"
+)
+
+/**
  * Cat JSON ra khoi text. Gemini hay boc ket qua trong ```json ... ``` va
  * thuong them mot cau mo dan ngoai, nen can ca `first {` den `last }`.
  */
@@ -395,7 +534,7 @@ internal fun jsonCandidates(text: String): List<String> {
     }
     val end = maxOf(text.lastIndexOf('}'), text.lastIndexOf(']'))
     val whole = if (start in 0 until end) listOf(text.substring(start, end + 1)) else emptyList()
-    return (fenced + whole).distinct()
+    return (fenced + whole).distinct().map(::repairLatexEscapes)
 }
 
 private val FENCE = Regex("```(?:json)?\\s*([\\s\\S]*?)```", RegexOption.IGNORE_CASE)

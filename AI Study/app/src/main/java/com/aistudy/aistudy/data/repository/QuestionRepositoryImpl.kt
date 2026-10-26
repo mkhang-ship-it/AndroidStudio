@@ -100,9 +100,19 @@ class QuestionRepositoryImpl(
         questionAnswerDao.addReviewTime(id, seconds)
     }
 
-    override suspend fun deleteQuestions(ids: List<Long>) {
+    override suspend fun deleteQuestions(userId: Long, ids: List<Long>) {
         if (ids.isEmpty()) return
-        questionAnswerDao.deleteByIds(ids)
+        // UI gop cau trung theo questionHash. Xoa id dai dien la chua du —
+        // phai xoa het cac ban ghi cung hash cua user nay, neu khong cau hoi
+        // se xuat hien lai ngay sau khi observer phat lai.
+        val hashes = ids.mapNotNull { questionAnswerDao.findById(it) }
+            .filter { it.questionText.isNotBlank() }
+            .map { it.questionHash }
+            .distinct()
+        questionAnswerDao.deleteByIds(userId, ids)
+        if (hashes.isNotEmpty()) {
+            questionAnswerDao.deleteByHashes(userId, hashes)
+        }
     }
 
     private suspend fun askInternal(

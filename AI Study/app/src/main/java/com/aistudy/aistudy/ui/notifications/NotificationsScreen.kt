@@ -16,7 +16,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -50,7 +51,7 @@ import com.aistudy.aistudy.ui.theme.Spacing
 fun NotificationsScreen(
     deps: AppDependencies,
     onBack: () -> Unit,
-    onOpenDeepLink: (String) -> Unit,
+    onOpenNotification: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val vm: NotificationsViewModel = viewModel(
@@ -70,7 +71,7 @@ fun NotificationsScreen(
         onBack = onBack,
         onMarkAllRead = { sessionUserId?.let { vm.markAllRead(it) } },
         onOpenNotification = { notification ->
-            notification.deepLink?.let { onOpenDeepLink(it) }
+            onOpenNotification(notification.id)
             vm.markRead(notification.id)
         },
         modifier = modifier
@@ -136,12 +137,23 @@ private fun NotificationsContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         StickerBadge(
-                            text = stringResource(R.string.notifications_unread_count, state.unreadCount),
+                            text = if (state.unreadCount > 0) {
+                                stringResource(
+                                    R.string.notifications_unread_count,
+                                    state.unreadCount
+                                )
+                            } else {
+                                stringResource(R.string.notifications_all_read)
+                            },
                             icon = {
                                 Icon(
-                                    imageVector = Icons.Filled.Star,
+                                    imageVector = if (state.unreadCount > 0) {
+                                        Icons.Filled.Notifications
+                                    } else {
+                                        Icons.Filled.CheckCircle
+                                    },
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.tertiary
+                                    tint = MaterialTheme.colorScheme.onTertiaryContainer
                                 )
                             }
                         )
@@ -234,6 +246,11 @@ private fun NotificationCard(
                     text = typeLabel,
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = stringResource(R.string.notifications_tap_detail),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

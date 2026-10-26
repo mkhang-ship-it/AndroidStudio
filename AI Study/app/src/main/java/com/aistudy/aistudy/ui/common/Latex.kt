@@ -10,7 +10,7 @@ package com.aistudy.aistudy.ui.common
  * dang xep tang o `MarkdownText`; o day chi tra ve dang chu du phong.
  */
 internal fun latexToUnicode(rawLatex: String): String {
-    val latex = normaliseBareCommands(rawLatex)
+    val latex = normaliseBareCommands(repairLatexControlChars(rawLatex))
     val out = StringBuilder()
     var i = 0
     while (i < latex.length) {
@@ -178,7 +178,8 @@ internal sealed interface LatexPiece {
  * Tach `\frac{a}{b}` ra khoi cong thuc de UI ve phan so co gach ngang.
  * Cac phan so long trong tu so/mau so van duoc doi thanh dang `a/b`.
  */
-internal fun splitLatexPieces(latex: String): List<LatexPiece> {
+internal fun splitLatexPieces(rawLatex: String): List<LatexPiece> {
+    val latex = repairLatexControlChars(rawLatex)
     val pieces = mutableListOf<LatexPiece>()
     val text = StringBuilder()
 
@@ -352,6 +353,47 @@ private val BARE_COMMANDS: Map<String, String> = mapOf(
     "pi" to "\u03C0",
     "sigma" to "\u03C3",
     "omega" to "\u03C9"
+)
+
+/**
+ * Gemini doi khi tra JSON chua escape dung, khien JSON parser bien `\frac`
+ * thanh form-feed + "rac", `\right` thanh CR + "ight"... Ham nay khoi phuc
+ * cac ky tu dieu khien do ve lenh LaTeX truoc khi render.
+ */
+internal fun repairLatexControlChars(value: String): String {
+    if (value.none {
+            it == '\u000C' || it == '\u0008' || it == '\t' ||
+                it == '\r' || it == '\n'
+        }
+    ) {
+        return value
+    }
+    var result = value
+    CONTROL_LATEX_FIXES.forEach { (broken, fixed) ->
+        result = result.replace(broken, fixed)
+    }
+    return result
+}
+
+private val CONTROL_LATEX_FIXES = listOf(
+    "\u000Dightarrow" to "\\rightarrow",
+    "\u000Dight" to "\\right",
+    "\u000Crac" to "\\frac",
+    "\u000Corall" to "\\forall",
+    "\u0009heta" to "\\theta",
+    "\u0009imes" to "\\times",
+    "\u0009ext" to "\\text",
+    "\u0009an" to "\\tan",
+    "\u0009au" to "\\tau",
+    "\u0009o" to "\\to",
+    "\u0008egin" to "\\begin",
+    "\u0008eta" to "\\beta",
+    "\u0008inom" to "\\binom",
+    "\u0008ar" to "\\bar",
+    "\u000Aabla" to "\\nabla",
+    "\u000Aotin" to "\\notin",
+    "\u000Aeq" to "\\neq",
+    "\u000Dho" to "\\rho"
 )
 
 private val LATEX_COMMANDS: Map<String, String> = mapOf(

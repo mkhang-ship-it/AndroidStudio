@@ -138,16 +138,18 @@ class HistoryViewModel(
 
     fun deleteSelected() {
         val ids = _state.value.selectedIds
+        val userId = currentUserId ?: return
         if (ids.isEmpty()) return
         viewModelScope.launch {
-            runCatching { questionRepository.deleteQuestions(ids.toList()) }
+            runCatching { questionRepository.deleteQuestions(userId, ids.toList()) }
             _state.update { it.copy(selectionMode = false, selectedIds = emptySet()) }
         }
     }
 
     fun deleteOne(id: Long) {
+        val userId = currentUserId ?: return
         viewModelScope.launch {
-            runCatching { questionRepository.deleteQuestions(listOf(id)) }
+            runCatching { questionRepository.deleteQuestions(userId, listOf(id)) }
         }
     }
 

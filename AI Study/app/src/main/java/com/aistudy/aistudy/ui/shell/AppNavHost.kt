@@ -10,6 +10,7 @@ import androidx.navigation.navArgument
 import com.aistudy.aistudy.ui.auth.LoginScreen
 import com.aistudy.aistudy.ui.auth.RegisterScreen
 import com.aistudy.aistudy.ui.auth.WelcomeScreen
+import com.aistudy.aistudy.ui.notifications.NotificationDetailScreen
 import com.aistudy.aistudy.ui.notifications.NotificationsScreen
 import com.aistudy.aistudy.ui.onboarding.OnboardingScreen
 import com.aistudy.aistudy.ui.questiondetail.QuestionDetailScreen
@@ -91,9 +92,25 @@ fun AppNavHost(
             NotificationsScreen(
                 deps = deps,
                 onBack = navController::popBackStack,
+                onOpenNotification = { id ->
+                    navController.navigate(Routes.notificationDetail(id))
+                }
+            )
+        }
+        composable(
+            route = Routes.NOTIFICATION_DETAIL,
+            arguments = listOf(
+                navArgument(Routes.ARG_NOTIFICATION_ID) { type = NavType.LongType }
+            )
+        ) { backStackEntry ->
+            NotificationDetailScreen(
+                deps = deps,
+                notificationId = backStackEntry.arguments?.getLong(Routes.ARG_NOTIFICATION_ID) ?: 0L,
+                onBack = navController::popBackStack,
                 onOpenDeepLink = { deepLink ->
-                    runCatching { navController.navigate(deepLink) }
-                        .onFailure { navController.popBackStack() }
+                    runCatching {
+                        navController.navigate(deepLink) { launchSingleTop = true }
+                    }.onFailure { navController.popBackStack() }
                 }
             )
         }

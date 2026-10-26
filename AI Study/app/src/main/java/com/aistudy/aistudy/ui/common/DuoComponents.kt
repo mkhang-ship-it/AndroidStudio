@@ -47,9 +47,14 @@ fun DuoButton(
         DuoButtonColors.Danger -> MaterialTheme.colorScheme.error
     }
     val edgeColor = when (colors) {
-        DuoButtonColors.Primary -> if (dark) Color(0xFF46A302) else Color(0xFF58A700)
-        DuoButtonColors.Secondary -> if (dark) Color(0xFF1483B7) else Color(0xFF1899D6)
+        DuoButtonColors.Primary -> if (dark) Color(0xFF9C82E8) else Color(0xFF5130C9)
+        DuoButtonColors.Secondary -> if (dark) Color(0xFF9E93B8) else Color(0xFF4B4459)
         DuoButtonColors.Danger -> if (dark) Color(0xFFB02A2A) else Color(0xFFD33131)
+    }
+    val contentColor = when (colors) {
+        DuoButtonColors.Primary -> MaterialTheme.colorScheme.onPrimary
+        DuoButtonColors.Secondary -> MaterialTheme.colorScheme.onSecondary
+        DuoButtonColors.Danger -> MaterialTheme.colorScheme.onError
     }
     val shape = RoundedCornerShape(16.dp)
     val interactionSource = remember { MutableInteractionSource() }
@@ -76,7 +81,7 @@ fun DuoButton(
             interactionSource = interactionSource,
             colors = ButtonDefaults.buttonColors(
                 containerColor = topColor,
-                contentColor = Color.White,
+                contentColor = contentColor,
                 disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                 disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
             ),

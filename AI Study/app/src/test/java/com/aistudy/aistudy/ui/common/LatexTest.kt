@@ -45,6 +45,12 @@ class LatexTest {
     }
 
     @Test
+    fun `khoi phuc ky tu dieu khien do JSON parse sai`() {
+        assertEquals("a/b", latexToUnicode("\u000Crac{a}{b}"))
+        assertEquals("( x )", latexToUnicode("\\left( x \u000Dight)"))
+    }
+
+    @Test
     fun `can bac hai boc ngoac khi can thiet`() {
         assertEquals("\u221A(x\u00B2+1)", latexToUnicode("\\sqrt{x^2+1}"))
         assertEquals("\u221A9", latexToUnicode("\\sqrt{9}"))

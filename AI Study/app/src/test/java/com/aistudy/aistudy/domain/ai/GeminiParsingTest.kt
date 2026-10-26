@@ -199,4 +199,34 @@ class GeminiParsingTest {
         assertEquals(321, answer.inputTokens)
         assertEquals(123, answer.outputTokens)
     }
+
+    @Test
+    fun `repairLatexEscapes giu lenh frac va to bi JSON an`() {
+        val raw = """{"answerText":"${'$'}\frac{1}{2}${'$'} va ${'$'}x \to 0${'$'}"}"""
+
+        val parsed = JSONObject(repairLatexEscapes(raw))
+
+        assertEquals(
+            "\$\\frac{1}{2}\$ va \$x \\to 0\$",
+            parsed.optString("answerText")
+        )
+    }
+
+    @Test
+    fun `repairLatexEscapes khong pha escape xuong dong that`() {
+        val raw = """{"answerText":"line1\nline2"}"""
+
+        val parsed = JSONObject(repairLatexEscapes(raw))
+
+        assertEquals("line1\nline2", parsed.optString("answerText"))
+    }
+
+    @Test
+    fun `parseAnswer sua form feed do JSON parse sai`() {
+        val raw = "{\"answerText\":\"x = \u000Crac{1}{2}\"}"
+
+        val answer = client.parseAnswer(raw, Subject.MATHEMATICS)
+
+        assertEquals("x = \\frac{1}{2}", answer.answerText)
+    }
 }

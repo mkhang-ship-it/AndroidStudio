@@ -13,6 +13,9 @@ interface NotificationDao {
     @Query("SELECT * FROM notifications WHERE userId = :userId ORDER BY createdAt DESC")
     fun observeByUser(userId: Long): Flow<List<Notification>>
 
+    @Query("SELECT * FROM notifications WHERE userId = :userId AND id = :id")
+    suspend fun findById(userId: Long, id: Long): Notification?
+
     @Query("SELECT * FROM notifications WHERE userId = :userId AND isRead = 0 ORDER BY createdAt DESC")
     fun observeUnread(userId: Long): Flow<List<Notification>>
 

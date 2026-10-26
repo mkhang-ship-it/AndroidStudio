@@ -13,6 +13,8 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import com.aistudy.aistudy.R
 
 data class TopLevelDestination(
@@ -31,6 +33,7 @@ data class TopLevelDestination(
  */
 object Routes {
     const val ARG_QUESTION_ID = "questionId"
+    const val ARG_NOTIFICATION_ID = "notificationId"
 
     // Chua co session - AuthGate chuyen toi day truoc moi thu con lai
     const val WELCOME = "welcome"
@@ -49,9 +52,12 @@ object Routes {
 
     // Route con, khong co tab
     const val NOTIFICATIONS = "notifications"
+    const val NOTIFICATION_DETAIL = "notification/{$ARG_NOTIFICATION_ID}"
     const val QUESTION_DETAIL = "question/{$ARG_QUESTION_ID}"
 
     fun questionDetail(id: Long): String = "question/$id"
+
+    fun notificationDetail(id: Long): String = "notification/$id"
 }
 
 val TOP_LEVEL_DESTINATIONS = listOf(
@@ -86,3 +92,28 @@ val TOP_LEVEL_DESTINATIONS = listOf(
         Icons.Outlined.Person
     )
 )
+
+/**
+ * Dieu huong tab theo dung mau bottom navigation.
+ *
+ * Hai loi Navigation Compose can chan:
+ * 1. Route con (Thong bao / Chi tiet cau hoi) dang phu len tab: phai dong no
+ *    truoc, neu khong `saveState` se luu ca route con vao tab va lan sau bam
+ *    tab se khoi phuc nham man hinh.
+ * 2. Tab dich da nam trong back stack: pop ve no thay vi `navigate` lai, vi
+ *    `restoreState` co the khoi phuc ca cac route con da push len tab do.
+ */
+internal fun NavHostController.navigateToTopLevel(destination: TopLevelDestination) {
+    val topLevelRoutes = TOP_LEVEL_DESTINATIONS.map { it.route }.toSet()
+    while (currentDestination?.route !in topLevelRoutes) {
+        if (!popBackStack()) break
+    }
+
+    if (popBackStack(destination.route, inclusive = false)) return
+
+    navigate(destination.route) {
+        popUpTo(graph.findStartDestination().id) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
+    }
+}

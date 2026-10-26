@@ -39,6 +39,8 @@ data class PracticeUiState(
 
     companion object {
         const val DEFAULT_COUNT = 5
+        const val MIN_COUNT = 1
+        const val MAX_COUNT = 20
     }
 }
 
@@ -145,7 +147,9 @@ class PracticeViewModel(
     }
 
     fun setCount(count: Int) {
-        _state.value = _state.value.copy(count = count.coerceIn(MIN_COUNT, MAX_COUNT))
+        _state.value = _state.value.copy(
+            count = count.coerceIn(PracticeUiState.MIN_COUNT, PracticeUiState.MAX_COUNT)
+        )
     }
 
     fun setUserAnswer(text: String) {
@@ -242,11 +246,6 @@ class PracticeViewModel(
             hasError = true,
             errorMessage = message
         )
-    }
-
-    private companion object {
-        const val MIN_COUNT = 1
-        const val MAX_COUNT = 10
     }
 }
 

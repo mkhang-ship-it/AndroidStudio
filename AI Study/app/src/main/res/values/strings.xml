@@ -168,6 +168,8 @@
     <string name="practice_pick_source">Chọn câu hỏi nguồn</string>
     <string name="practice_pick_source_empty">Chưa có câu hỏi nào để sinh bài. Hãy hỏi AI trước.</string>
     <string name="practice_count_label">Số câu cần sinh</string>
+    <string name="practice_count_unit">câu</string>
+    <string name="practice_count_hint">Chọn từ %1$d đến %2$d câu, hoặc nhập số bất kỳ.</string>
     <string name="practice_generating">AI đang soạn câu hỏi…</string>
     <string name="practice_empty_title">Chưa có câu luyện tập</string>
     <string name="practice_empty_body">Sinh câu hỏi từ một câu bạn đã hỏi để bắt đầu luyện tập.</string>
@@ -263,6 +265,17 @@
     <string name="notifications_unread_count">%1$d chưa đọc</string>
     <string name="notifications_open">Mở thông báo</string>
     <string name="notifications_back">Quay lại</string>
+    <string name="notifications_all_read">Đã đọc tất cả</string>
+    <string name="notifications_tap_detail">Xem chi tiết</string>
+
+    <!-- ============ FR10 - Chi tiết thông báo ============ -->
+    <string name="notification_detail_title">Chi tiết thông báo</string>
+    <string name="notification_detail_read">Đã đọc</string>
+    <string name="notification_detail_unread">Chưa đọc</string>
+    <string name="notification_detail_content">Nội dung</string>
+    <string name="notification_detail_open_link">Mở nội dung liên quan</string>
+    <string name="notification_detail_no_link">Thông báo này không có nội dung liên kết.</string>
+    <string name="notification_detail_not_found">Không tìm thấy thông báo.</string>
 
     <string name="notification_type_review_reminder">Nhắc ôn tập</string>
     <string name="notification_type_mistake_alert">Cảnh báo sai sót</string>

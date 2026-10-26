@@ -18,6 +18,9 @@ interface NotificationRepository {
 
     fun observeUnreadCount(userId: Long): Flow<Int>
 
+    /** FR10 — chi tiết một thông báo, giới hạn theo user. */
+    suspend fun getForUser(userId: Long, id: Long): Notification?
+
     /** [deepLink] luu route nhu `"question/42"` de bam mo dung man hinh. */
     suspend fun notify(
         userId: Long,

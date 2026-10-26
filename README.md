@@ -11,9 +11,10 @@
 | Hỏi AI | Nhập câu hỏi hoặc chọn ảnh bài tập; AI trả lời từng bước, tự nhận diện môn học và độ khó |
 | Đọc câu trả lời | Markdown + công thức LaTeX (phân số xếp tầng, ký hiệu toán), hiệu ứng chữ hiện dần |
 | Lịch sử | Tìm kiếm, lọc theo môn, đánh dấu yêu thích, hỏi lại, xoá |
-| Luyện tập | Sinh câu hỏi từ bài đã hỏi; trắc nghiệm/tự luận/điền khuyết; feedback đúng-sai + giải thích |
+| Luyện tập | Sinh câu hỏi từ bài đã hỏi; tự chọn số câu 1–20; trắc nghiệm/tự luận/điền khuyết; feedback đúng-sai + giải thích |
 | Tiến độ | Thống kê câu hỏi, thời gian ôn tập, tỉ lệ đúng, XP tuần, biểu đồ theo môn và gợi ý học tập |
 | Gamification | XP, cấp độ, chuỗi ngày, huy hiệu |
+| Thông báo | Danh sách, đánh dấu đã đọc, xem chi tiết, mở nội dung liên quan (deep-link) |
 | Hồ sơ | Đổi tuỳ chọn học tập, thông báo, đăng xuất, xoá tài khoản |
 | Bảo mật | PBKDF2, EncryptedSharedPreferences, ảnh mã hoá AES-GCM, lockout 5 lần sai (bền vững qua restart) |
 
@@ -23,7 +24,7 @@
 |---|---|---|
 | ![Hỏi AI](docs/screenshots/01_ask.png) | ![Toán](docs/screenshots/03_answer_math.png) | ![Tiến độ](docs/screenshots/04_progress.png) |
 
-Xem thêm: [Lịch sử](docs/screenshots/02_history.png) · [Luyện tập](docs/screenshots/05_practice.png) · [Feedback](docs/screenshots/06_practice_feedback.png) · [Hồ sơ](docs/screenshots/07_profile.png) · [Onboarding](docs/screenshots/08_onboarding.png)
+Xem thêm: [Lịch sử](docs/screenshots/02_history.png) · [Luyện tập](docs/screenshots/05_practice.png) · [Feedback](docs/screenshots/06_practice_feedback.png) · [Hồ sơ](docs/screenshots/07_profile.png) · [Onboarding](docs/screenshots/08_onboarding.png) · [Thông báo](docs/screenshots/09_notifications.png) · [Chi tiết thông báo](docs/screenshots/10_notification_detail.png)
 
 ## Kiến trúc
 
@@ -35,7 +36,7 @@ app/src/main/java/com/aistudy/aistudy/
 └── ui/            # Jetpack Compose: auth, onboarding, ask, history, practice, progress, profile
 ```
 
-- **UI:** Jetpack Compose + Material 3, theme Duolingo-inspired.
+- **UI:** Jetpack Compose + Material 3, theme tím (mascot mèo học tập) với điểm nhấn kem/vàng.
 - **DI:** thủ công qua `platform/ServiceGraph.kt` (quyết định D-1).
 - **AI:** `HttpURLConnection` + `org.json`, không Retrofit/OkHttp (quyết định D-5).
 - **DB:** Room 7 bảng, schema JSON commit trong `app/schemas/`.

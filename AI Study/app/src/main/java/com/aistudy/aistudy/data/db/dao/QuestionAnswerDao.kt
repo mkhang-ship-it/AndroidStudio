@@ -89,9 +89,18 @@ interface QuestionAnswerDao {
     @Query("DELETE FROM question_answers WHERE userId = :userId")
     suspend fun deleteByUser(userId: Long)
 
-    /** FR6 — xoá các câu hỏi đã chọn trong lịch sử. */
-    @Query("DELETE FROM question_answers WHERE id IN (:ids)")
-    suspend fun deleteByIds(ids: List<Long>)
+    /** FR6 — xoá các câu hỏi đã chọn trong lịch sử (giới hạn theo user). */
+    @Query("DELETE FROM question_answers WHERE userId = :userId AND id IN (:ids)")
+    suspend fun deleteByIds(userId: Long, ids: List<Long>)
+
+    /**
+     * FR6 — xoá tất cả bản ghi trùng nội dung với câu đã chọn.
+     *
+     * UI gộp các câu cùng `questionHash` thành một dòng; nếu chỉ xoá id đại
+     * diện thì các bản trùng còn lại sẽ xuất hiện lại ngay sau đó.
+     */
+    @Query("DELETE FROM question_answers WHERE userId = :userId AND questionHash IN (:hashes)")
+    suspend fun deleteByHashes(userId: Long, hashes: List<String>)
 }
 
 /** Kết quả trả về của truy vấn nhóm — Room cần một lớp bao bọc riêng. */

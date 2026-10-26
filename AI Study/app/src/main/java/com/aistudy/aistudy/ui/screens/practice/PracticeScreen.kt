@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -51,6 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -667,6 +669,8 @@ private fun SourcePicker(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CountPicker(state: PracticeUiState, onCountSelected: (Int) -> Unit) {
+    var countText by remember(state.count) { mutableStateOf(state.count.toString()) }
+
     Column {
         Text(
             text = stringResource(R.string.practice_count_label),
@@ -674,6 +678,62 @@ private fun CountPicker(state: PracticeUiState, onCountSelected: (Int) -> Unit) 
             color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(Modifier.height(Spacing.xs))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedButton(
+                onClick = { onCountSelected(state.count - 1) },
+                enabled = state.count > PracticeUiState.MIN_COUNT,
+                modifier = Modifier.sizeIn(minWidth = 52.dp, minHeight = 52.dp)
+            ) {
+                Text("\u2212", style = MaterialTheme.typography.titleLarge)
+            }
+
+            OutlinedTextField(
+                value = countText,
+                onValueChange = { raw ->
+                    val digits = raw.filter { it.isDigit() }.take(2)
+                    countText = digits
+                    digits.toIntOrNull()?.let { value ->
+                        if (value in PracticeUiState.MIN_COUNT..PracticeUiState.MAX_COUNT) {
+                            onCountSelected(value)
+                        }
+                    }
+                },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                textStyle = MaterialTheme.typography.titleMedium.copy(textAlign = TextAlign.Center),
+                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier.width(88.dp)
+            )
+
+            OutlinedButton(
+                onClick = { onCountSelected(state.count + 1) },
+                enabled = state.count < PracticeUiState.MAX_COUNT,
+                modifier = Modifier.sizeIn(minWidth = 52.dp, minHeight = 52.dp)
+            ) {
+                Text("+", style = MaterialTheme.typography.titleLarge)
+            }
+
+            Text(
+                text = stringResource(R.string.practice_count_unit),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Spacer(Modifier.height(Spacing.xs))
+        Text(
+            text = stringResource(
+                R.string.practice_count_hint,
+                PracticeUiState.MIN_COUNT,
+                PracticeUiState.MAX_COUNT
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(Spacing.sm))
         Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
             COUNT_OPTIONS.forEach { option ->
                 MarkerChip(

@@ -40,8 +40,8 @@ interface QuestionRepository {
 
     suspend fun addReviewTime(id: Long, seconds: Int)
 
-    /** FR6 — xoá các câu hỏi đã chọn. */
-    suspend fun deleteQuestions(ids: List<Long>)
+    /** FR6 — xoá các câu hỏi đã chọn. Xoá cả các bản trùng `questionHash`. */
+    suspend fun deleteQuestions(userId: Long, ids: List<Long>)
 }
 
 /** FR5 - 5 dang "hoc tro" ma brief yeu cau. */

@@ -27,6 +27,9 @@ class NotificationRepositoryImpl(
     override fun observeUnreadCount(userId: Long): Flow<Int> =
         notificationDao.observeUnreadCount(userId)
 
+    override suspend fun getForUser(userId: Long, id: Long): Notification? =
+        notificationDao.findById(userId, id)
+
     override suspend fun notify(
         userId: Long,
         type: NotificationType,

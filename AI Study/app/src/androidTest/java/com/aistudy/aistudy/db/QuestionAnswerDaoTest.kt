@@ -198,10 +198,26 @@ class QuestionAnswerDaoTest {
             val b = dao.insert(answer(hash = "d2", createdAt = 2L))
             val c = dao.insert(answer(hash = "d3", createdAt = 3L))
 
-            dao.deleteByIds(listOf(a, c))
+            dao.deleteByIds(userId, listOf(a, c))
 
             val remaining = dao.observeByUser(userId).first()
             assertEquals(listOf(b), remaining.map { it.id })
+        }
+    }
+
+    @Test
+    fun deleteByHashes_removesAllDuplicateRowsOfSameQuestion() {
+        runBlocking {
+            val first = dao.insert(answer(hash = "same", questionText = "Giải phương trình", createdAt = 1L))
+            dao.insert(answer(hash = "same", questionText = "Giải phương trình", createdAt = 2L))
+            val other = dao.insert(answer(hash = "other", questionText = "1 + 1", createdAt = 3L))
+
+            // UI chỉ thấy 1 dòng đại diện; xoá đại diện + hash phải xoá hết bản trùng.
+            dao.deleteByIds(userId, listOf(first))
+            dao.deleteByHashes(userId, listOf("same"))
+
+            val remaining = dao.observeByUser(userId).first()
+            assertEquals(listOf(other), remaining.map { it.id })
         }
     }
 

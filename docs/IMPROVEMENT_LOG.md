@@ -10,13 +10,20 @@
 | 1 | Đọc câu trả lời AI | Raw `\frac`, `\lim`, `$...$`, `**...**` | Markdown + LaTeX → Unicode, phân số xếp tầng bằng Compose inline content | `ui/common/Latex.kt`, `ui/common/MarkdownText.kt` |
 | 2 | Hiệu ứng câu trả lời | Text hiện một lần | Chữ hiện dần (typewriter), chạm để hiện toàn bộ | `ui/common/TypewriterText.kt` |
 | 3 | Animation | Gần như tĩnh | Nút nhún khi bấm, card trượt vào, progress bar chạy, list item animate | `DuoComponents.kt`, `AskScreen.kt`, `ProgressScreen.kt`, `HistoryScreen.kt` |
-| 4 | Mascot | Không có | Cú mèo vẽ bằng Canvas: nhún, nháy mắt, vỗ cánh, sách/bút bay quanh, suy nghĩ/ăn mừng | `ui/common/StudyMascot.kt` |
+| 4 | Mascot | Không có | Mèo tím đội mũ tốt nghiệp vẽ bằng Canvas: nhún, nháy mắt, ve đuôi, sách/bút bay quanh, suy nghĩ/ăn mừng | `ui/common/StudyMascot.kt` |
 | 5 | Progress insights | Chỉ có số liệu | Card "Gợi ý cho bạn" sinh offline từ dữ liệu học tập | `domain/rules/ProgressInsights.kt`, `ProgressScreen.kt` |
 | 6 | Token metering | `inputTokens = 0` | Đọc `usageMetadata` từ Gemini và lưu xuống DB | `GeminiAiClient.kt` |
 | 7 | Thời gian ôn tập | Chỉ ghi khi đóng màn hình, dễ mất; hay hiện 0 phút | Cộng theo từng 15 giây, chỉ khi app resumed | `AskScreen.kt`, `QuestionDetailScreen.kt` |
 | 8 | Lockout đăng nhập | Mất khi restart app (BUG-01) | Lưu SharedPreferences, bền vững qua restart | `data/security/LoginThrottle.kt`, `AuthRepositoryImpl.kt` |
 | 9 | Luyện tập | Prompt/đáp án hiện raw `$...$` | Render markdown/LaTeX trong câu hỏi, đáp án, giải thích | `PracticeScreen.kt` |
 | 10 | Nhãn XP tuần | Chỉ hiện "XP tuần này", thiếu số | "XP tuần này: +N XP" | `ProgressScreen.kt`, `strings.xml` |
+| 11 | Theme tổng thể | Xanh lá/xanh dương kiểu Duolingo | Tím #6A4BEE + kem/vàng, đồng bộ mascot; light + dark | `ui/theme/Color.kt`, `DuoComponents.kt`, `ic_launcher_background.xml` |
+| 12 | Điều hướng tab Hồ sơ | Mở thông báo deep-link sang Tiến độ rồi bấm Hồ sơ bị kẹt ở Tiến độ | Đóng route con + ưu tiên `popBackStack` khi tab đã có trong stack | `ui/shell/Destinations.kt`, `ui/shell/AppNavHost.kt` |
+| 13 | Xoá lịch sử | Chọn tất cả nhưng chỉ xoá 1 bản ghi đại diện; bản trùng hiện lại | Xoá theo `userId` + `questionHash`, dọn hết bản trùng | `QuestionAnswerDao.kt`, `QuestionRepositoryImpl.kt`, `HistoryViewModel.kt` |
+| 14 | Số câu luyện tập | Chỉ có 3/5/10 | Ô nhập + nút −/+ cho 1–20 câu, giữ chip nhanh 3/5/10 | `PracticeScreen.kt`, `PracticeViewModel.kt` |
+| 15 | Chi tiết thông báo | Bấm thông báo chỉ deep-link hoặc không phản hồi | Màn chi tiết: loại, trạng thái, thời gian, nội dung, nút mở link | `NotificationDetailScreen.kt`, `NotificationDao.kt`, `AppNavHost.kt` |
+| 16 | Badge chưa đọc | Icon sao vàng + "0 chưa đọc" khó hiểu | Icon chuông + "N chưa đọc"; 0 → "Đã đọc tất cả" | `NotificationsScreen.kt` |
+| 17 | LaTeX trong JSON | `\frac` bị JSON hiểu thành form-feed, `\right` thành CR → công thức hỏng | Repair escape trước khi parse + repair chuỗi đã lưu | `GeminiAiClient.kt`, `Latex.kt` |
 
 ## 2. Chi tiết kỹ thuật
 
@@ -47,7 +54,9 @@
 - Card kết quả ở Ask trượt + mở rộng; danh sách Lịch sử dùng `Modifier.animateItem()`.
 - Mascot `StudyMascot`:
   - vẽ hoàn toàn bằng Compose Canvas (không cần asset/ảnh, không tăng APK đáng kể)
-  - trạng thái `IDLE` (nhún, nháy mắt, vỗ cánh), `THINKING` (nghiêng đầu, mắt nhìn lên, bong bóng suy nghĩ), `CELEBRATING` (nhảy, dang cánh, sparkles)
+  - nhân vật hiện tại là **mèo tím đội mũ tốt nghiệp**: tai tam giác, đuôi cong, râu mèo, palette tím/kem/vàng
+  - **vì sao đổi:** bản đầu là cú mèo xanh — silhouette và màu xanh dễ bị liên tưởng tới linh vật Duolingo. Bản hiện tại đổi loài, đổi màu, thêm mũ tốt nghiệp để không sao chép thiết kế.
+  - trạng thái `IDLE` (nhún, nháy mắt, ve đuôi), `THINKING` (nghiêng đầu, mắt nhìn lên, bong bóng suy nghĩ), `CELEBRATING` (nhảy, đuôi vung mạnh, sparkles)
   - sách và bút chì bay quanh theo quỹ đạo — đúng yêu cầu "vật thể/con vật chuyển động"
   - đọc animation state trong **draw phase** để chỉ invalidate phần vẽ, không recompose cả màn hình mỗi frame
 - Kiểm chứng animation trên emulator: chụp 2 frame cách nhau 700ms, vùng mascot (820–1080, 100–420) có **11.201 pixel thay đổi** → animation chạy thật, không phải ảnh tĩnh.
@@ -82,20 +91,37 @@
 - `AuthRepositoryImpl` dùng throttle thay cho `ConcurrentHashMap`; lock 5 phút vẫn còn sau khi app bị kill/restart.
 - **Test instrumented:** `login_lockout_vanConSauKhiTaoRepositoryMoi` tạo repository mới + throttle mới đọc cùng prefs và xác nhận vẫn bị khoá.
 
+### 2.7. Theme tím + sửa điều hướng Hồ sơ
+
+- **Theme:** đổi toàn bộ `Color.kt` sang palette tím (`#6A4BEE`), kem và vàng; cập nhật cả light/dark, surface container, outline, error. Nút `DuoButton` dùng `onPrimary/onSecondary/onError` thay vì hardcode chữ trắng để giữ tương phản; edge 3D đổi sang tím đậm. Launcher background đổi từ xanh Android sang tím `#7B61FF`.
+- **Bug điều hướng:** khi mở thông báo có deep-link sang Tiến độ, tab Hồ sơ bị kẹt ở Tiến độ. Nguyên nhân: màn Thông báo/route con còn nằm trong back stack; `navigateToTopLevel` dùng `saveState`/`restoreState` nên khôi phục cả route con. Sửa trong `Destinations.kt`:
+  - pop các route không phải tab trước khi đổi tab;
+  - nếu tab đích đã có trong back stack thì `popBackStack(route, inclusive = false)` thay vì `navigate` lại.
+- **Đã kiểm tra tay:** Hồ sơ → Thông báo → Tóm tắt hôm nay (Tiến độ) → bấm Hồ sơ → về đúng Hồ sơ; Back từ Tiến độ → Thông báo → Hồ sơ.
+
+### 2.8. Xoá lịch sử, số câu tuỳ chọn, chi tiết thông báo
+
+- **Xoá lịch sử:** UI gộp câu trùng theo `questionHash`. Trước đây `deleteByIds` chỉ xoá id đại diện nên các bản trùng còn lại hiện lại, cảm giác "chọn tất cả mà chỉ xoá 1 câu". Sửa: `deleteQuestions(userId, ids)` lấy hash của các câu đã chọn rồi gọi `deleteByHashes(userId, hashes)`; có test DAO `deleteByHashes_removesAllDuplicateRowsOfSameQuestion`.
+- **Số câu luyện tập:** bỏ giới hạn chip 3/5/10; thêm ô nhập số + nút −/+ cho phép chọn **1–20 câu**, vẫn giữ chip nhanh. `PracticeUiState.MIN_COUNT/MAX_COUNT` dùng chung cho ViewModel và UI.
+- **Chi tiết thông báo:** thêm route `notification/{notificationId}`, `NotificationDetailScreen` hiển thị loại, trạng thái đã đọc, thời gian, nội dung và nút "Mở nội dung liên quan" nếu có `deepLink`. Mở chi tiết sẽ đánh dấu đã đọc; danh sách tự cập nhật khi quay lại.
+- **Badge thông báo:** bỏ icon ngôi sao vô nghĩa; dùng chuông khi còn chưa đọc, check khi đã đọc hết; text "0 chưa đọc" đổi thành "Đã đọc tất cả".
+- **LaTeX trong JSON:** phát hiện câu trả lời bị `.racf`/`ight` do JSON parser biến `\frac` thành form-feed, `\right` thành CR. Sửa hai lớp: repair escape trước khi parse JSON (`repairLatexEscapes`) và repair chuỗi đã lưu trước khi render (`repairLatexControlChars`). Test: `repairLatexEscapes...`, `khoi phuc ky tu dieu khien...`, `parseAnswer sua form feed...`.
+
 ## 3. Test & build evidence
 
 | Lệnh | Kết quả |
 |---|---|
 | `.\build.ps1 :app:testDebugUnitTest` | **BUILD SUCCESSFUL** — toàn bộ unit test xanh |
-| `.\build.ps1 :app:connectedDebugAndroidTest` | **38/38 test pass** trên `Medium_Phone(AVD)` (DAO, repository, auth lockout, smoke test) |
+| `.\build.ps1 :app:connectedDebugAndroidTest` | **39/39 test pass** trên `Medium_Phone(AVD)` (DAO, repository, auth lockout, smoke test) |
 | `.\build.ps1 :app:assembleDebug` | **BUILD SUCCESSFUL** — APK debug tạo thành công |
 | Smoke test tay trên emulator | Hỏi AI → nhận câu trả lời toán có phân số → Lịch sử → Luyện tập → Tiến độ → Hồ sơ; không crash |
 
-**Test case mới:** 28 case
-- 18 case `LatexTest`
+**Test case mới:** ~34 case
+- 19 case `LatexTest`
 - 7 case `ProgressInsightsTest`
-- 3 case token usage trong `GeminiParsingTest`
+- 6 case mới trong `GeminiParsingTest` (token usage + repair LaTeX JSON)
 - 1 case lockout restart trong `AuthRepositoryTest` (instrumented)
+- 1 case xoá theo hash trong `QuestionAnswerDaoTest` (instrumented)
 
 **Sửa test sai có sẵn:** `QuestionAnswerDaoTest.countBySubject_groupsAndCountsPerSubject` insert 4 row nhưng assert `countByUser == 3`; đã sửa thành 4. Đây là assertion sai, không phải lỗi DAO.
 
@@ -112,6 +138,8 @@
 | Feedback đúng + mascot | `screenshots/06_practice_feedback.png` |
 | Hồ sơ | `screenshots/07_profile.png` |
 | Onboarding + mascot | `screenshots/08_onboarding.png` |
+| Danh sách thông báo | `screenshots/09_notifications.png` |
+| Chi tiết thông báo | `screenshots/10_notification_detail.png` |
 
 Ảnh tiêu biểu:
 
