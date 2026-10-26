@@ -97,6 +97,16 @@ cd "AI Study"
 - CI: `.github/workflows/android-test.yml` chạy `./gradlew test`.
 - Kết quả vòng cải thiện gần nhất: xem [`docs/IMPROVEMENT_LOG.md`](docs/IMPROVEMENT_LOG.md).
 
+## Debug log Gemini
+
+Bản debug log **body gửi lên** và **raw response nhận về** (chỉ trong `BuildConfig.DEBUG`):
+
+```powershell
+adb logcat -s GeminiAPI
+```
+
+Log được chia nhỏ 3.000 ký tự/chunk để không bị Logcat cắt; base64 ảnh được thay bằng `<base64 image hidden>`, API key không bao giờ được log.
+
 ## Tài liệu
 
 - [`docs/ROADMAP_NEW_PHASES.md`](docs/ROADMAP_NEW_PHASES.md) — phase NP0–NP5, DoD

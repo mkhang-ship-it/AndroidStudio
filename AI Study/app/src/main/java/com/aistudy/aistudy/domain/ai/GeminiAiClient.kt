@@ -1,6 +1,8 @@
 package com.aistudy.aistudy.domain.ai
 
 import android.util.Base64
+import android.util.Log
+import com.aistudy.aistudy.BuildConfig
 import com.aistudy.aistudy.domain.model.entity.QuestionAnswer
 import com.aistudy.aistudy.domain.model.enums.Difficulty
 import com.aistudy.aistudy.domain.model.enums.EducationLevel
@@ -117,9 +119,11 @@ class GeminiAiClient(
     private fun post(body: JSONObject): JSONObject {
         val maxRetries = 2
         var delayMs = 1000L
+        val requestBody = body.toString()
+        val endpoint = "$BASE_URL/models/$model:generateContent"
 
         for (attempt in 0..maxRetries) {
-            val connection = (URL("$BASE_URL/models/$model:generateContent").openConnection() as HttpURLConnection).apply {
+            val connection = (URL(endpoint).openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
                 connectTimeout = TIMEOUT_MS
                 readTimeout = TIMEOUT_MS
@@ -129,14 +133,22 @@ class GeminiAiClient(
             }
 
             try {
-                connection.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
+                if (BuildConfig.DEBUG) {
+                    Log.d(LOG_TAG, "POST $endpoint (attempt ${attempt + 1})")
+                    logLong("→ REQUEST BODY", sanitizeRequestBody(requestBody))
+                }
+                connection.outputStream.use { it.write(requestBody.toByteArray(Charsets.UTF_8)) }
 
                 val code = connection.responseCode
                 val stream = if (code in 200..299) connection.inputStream else connection.errorStream
                 val raw = stream?.bufferedReader()?.use { it.readText() }.orEmpty()
 
+                if (BuildConfig.DEBUG) {
+                    Log.d(LOG_TAG, "← HTTP $code responseLen=${raw.length}")
+                    logLong("← RESPONSE BODY", raw)
+                }
+
                 if (code in 200..299) {
-                    android.util.Log.d("DBGASK", "code=$code rawLen=${raw.length}")
                     return JSONObject(raw)
                 }
 
@@ -178,7 +190,13 @@ class GeminiAiClient(
             .mapNotNull { parts.optJSONObject(it)?.optString("text") }
             .joinToString("\n")
         if (text.isBlank()) throw AiException.Malformed("Gemini tra ve noi dung rong")
-        android.util.Log.d("DBGASK", "finish=${first.optString("finishReason")} textLen=${text.length} tail=${text.takeLast(150)}")
+        if (BuildConfig.DEBUG) {
+            Log.d(
+                LOG_TAG,
+                "textLen=${text.length} finish=${first.optString("finishReason")} " +
+                    "tail=${text.takeLast(160)}"
+            )
+        }
         return text
     }
 
@@ -487,6 +505,34 @@ private val LATEX_JSON_COMMANDS = setOf(
     "mapsto", "ast", "star", "bullet", "cong", "parallel", "perp",
     "therefore", "because", "neg", "land", "lor", "oplus", "otimes"
 )
+
+// ---------------------------------------------------------------- debug logging
+
+private const val LOG_TAG = "GeminiAPI"
+private const val LOG_CHUNK_SIZE = 3_000
+
+/** Logcat cat message ~4KB, nen chia body thanh tung chunk de khong mat du lieu. */
+private fun logLong(label: String, value: String) {
+    if (value.length <= LOG_CHUNK_SIZE) {
+        Log.d(LOG_TAG, "$label\n$value")
+        return
+    }
+    var index = 0
+    var part = 1
+    while (index < value.length) {
+        val end = minOf(index + LOG_CHUNK_SIZE, value.length)
+        Log.d(LOG_TAG, "$label [part $part]\n${value.substring(index, end)}")
+        index = end
+        part++
+    }
+}
+
+/** Khong log base64 anh (co the vai tram KB) nhung van giu lai do dai. */
+private fun sanitizeRequestBody(body: String): String =
+    body.replace(
+        Regex("\"data\"\\s*:\\s*\"[A-Za-z0-9+/=\\r\\n]{64,}\""),
+        "\"data\":\"<base64 image hidden>\""
+    )
 
 /**
  * Cat JSON ra khoi text. Gemini hay boc ket qua trong ```json ... ``` va

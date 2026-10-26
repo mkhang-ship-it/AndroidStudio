@@ -24,6 +24,7 @@
 | 15 | Chi tiết thông báo | Bấm thông báo chỉ deep-link hoặc không phản hồi | Màn chi tiết: loại, trạng thái, thời gian, nội dung, nút mở link | `NotificationDetailScreen.kt`, `NotificationDao.kt`, `AppNavHost.kt` |
 | 16 | Badge chưa đọc | Icon sao vàng + "0 chưa đọc" khó hiểu | Icon chuông + "N chưa đọc"; 0 → "Đã đọc tất cả" | `NotificationsScreen.kt` |
 | 17 | LaTeX trong JSON | `\frac` bị JSON hiểu thành form-feed, `\right` thành CR → công thức hỏng | Repair escape trước khi parse + repair chuỗi đã lưu | `GeminiAiClient.kt`, `Latex.kt` |
+| 18 | Debug API | Không thấy body gửi/nhận | Log `GeminiAPI`: request body + raw response, chia chunk, ẩn base64/key | `GeminiAiClient.kt` |
 
 ## 2. Chi tiết kỹ thuật
 
@@ -106,6 +107,16 @@
 - **Chi tiết thông báo:** thêm route `notification/{notificationId}`, `NotificationDetailScreen` hiển thị loại, trạng thái đã đọc, thời gian, nội dung và nút "Mở nội dung liên quan" nếu có `deepLink`. Mở chi tiết sẽ đánh dấu đã đọc; danh sách tự cập nhật khi quay lại.
 - **Badge thông báo:** bỏ icon ngôi sao vô nghĩa; dùng chuông khi còn chưa đọc, check khi đã đọc hết; text "0 chưa đọc" đổi thành "Đã đọc tất cả".
 - **LaTeX trong JSON:** phát hiện câu trả lời bị `.racf`/`ight` do JSON parser biến `\frac` thành form-feed, `\right` thành CR. Sửa hai lớp: repair escape trước khi parse JSON (`repairLatexEscapes`) và repair chuỗi đã lưu trước khi render (`repairLatexControlChars`). Test: `repairLatexEscapes...`, `khoi phuc ky tu dieu khien...`, `parseAnswer sua form feed...`.
+
+### 2.9. Debug log body gửi/nhận Gemini
+
+- Bật log trong `GeminiAiClient` (chỉ `BuildConfig.DEBUG`):
+  - `POST <endpoint> (attempt N)`
+  - `→ REQUEST BODY`: JSON gửi lên, **ẩn base64 ảnh**, không log API key
+  - `← HTTP <code> responseLen=<n>`
+  - `← RESPONSE BODY`: raw response
+- Logcat cắt message ~4KB nên chia **3.000 ký tự/chunk** với nhãn `[part N]`.
+- Xem log: `adb logcat -s GeminiAPI`.
 
 ## 3. Test & build evidence
 
