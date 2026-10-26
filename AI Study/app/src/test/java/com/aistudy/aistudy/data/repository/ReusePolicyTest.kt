@@ -115,6 +115,50 @@ class ReusePolicyTest {
     }
 
     @Test
+    fun `cache bi bo qua khi mon phat hien khac mon ban cu`() {
+        val stale = row(70L, "hàm số trong Java là gì")
+            .copy(subjectCode = Subject.MATHEMATICS)
+
+        val chosen = ReusePolicy.select(
+            exact = stale,
+            candidates = listOf(stale),
+            text = "hàm số trong Java là gì",
+            detectedSubject = Subject.PROGRAMMING
+        )
+
+        assertNull("phai goi AI lai de sua mon sai", chosen)
+    }
+
+    @Test
+    fun `cache van dung khi mon phat hien khop`() {
+        val good = row(71L, "hàm số trong Java là gì")
+            .copy(subjectCode = Subject.PROGRAMMING)
+
+        val chosen = ReusePolicy.select(
+            exact = good,
+            candidates = listOf(good),
+            text = "hàm số trong Java là gì",
+            detectedSubject = Subject.PROGRAMMING
+        )
+
+        assertEquals(71L, chosen?.id)
+    }
+
+    @Test
+    fun `khong co mon phat hien thi van dung cache nhu cu`() {
+        val source = row(72L, "giải phương trình bậc hai")
+
+        val chosen = ReusePolicy.select(
+            exact = null,
+            candidates = listOf(source),
+            text = "giải phương trình bậc hai",
+            detectedSubject = null
+        )
+
+        assertEquals(72L, chosen?.id)
+    }
+
+    @Test
     fun `danh sach rong thi khong tai dung gi`() {
         assertNull(ReusePolicy.select(null, emptyList(), "bat ky cau hoi nao"))
     }

@@ -153,6 +153,10 @@
   **key-token guard** — chỉ tái dùng khi tập số liệu + tên ngôn ngữ trùng nhau.
 - **Render code:** model đặt code vào `expr`; parser nhận diện code (dấu `;`, `//`,
   keyword, ngoặc) và render thành code fence thay vì công thức LaTeX.
+- **Tự sửa dữ liệu cũ:** nếu môn keyword detector phát hiện khác `subjectCode` của bản
+  ghi cache, `ReusePolicy.select` bỏ qua bản ghi đó và gọi AI lại. Đã mô phỏng bằng cách
+  sửa row Java trong DB thành `MATHEMATICS`: hỏi lại → có POST mới, lưu môn "Lập trình";
+  hỏi lần nữa → cache hit, không tốn thêm lượt gọi.
 
 **Ma trận test tay 9/9 pass** (`ai_matrix.py`, emulator `Medium_Phone`):
 
@@ -183,13 +187,15 @@
 | `.\build.ps1 :app:assembleDebug` | **BUILD SUCCESSFUL** — APK debug tạo thành công |
 | Smoke test tay trên emulator | Hỏi AI → nhận 5 bước + block công thức + "Đáp án" → Lịch sử → Chi tiết; không crash |
 | Ma trận hỏi AI (9 câu) | **9/9 pass**: đúng môn (Toán/Khoa học/Lịch sử/Ngôn ngữ/Lập trình), không cache nhầm, cache đúng câu lặp |
+| Tự sửa cache cũ sai môn | Sửa row Java trong DB thành Toán → hỏi lại gọi AI mới, lưu "Lập trình"; hỏi lần nữa → cache hit |
 
-**Test case (unit):** 140 test
+**Test case (unit):** 143 test
 - 19 case `LatexTest`
 - 7 case `ProgressInsightsTest`
 - 27 case `GeminiParsingTest` (schema steps/finalAnswer, code block, token usage, repair LaTeX JSON)
 - 24 case `QuestionSimilarityTest` (C#/C++, key-token guard, số liệu)
 - 15 case `SubjectDetectorTest` (Java/C#/C++ là Lập trình)
+- 12 case `ReusePolicyTest` (cache + guard môn)
 - 1 case lockout restart trong `AuthRepositoryTest` (instrumented)
 - 1 case xoá theo hash trong `QuestionAnswerDaoTest` (instrumented)
 

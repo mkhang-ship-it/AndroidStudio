@@ -130,23 +130,23 @@ class QuestionRepositoryImpl(
         val profile = profileRepository.ensureDefaultProfile(userId)
         val now = nowMillis()
         val hash = QuestionSimilarity.hashOf(trimmed)
+        // Uu tien tin hieu da xac dinh duoc: nguoi dung chon mon, roi den
+        // keyword detector. Truoc day AI duoc quyen ghi de nen cau "ham so
+        // trong Java" bi tra ve Toan du detector da thay "java".
+        val detectedSubject = overrideSubject ?: subjectFromText(trimmed)
 
         // 1. Cache trung chinh xac: hash cua van ban da chuan hoa.
         val exact = questionAnswerDao.findByHash(hash)
         // 2. Gan trung: Jaccard tren cua so cau moi nhat.
         val near = questionAnswerDao.recentByUser(userId, CANDIDATE_WINDOW)
 
-        ReusePolicy.select(exact, near, trimmed)?.let { reusable ->
+        ReusePolicy.select(exact, near, trimmed, detectedSubject)?.let { reusable ->
             val copyId = questionAnswerDao.insert(ReusePolicy.reuseAs(reusable, userId, now))
             return@runCatching ReusePolicy.reuseAs(reusable, userId, now).copy(id = copyId)
         }
 
         // 3. Truot: goi AI that.
         val imageBytes = imagePath?.let { imageStore.read(appContext, it, imageIv) }
-        // Uu tien tin hieu da xac dinh duoc: nguoi dung chon mon, roi den
-        // keyword detector. Truoc day AI duoc quyen ghi de nen cau "ham so
-        // trong Java" bi tra ve Toan du detector da thay "java".
-        val detectedSubject = overrideSubject ?: subjectFromText(trimmed)
         val subject = detectedSubject
             ?: profile.subjectCodes.firstOrNull()
             ?: Subject.MATHEMATICS

@@ -1,6 +1,7 @@
 package com.aistudy.aistudy.data.repository
 
 import com.aistudy.aistudy.domain.model.entity.QuestionAnswer
+import com.aistudy.aistudy.domain.model.enums.Subject
 import com.aistudy.aistudy.domain.rules.QuestionSimilarity
 
 /**
@@ -15,14 +16,22 @@ object ReusePolicy {
     /**
      * @param exact kiem tra hash - cung noi dung chuoi da chuan hoa.
      * @param candidates so cau gan day nhat da hoi, da doc tu DB.
+     * @param detectedSubject mon phat hien tu cau hoi hien tai (neu co).
      * @return cau hoi nen tai dung, hoac null khi phai goi AI that.
      */
     fun select(
         exact: QuestionAnswer?,
         candidates: List<QuestionAnswer>,
-        text: String
-    ): QuestionAnswer? =
-        exact ?: candidates.firstOrNull { QuestionSimilarity.isSimilar(text, it.questionText) }
+        text: String,
+        detectedSubject: Subject? = null
+    ): QuestionAnswer? {
+        val chosen = exact
+            ?: candidates.firstOrNull { QuestionSimilarity.isSimilar(text, it.questionText) }
+        // Du lieu cu co the bi luu sai mon (vi du "ham so trong Java" tung bi
+        // tra ve Toan). Neu keyword detector da xac dinh mon khac thi bo qua
+        // cache de goi AI lai, tranh tra lai dap an sai mon mai mai.
+        return chosen?.takeIf { detectedSubject == null || it.subjectCode == detectedSubject }
+    }
 
     /**
      * Copy cau cu sang cau moi cho user hien tai.
