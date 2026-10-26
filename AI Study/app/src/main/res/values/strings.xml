@@ -100,9 +100,16 @@
     <string name="ask_cached_badge">Từ bộ nhớ đệm</string>
     <string name="ask_matched_note">Câu hỏi này gần giống câu bạn đã hỏi, nên không tốn phí gọi AI.</string>
     <string name="ask_difficulty_label">Độ khó</string>
+    <string name="ask_subject_detected_label">Môn:</string>
     <string name="ask_saved_hint">Đã lưu vào Lịch sử.</string>
     <string name="ask_empty_title">Chưa có câu hỏi nào</string>
     <string name="ask_empty_body">Đặt câu hỏi đầu tiên để bắt đầu. Câu trả lời sẽ được lưu lại tự động.</string>
+    <string name="ask_suggestion_title">Gợi ý câu hỏi</string>
+    <string name="ask_suggestion_math">Giải thích định lý Pythagore</string>
+    <string name="ask_suggestion_derivative">Tính đạo hàm của x² tại x = 3</string>
+    <string name="ask_suggestion_code">Viết hàm Python kiểm tra số nguyên tố</string>
+    <string name="ask_thinking_title">AI đang phân tích đề…</string>
+    <string name="ask_thinking_body">Thường mất 3–10 giây. Câu trả lời sẽ hiện dần bên dưới.</string>
 
     <string name="difficulty_easy">Dễ</string>
     <string name="difficulty_medium">Trung bình</string>
@@ -126,8 +133,16 @@
     <string name="history_clear_search">Xoá tìm kiếm</string>
     <string name="history_filter_all">Tất cả</string>
     <string name="history_filter_bookmarked">Đã lưu</string>
-    <string name="history_group_by_subject">Theo môn</string>
     <string name="history_result_count">%1$d kết quả</string>
+    <string name="history_select">Chọn câu</string>
+    <string name="history_selected_count">%1$d câu đã chọn</string>
+    <string name="history_select_all">Chọn tất cả</string>
+    <string name="history_deselect_all">Bỏ chọn hết</string>
+    <string name="history_delete_confirm_title">Xoá câu hỏi đã chọn?</string>
+    <string name="history_delete_confirm_body">Bạn đang xoá %1$d câu hỏi. Thao tác này không thể hoàn tác.</string>
+    <string name="history_ask_again">Hỏi lại</string>
+    <string name="history_delete_one">Xoá câu này</string>
+    <string name="history_reask_title">Câu trả lời mới</string>
     <string name="history_bookmark_add">Lưu câu này</string>
     <string name="history_bookmark_remove">Bỏ lưu</string>
     <string name="history_empty_title">Chưa có lịch sử</string>
@@ -191,11 +206,21 @@
     <string name="progress_quiz_progress">Đã làm %1$d / %2$d câu luyện tập</string>
     <string name="progress_xp_week">XP tuần này</string>
     <string name="progress_xp_week_value">+%1$d XP</string>
+    <string name="progress_xp_week_summary">XP tuần này: +%1$d XP</string>
     <string name="progress_by_subject">Câu hỏi theo môn</string>
     <string name="progress_by_subject_empty">Chưa có dữ liệu theo môn.</string>
     <string name="progress_empty_title">Chưa có dữ liệu thống kê</string>
     <string name="progress_empty_body">Hỏi vài câu rồi quay lại đây để xem thống kê.</string>
     <string name="progress_subject_count">%1$d câu</string>
+    <string name="progress_insights_title">Gợi ý cho bạn</string>
+    <string name="progress_insight_top_subject">Bạn tập trung nhiều nhất vào %1$s với %2$d câu hỏi. Ôn lại các câu đã lưu để nhớ lâu hơn.</string>
+    <string name="progress_insight_least_subject">Bạn còn ít câu hỏi về %1$s (%2$d câu). Thử hỏi thêm để cân bằng kiến thức.</string>
+    <string name="progress_insight_low_accuracy">Tỉ lệ đúng luyện tập đang là %1$d%%. Nên xem lại lời giải trước khi làm tiếp.</string>
+    <string name="progress_insight_practice_remaining">Còn %1$d câu luyện tập chưa làm. Dành 10 phút để hoàn thành nhé.</string>
+    <string name="progress_insight_review_time">Bạn đã dành %1$d phút ôn tập. Tiếp tục giữ nhịp này!</string>
+    <string name="progress_review_time_empty">Chưa ghi nhận</string>
+    <string name="progress_review_time_seconds">%1$d giây</string>
+    <string name="progress_review_time_hint">Thời gian được tính khi bạn xem lại câu trả lời.</string>
 
     <!-- ============ FR9 - Gamification ============ -->
     <string name="gamification_level">Cấp %1$d</string>

@@ -1,6 +1,12 @@
 package com.aistudy.aistudy.ui.common
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,8 +20,11 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
@@ -43,8 +52,16 @@ fun DuoButton(
         DuoButtonColors.Danger -> if (dark) Color(0xFFB02A2A) else Color(0xFFD33131)
     }
     val shape = RoundedCornerShape(16.dp)
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (pressed && enabled) 0.97f else 1f,
+        animationSpec = spring(dampingRatio = 0.55f, stiffness = 700f),
+        label = "duo-button-scale"
+    )
     Box(
         modifier = modifier
+            .scale(scale)
             .background(
                 if (enabled) edgeColor else MaterialTheme.colorScheme.outline,
                 shape
@@ -56,6 +73,7 @@ fun DuoButton(
             modifier = Modifier.fillMaxWidth(),
             enabled = enabled,
             shape = shape,
+            interactionSource = interactionSource,
             colors = ButtonDefaults.buttonColors(
                 containerColor = topColor,
                 contentColor = Color.White,
@@ -84,8 +102,13 @@ fun DuoProgress(
     progress: () -> Float,
     modifier: Modifier = Modifier
 ) {
+    val animatedProgress by animateFloatAsState(
+        targetValue = progress().coerceIn(0f, 1f),
+        animationSpec = tween(durationMillis = 700, easing = FastOutSlowInEasing),
+        label = "duo-progress"
+    )
     LinearProgressIndicator(
-        progress = progress,
+        progress = { animatedProgress },
         modifier = modifier
             .fillMaxWidth()
             .height(14.dp)

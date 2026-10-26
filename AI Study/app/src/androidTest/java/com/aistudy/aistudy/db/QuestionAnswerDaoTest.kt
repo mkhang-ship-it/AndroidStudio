@@ -138,8 +138,8 @@ class QuestionAnswerDaoTest {
             assertEquals(2, bySubject[Subject.MATHEMATICS])
             assertEquals(1, bySubject[Subject.SCIENCE])
             assertEquals(1, bySubject[Subject.HISTORY])
-            assertEquals(3, dao.countByUser(userId))
             assertEquals(3, dao.distinctSubjectCount(userId))
+            assertEquals(4, dao.countByUser(userId))
         }
     }
 
@@ -188,6 +188,20 @@ class QuestionAnswerDaoTest {
             dao.setBookmarked(id, false)
             assertFalse(dao.findById(id)!!.isBookmarked)
             assertTrue(dao.observeBookmarked(userId).first().isEmpty())
+        }
+    }
+
+    @Test
+    fun deleteByIds_removesOnlySelectedRows() {
+        runBlocking {
+            val a = dao.insert(answer(hash = "d1", createdAt = 1L))
+            val b = dao.insert(answer(hash = "d2", createdAt = 2L))
+            val c = dao.insert(answer(hash = "d3", createdAt = 3L))
+
+            dao.deleteByIds(listOf(a, c))
+
+            val remaining = dao.observeByUser(userId).first()
+            assertEquals(listOf(b), remaining.map { it.id })
         }
     }
 

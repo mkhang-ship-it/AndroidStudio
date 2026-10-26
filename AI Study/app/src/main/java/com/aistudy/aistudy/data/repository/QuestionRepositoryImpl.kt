@@ -100,6 +100,11 @@ class QuestionRepositoryImpl(
         questionAnswerDao.addReviewTime(id, seconds)
     }
 
+    override suspend fun deleteQuestions(ids: List<Long>) {
+        if (ids.isEmpty()) return
+        questionAnswerDao.deleteByIds(ids)
+    }
+
     private suspend fun askInternal(
         userId: Long,
         text: String,

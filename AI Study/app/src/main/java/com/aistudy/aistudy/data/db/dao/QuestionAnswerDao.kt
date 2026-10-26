@@ -88,6 +88,10 @@ interface QuestionAnswerDao {
     /** N3 GDPR — xoá toàn bộ lịch sử của một user. */
     @Query("DELETE FROM question_answers WHERE userId = :userId")
     suspend fun deleteByUser(userId: Long)
+
+    /** FR6 — xoá các câu hỏi đã chọn trong lịch sử. */
+    @Query("DELETE FROM question_answers WHERE id IN (:ids)")
+    suspend fun deleteByIds(ids: List<Long>)
 }
 
 /** Kết quả trả về của truy vấn nhóm — Room cần một lớp bao bọc riêng. */

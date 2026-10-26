@@ -1,0 +1,59 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "providers": {
+    "kira": {
+      "name": "Kira AI",
+      "env": ["KIRA_API_KEY"],
+      "package": "@opencode/ai/providers/openai-compatible",
+      "settings": {
+        "baseURL": "https://kiraai.vn/api/v1"
+      },
+      "models": {
+        "kira-mini-1.0": {
+          "name": "Kira Mini 1.0 (Miễn phí)",
+          "modelID": "kira-mini-1.0"
+        },
+        "kira-3.5-pro": {
+          "name": "Kira 3.5 Pro",
+          "modelID": "kira-3.5-pro"
+        },
+        "kira-3.5-flash": {
+          "name": "Kira 3.5 Flash",
+          "modelID": "kira-3.5-flash"
+        },
+        "kira-2.5-pro": {
+          "name": "Kira 2.5 Pro",
+          "modelID": "kira-2.5-pro"
+        },
+        "kira-2.5-flash": {
+          "name": "Kira 2.5 Flash",
+          "modelID": "kira-2.5-flash"
+        },
+        "kira-3.0-image": {
+          "name": "Kira 3.0 Image",
+          "modelID": "kira-3.0-image"
+        },
+        "kira-2.0-image": {
+          "name": "Kira 2.0 Image",
+          "modelID": "kira-2.0-image"
+        },
+        "kira-3.0-video": {
+          "name": "Kira 3.0 Video",
+          "modelID": "kira-3.0-video"
+        },
+        "kira-3.0-video-flash": {
+          "name": "Kira 3.0 Video Flash",
+          "modelID": "kira-3.0-video-flash"
+        },
+        "kira-3.0-flash-tts": {
+          "name": "Kira 3.0 Flash TTS",
+          "modelID": "kira-3.0-flash-tts"
+        },
+        "kira-2.0-flash-tts": {
+          "name": "Kira 2.0 Flash TTS",
+          "modelID": "kira-2.0-flash-tts"
+        }
+      }
+    }
+  }
+}

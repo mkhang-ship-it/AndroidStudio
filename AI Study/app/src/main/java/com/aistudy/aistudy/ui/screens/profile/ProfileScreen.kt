@@ -49,6 +49,7 @@ import androidx.lifecycle.viewmodel.initializer
 import com.aistudy.aistudy.R
 import com.aistudy.aistudy.ui.common.ConfirmDialog
 import com.aistudy.aistudy.ui.common.LoadingBox
+import com.aistudy.aistudy.ui.common.ScreenPager
 import com.aistudy.aistudy.ui.common.ScreenHeader
 import com.aistudy.aistudy.ui.profile.ProfileUiState
 import com.aistudy.aistudy.ui.profile.ProfileViewModel
@@ -129,28 +130,16 @@ private fun ProfileContent(
     onDeleteRequested: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
-        PaperSheet {
-            ScreenHeader(
-                titleRes = R.string.profile_title,
-                modifier = Modifier.padding(horizontal = Spacing.lg, vertical = Spacing.lg)
-            )
-        }
-        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+    ScreenPager(titleRes = R.string.profile_title) {
         when {
-            state.isLoading -> LoadingBox()
+            state.isLoading -> LoadingBox(modifier = Modifier.fillMaxSize())
             state.hasError -> {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
+                val msg = state.errorMessage?.takeIf { it.isNotBlank() }
+                    ?: stringResource(R.string.common_error_generic)
+                Column(modifier = Modifier.fillMaxWidth()) {
                     com.aistudy.aistudy.ui.common.ErrorBanner(
-                        message = state.errorMessage?.takeIf { it.isNotBlank() }
-                            ?: stringResource(R.string.common_error_generic),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(Spacing.lg)
+                        message = msg,
+                        modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(Spacing.sm))
                     Button(onClick = onEditPreferences) {
@@ -160,10 +149,7 @@ private fun ProfileContent(
             }
             else -> {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(Spacing.lg),
+                    modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(Spacing.lg)
                 ) {
                     ProfileHeader(
@@ -260,7 +246,6 @@ private fun ProfileContent(
                     }
                 }
             }
-        }
         }
     }
 }

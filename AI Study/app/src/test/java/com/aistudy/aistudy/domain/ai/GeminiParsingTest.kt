@@ -4,6 +4,7 @@ import com.aistudy.aistudy.domain.model.enums.Difficulty
 import com.aistudy.aistudy.domain.model.enums.EducationLevel
 import com.aistudy.aistudy.domain.model.enums.QuestionType
 import com.aistudy.aistudy.domain.model.enums.Subject
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -170,5 +171,32 @@ class GeminiParsingTest {
         assertEquals(a, b)
         assertEquals(a.hashCode(), b.hashCode())
         assertTrue("anh khac thi phai khac request", a != c)
+    }
+
+    @Test
+    fun `usageTokens doc prompt va candidates tu response`() {
+        val root = JSONObject(
+            """{"usageMetadata":{"promptTokenCount":321,"candidatesTokenCount":123}}"""
+        )
+
+        assertEquals(321 to 123, usageTokens(root))
+    }
+
+    @Test
+    fun `usageTokens thieu metadata tra ve 0 khong crash`() {
+        assertEquals(0 to 0, usageTokens(JSONObject("""{"candidates":[]}""")))
+    }
+
+    @Test
+    fun `parseAnswer giu token usage de luu xuong DB`() {
+        val answer = client.parseAnswer(
+            text = fullAnswerJson,
+            fallbackSubject = Subject.MATHEMATICS,
+            inputTokens = 321,
+            outputTokens = 123
+        )
+
+        assertEquals(321, answer.inputTokens)
+        assertEquals(123, answer.outputTokens)
     }
 }

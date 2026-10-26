@@ -63,9 +63,13 @@ import com.aistudy.aistudy.ui.common.DuoButton
 import com.aistudy.aistudy.ui.common.DuoProgress
 import com.aistudy.aistudy.ui.common.EmptyState
 import com.aistudy.aistudy.ui.common.ErrorBanner
+import com.aistudy.aistudy.ui.common.MascotMood
+import com.aistudy.aistudy.ui.common.MarkdownText
 import com.aistudy.aistudy.ui.common.MarkerChip
 import com.aistudy.aistudy.ui.common.PaperSheet
+import com.aistudy.aistudy.ui.common.ScreenHeader
 import com.aistudy.aistudy.ui.common.StickerBadge
+import com.aistudy.aistudy.ui.common.StudyMascot
 import com.aistudy.aistudy.ui.label
 import com.aistudy.aistudy.ui.practice.PracticeUiState
 import com.aistudy.aistudy.ui.practice.PracticeViewModel
@@ -123,48 +127,64 @@ private fun PracticeContent(
     onRestart: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = Spacing.lg, vertical = Spacing.lg)
     ) {
-        when {
-            state.isLoading -> {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    CircularProgressIndicator()
-                    Spacer(Modifier.height(Spacing.md))
-                    Text(
-                        text = stringResource(R.string.practice_generating),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+        PaperSheet(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                ScreenHeader(titleRes = R.string.practice_title)
+
+                Spacer(modifier = Modifier.height(Spacing.lg))
+
+                when {
+                    state.isLoading -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = Spacing.xl),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator()
+                            Spacer(Modifier.height(Spacing.md))
+                            Text(
+                                text = stringResource(R.string.practice_generating),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    state.hasError -> ErrorBanner(
+                        message = state.errorMessage?.takeIf { it.isNotBlank() }
+                            ?: stringResource(R.string.common_error_generic),
+                        onRetry = onGenerate,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    state.isFinished -> ResultState(state = state, onRestart = onRestart)
+
+                    state.currentItem != null -> QuestionState(
+                        state = state,
+                        onAnswerChange = onAnswerChange,
+                        onSubmit = onSubmit,
+                        onNext = onNext
+                    )
+
+                    else -> GenerateState(
+                        state = state,
+                        onGenerate = onGenerate,
+                        onSourceSelected = onSourceSelected,
+                        onCountSelected = onCountSelected
                     )
                 }
             }
-
-            state.hasError -> ErrorBanner(
-                message = state.errorMessage?.takeIf { it.isNotBlank() }
-                    ?: stringResource(R.string.common_error_generic),
-                onRetry = onGenerate
-            )
-
-            state.isFinished -> ResultState(state = state, onRestart = onRestart)
-
-            state.currentItem != null -> QuestionState(
-                state = state,
-                onAnswerChange = onAnswerChange,
-                onSubmit = onSubmit,
-                onNext = onNext
-            )
-
-            else -> GenerateState(
-                state = state,
-                onGenerate = onGenerate,
-                onSourceSelected = onSourceSelected,
-                onCountSelected = onCountSelected
-            )
         }
     }
 }
@@ -173,11 +193,9 @@ private fun PracticeContent(
 private fun ResultState(state: PracticeUiState, onRestart: () -> Unit) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(Spacing.xl),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .fillMaxWidth()
+            .padding(vertical = Spacing.xl),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = stringResource(R.string.practice_result_title),
@@ -246,14 +264,10 @@ private fun QuestionState(
     onNext: () -> Unit
 ) {
     val item = state.currentItem ?: return
-    val scroll = rememberScrollState()
     val isCorrect = state.userAnswer.trim().equals(item.correctAnswer.trim(), ignoreCase = true)
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scroll)
-            .padding(Spacing.lg)
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -288,7 +302,7 @@ private fun QuestionState(
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(Spacing.lg)) {
-                Text(
+                MarkdownText(
                     text = item.prompt,
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
@@ -427,7 +441,7 @@ private fun OptionCard(
                 )
             }
             Spacer(Modifier.width(Spacing.md))
-            Text(
+            MarkdownText(
                 text = text,
                 style = MaterialTheme.typography.bodyLarge,
                 color = content,
@@ -485,7 +499,10 @@ private fun FeedbackCard(
     ) {
         if (rotation <= 90f) {
             Column(modifier = Modifier.padding(Spacing.lg)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Icon(
                         imageVector = if (isCorrect) Icons.Filled.CheckCircle else Icons.Filled.Warning,
                         contentDescription = null,
@@ -497,12 +514,17 @@ private fun FeedbackCard(
                             if (isCorrect) R.string.practice_correct else R.string.practice_incorrect
                         ),
                         style = MaterialTheme.typography.titleMedium,
-                        color = onContainerColor
+                        color = onContainerColor,
+                        modifier = Modifier.weight(1f)
+                    )
+                    StudyMascot(
+                        mood = if (isCorrect) MascotMood.CELEBRATING else MascotMood.THINKING,
+                        modifier = Modifier.size(64.dp)
                     )
                 }
                 if (!isCorrect) {
                     Spacer(Modifier.height(Spacing.xs))
-                    Text(
+                    MarkdownText(
                         text = stringResource(R.string.practice_correct_answer, correctAnswer),
                         style = MaterialTheme.typography.bodyMedium,
                         color = onContainerColor
@@ -528,7 +550,7 @@ private fun FeedbackCard(
                     style = MaterialTheme.typography.labelMedium,
                     color = onContainerColor
                 )
-                Text(
+                MarkdownText(
                     text = explanation.orEmpty(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = onContainerColor
@@ -554,29 +576,8 @@ private fun GenerateState(
         return
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(Spacing.lg),
-        verticalArrangement = Arrangement.Center
-    ) {
-        PaperSheet {
-            Column {
-                Text(
-                    text = stringResource(R.string.practice_title),
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(Modifier.height(Spacing.xs))
-                Text(
-                    text = stringResource(R.string.practice_generate_hint),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-        Spacer(Modifier.height(Spacing.xl))
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Spacer(modifier = Modifier.height(Spacing.lg))
 
         Card(
             colors = CardDefaults.cardColors(

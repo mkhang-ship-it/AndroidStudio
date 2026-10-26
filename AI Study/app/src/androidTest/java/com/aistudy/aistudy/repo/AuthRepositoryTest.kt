@@ -5,6 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.aistudy.aistudy.data.db.AppDatabase
 import com.aistudy.aistudy.data.repository.AuthRepositoryImpl
+import com.aistudy.aistudy.data.security.SharedPrefsLoginThrottle
 import com.aistudy.aistudy.data.security.SessionStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -197,6 +198,49 @@ class AuthRepositoryTest {
         // Dung van bi khoa, khong duoc phep login
         val result = repository.login("lock2@example.com", "Passw0rd!")
         assertTrue("van bi khoa sau khi dat gioi han", result.isFailure)
+    }
+
+    @Test
+    fun login_lockout_vanConSauKhiTaoRepositoryMoi() = runTest {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val prefsName = "login_throttle_test_${System.nanoTime()}"
+
+        // Repository thu nhat: dang ky + sai 5 lan, ghi trang thai xuong prefs.
+        val first = AuthRepositoryImpl(
+            database = database,
+            userDao = database.userDao(),
+            sessionStore = FakeSessionStore(),
+            loginThrottle = SharedPrefsLoginThrottle(context, prefsName),
+            io = UnconfinedTestDispatcher()
+        )
+        first.register("Restart@Example.com", "Passw0rd!", "Restart")
+        repeat(5) {
+            assertTrue(
+                "lan sai ${it + 1} phai that bai",
+                first.login("restart@example.com", "WrongPwd").isFailure
+            )
+        }
+
+        // "Khoi dong lai app": repository + throttle moi, chi dung chung prefs.
+        val second = AuthRepositoryImpl(
+            database = database,
+            userDao = database.userDao(),
+            sessionStore = FakeSessionStore(),
+            loginThrottle = SharedPrefsLoginThrottle(context, prefsName),
+            io = UnconfinedTestDispatcher()
+        )
+        val result = second.login("restart@example.com", "Passw0rd!")
+
+        assertTrue("lockout phai con sau khi tao repository moi", result.isFailure)
+        assertTrue(
+            "message phai bao tam khoa, thuc te: ${result.exceptionOrNull()?.message}",
+            result.exceptionOrNull()?.message?.contains("khoa") == true
+        )
+
+        context.getSharedPreferences(prefsName, android.content.Context.MODE_PRIVATE)
+            .edit()
+            .clear()
+            .commit()
     }
 
     // ----------------------------------------------------------------- logout

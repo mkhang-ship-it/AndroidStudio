@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -43,7 +44,10 @@ import com.aistudy.aistudy.data.repository.ProfileRepository
 import com.aistudy.aistudy.domain.model.enums.EducationLevel
 import com.aistudy.aistudy.domain.model.enums.ExplanationStyle
 import com.aistudy.aistudy.ui.common.DuoButton
+import com.aistudy.aistudy.ui.common.ErrorBanner
+import com.aistudy.aistudy.ui.common.MascotMood
 import com.aistudy.aistudy.ui.common.RuledDivider
+import com.aistudy.aistudy.ui.common.StudyMascot
 import com.aistudy.aistudy.ui.label
 import com.aistudy.aistudy.ui.root.AppDependencies
 import com.aistudy.aistudy.ui.theme.Spacing
@@ -132,8 +136,7 @@ class OnboardingViewModel(
                 _state.update { st -> st.copy(isLoading = false) }
                 onFinish()
             }.onFailure {
-                _state.update { st -> st.copy(isLoading = false) }
-                onFinish()
+                _state.update { st -> st.copy(isLoading = false, errorMessageRes = R.string.common_error_generic) }
             }
         }
     }
@@ -201,6 +204,9 @@ fun OnboardingScreen(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
+                if (state.errorMessageRes != null) {
+                    ErrorBanner(message = stringResource(state.errorMessageRes!!))
+                }
                 when (state.currentStep) {
                     1 -> LevelStepContent(
                         selected = state.selectedLevel,
@@ -256,10 +262,20 @@ private fun LevelStepContent(
     selected: EducationLevel,
     onSelect: (EducationLevel) -> Unit
 ) {
-    Text(
-        text = stringResource(R.string.onboarding_title_level),
-        style = MaterialTheme.typography.headlineSmall
-    )
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.onboarding_title_level),
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.weight(1f)
+        )
+        StudyMascot(
+            mood = MascotMood.IDLE,
+            modifier = Modifier.size(84.dp)
+        )
+    }
     Spacer(modifier = Modifier.height(Spacing.sm))
     Text(
         text = stringResource(R.string.onboarding_subtitle_level),
@@ -315,10 +331,20 @@ private fun StyleStepContent(
     selected: ExplanationStyle,
     onSelect: (ExplanationStyle) -> Unit
 ) {
-    Text(
-        text = stringResource(R.string.onboarding_title_style),
-        style = MaterialTheme.typography.headlineSmall
-    )
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.onboarding_title_style),
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.weight(1f)
+        )
+        StudyMascot(
+            mood = MascotMood.IDLE,
+            modifier = Modifier.size(84.dp)
+        )
+    }
     Spacer(modifier = Modifier.height(Spacing.sm))
     Text(
         text = stringResource(R.string.onboarding_subtitle_style),

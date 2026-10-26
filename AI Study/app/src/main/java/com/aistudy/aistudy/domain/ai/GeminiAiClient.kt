@@ -73,7 +73,8 @@ class GeminiAiClient(
 
             val root = post(body)
             val text = extractText(root)
-            parseAnswer(text, request.subject)
+            val (inputTokens, outputTokens) = usageTokens(root)
+            parseAnswer(text, request.subject, inputTokens, outputTokens)
         }.recoverCatching { error -> throw error.toAiError() }
     }
 
@@ -202,6 +203,10 @@ class GeminiAiClient(
             Ban la gia su vien giai toan. Tra loi cau hoi sau$hasImage, muc do $levelVi, phong cach $styleVi.
             Mon hoc: ${request.subject.name}.
 
+            Dinh dang answerText: dung markdown (tieu de ##, gach dau dong -). Moi cong thuc
+            toan dat trong ${'$'}...${'$'} theo LaTeX, vi du ${'$'}\frac{a}{b}${'$'} hoac ${'$'}x^2${'$'}.
+            Khong dung anh, khong dung \[ \].
+
             Tra ve DUY NHAT mot JSON dung cu phap sau, khong them y giai hay doan ma:
             {
               "answerText": "loi giai day du, co the dung markdown",
@@ -249,7 +254,12 @@ class GeminiAiClient(
         Loi giai co san: ${source.answerText.take(600)}
     """.trimIndent()
 
-    internal fun parseAnswer(text: String, fallbackSubject: Subject): AiAnswer {
+    internal fun parseAnswer(
+        text: String,
+        fallbackSubject: Subject,
+        inputTokens: Int = 0,
+        outputTokens: Int = 0
+    ): AiAnswer {
         val obj = jsonCandidates(text).firstNotNullOfOrNull { candidate ->
             runCatching { JSONObject(candidate) }
                 .recoverCatching { JSONObject(escapeInnerControlChars(candidate)) }
@@ -271,8 +281,8 @@ class GeminiAiClient(
             keyConcepts = obj.optStringOrNull("keyConcepts"),
             commonMistakes = obj.optStringOrNull("commonMistakes"),
             followUpQuestions = obj.optStringOrNull("followUpQuestions"),
-            inputTokens = 0,
-            outputTokens = 0
+            inputTokens = inputTokens,
+            outputTokens = outputTokens
         )
     }
 
@@ -327,6 +337,16 @@ class GeminiAiClient(
         const val TIMEOUT_MS = 20_000
         const val SAFETY_FINISH_REASON = "SAFETY"
         const val KEY_QUESTIONS = "questions"    }
+}
+
+/**
+ * Doc token usage tu response Gemini. Tach rieng de test duoc ma khong can
+ * goi mang that — BUG-08 truoc day hardcode `inputTokens = 0`.
+ */
+internal fun usageTokens(root: JSONObject): Pair<Int, Int> {
+    val usage = root.optJSONObject("usageMetadata") ?: return 0 to 0
+    return usage.optInt("promptTokenCount", 0) to
+        usage.optInt("candidatesTokenCount", 0)
 }
 
 /**

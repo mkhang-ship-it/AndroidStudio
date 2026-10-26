@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.aistudy.aistudy.data.repository.AuthRepository
 import com.aistudy.aistudy.data.repository.GamificationRepository
 import com.aistudy.aistudy.data.repository.ProfileRepository
+import com.aistudy.aistudy.domain.rules.XpRules
 import com.aistudy.aistudy.domain.model.entity.UserBadge
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -47,7 +48,7 @@ class ProfileViewModel(
                         displayName = name,
                         level = userData.level,
                         totalXp = userData.totalXp,
-                        xpToNext = 1000 - userData.totalXp, // simplified
+                        xpToNext = XpRules.xpToNextLevel(userData.totalXp),
                         streak = userData.currentStreakDays,
                         badges = emptyList()
                     )

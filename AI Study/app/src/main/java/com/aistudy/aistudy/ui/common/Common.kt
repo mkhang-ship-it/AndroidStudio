@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -140,6 +142,36 @@ fun EmptyState(
         )
         if (action != null) {
             Box(modifier = Modifier.padding(top = Spacing.lg)) { action() }
+        }
+    }
+}
+
+/**
+ * Bo cuc chuan cho mot man hinh: card PaperSheet chua ScreenHeader o dinh +
+ * noi dung cuon ben trong. Nhat quan giua cac tab (Mau A).
+ */
+@Composable
+fun ScreenPager(
+    @StringRes titleRes: Int,
+    modifier: Modifier = Modifier,
+    @StringRes subtitleRes: Int? = null,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = Spacing.lg, vertical = Spacing.lg)
+    ) {
+        PaperSheet(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                ScreenHeader(titleRes = titleRes, subtitleRes = subtitleRes)
+                Spacer(modifier = Modifier.height(Spacing.lg))
+                content()
+            }
         }
     }
 }

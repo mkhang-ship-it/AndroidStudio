@@ -148,11 +148,13 @@
 | Blocker | |
 | Retro | |
 
-## S14 — Tuần 14 — NP5
+## S14 — Tuần 14 — NP5 + post-MVP polish
+
+> Ngày đăng: 2026-10-26.
 
 | Mục | Nội dung |
 |---|---|
-| Goal | |
-| Done | |
-| Blocker | |
-| Retro | |
+| Goal | Nâng trải nghiệm đọc lời giải và độ hoàn thiện demo: LaTeX/markdown, chữ hiện dần, mascot chuyển động, insights offline, token metering, lockout bền vững, đo thời gian ôn tập. |
+| Done | `Latex.kt` + rewrite `MarkdownText.kt` (markdown + công thức Unicode + phân số inline); `TypewriterText.kt`; `StudyMascot.kt` (Canvas: cú mèo + sách/bút bay, mood IDLE/THINKING/CELEBRATING); animation nút/card/progress/list; `ProgressInsights.kt` + card gợi ý; `usageTokens()` + token test; `LoginThrottle` + `SharedPrefsLoginThrottle` + instrumented restart test; đo thời gian ôn tập lifecycle-aware ở Ask/Detail; render LaTeX trong Practice; sửa nhãn XP tuần. Test: `LatexTest` (18), `ProgressInsightsTest` (7), 3 case token, 1 case lockout restart; `connectedDebugAndroidTest` **38/38 pass**. Evidence: `docs/IMPROVEMENT_LOG.md`, 9 screenshot trong `docs/screenshots/`. |
+| Blocker | Chưa streaming mạng thật (Gemini trả JSON một lần → dùng typewriter); LaTeX chưa hỗ trợ align/ma trận phức tạp; BUG-02 (keyword tiếng Anh) chưa sửa. |
+| Retro | Giữ: mỗi thay đổi UI đều kèm test/evidence + screenshot. Cải thiện: lần sau tách PR nhỏ hơn (renderer / animation / security) để review dễ hơn; cần đo frame time khi bật nhiều animation trên máy thật. |

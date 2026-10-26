@@ -53,7 +53,10 @@ class GamificationRepositoryImpl(
 
         // Idempotent trong ngay: mot ly do chi cong mot lan mot ngay. Bo qua
         // buoc nay thi bam nut "Hoi AI" lien tuc se cua doi XP.
-        val alreadyAwarded = xpEventDao.existsForReasonBetween(userId, reason, dayStart, dayEnd)
+        // NGOAI LE: ASK_QUESTION cong XP moi lan hoi AI that (khong idempotent)
+        // vi moi cau hoi that la mot lan goi AI ton tien - cong de khuyen khich.
+        val alreadyAwarded = reason != XpReason.ASK_QUESTION &&
+            xpEventDao.existsForReasonBetween(userId, reason, dayStart, dayEnd)
         if (alreadyAwarded) {
             return GamificationResult(
                 xpGained = 0,

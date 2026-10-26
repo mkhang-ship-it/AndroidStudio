@@ -4,6 +4,8 @@ import android.database.sqlite.SQLiteConstraintException
 import androidx.room.withTransaction
 import com.aistudy.aistudy.data.db.AppDatabase
 import com.aistudy.aistudy.data.db.dao.UserDao
+import com.aistudy.aistudy.data.security.InMemoryLoginThrottle
+import com.aistudy.aistudy.data.security.LoginThrottle
 import com.aistudy.aistudy.data.security.PasswordHasher
 import com.aistudy.aistudy.data.security.SessionStore
 import com.aistudy.aistudy.domain.model.entity.User
@@ -18,7 +20,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * FR1 + N1 + N3.
@@ -31,6 +32,7 @@ class AuthRepositoryImpl(
     private val database: AppDatabase,
     private val userDao: UserDao,
     private val sessionStore: SessionStore,
+    private val loginThrottle: LoginThrottle = InMemoryLoginThrottle(),
     private val io: CoroutineDispatcher = Dispatchers.IO
 ) : AuthRepository {
 
@@ -40,16 +42,6 @@ class AuthRepositoryImpl(
 
     override val currentUser: Flow<User?> = _sessionUserId
         .flatMapLatest { id -> if (id == null) flowOf(null) else userDao.observeById(id) }
-
-    /**
-     * Lockout tam thoi theo email — KHONG luu xuong Room (tranh migration schema).
-     * Key: email da chuan hoa; value: (so lan sai, lockedUntilMillis).
-     * `lockedUntil == 0L` nghia la chua bi khoa.
-     *
-     * Chi la lop bao ve trong tien trinh; xem muc "rui ro con lai" — khong ben
-     * vung qua restart va khong dong bo giua nhieu tien trinh.
-     */
-    private val failedAttempts = ConcurrentHashMap<String, Pair<Int, Long>>()
 
     override suspend fun register(
         email: String,
@@ -110,28 +102,31 @@ class AuthRepositoryImpl(
         val normalisedEmail = email.trim().lowercase()
         val now = System.currentTimeMillis()
 
-        // Lockout don gian theo email (khong schema). Neu dang trong thoi gian khoa
-        // thi tu choi som, truoc ca khi tra cuu DB / verify password.
-        val entry = failedAttempts[normalisedEmail]
-        val lockedUntil = entry?.second ?: 0L
+        // Lockout luu trong LoginThrottle (SharedPreferences o production) nen
+        // van con sau khi app bi kill/restart — xem BUG-01 trong bug list.
+        val lockedUntil = loginThrottle.lockedUntil(normalisedEmail)
         if (now < lockedUntil) {
             throw IllegalStateException(LOCKED_MESSAGE)
         }
-        // Lock da het han (khac 0L nghia la tung bi khoa) -> dat lai bo dem.
-        val attempts = if (lockedUntil != 0L) 0 else entry?.first ?: 0
+        // Lock da het han -> mo lai bo dem truoc khi thu mat khau.
+        if (lockedUntil != 0L) {
+            loginThrottle.clear(normalisedEmail)
+        }
 
         val user = userDao.findByEmail(normalisedEmail)
             ?: throw IllegalArgumentException("Email hoac mat khau khong dung")
 
         if (!PasswordHasher.verify(password, user.passwordHash, user.passwordSalt)) {
-            val next = attempts + 1
-            failedAttempts[normalisedEmail] =
-                if (next >= MAX_FAILED_ATTEMPTS) next to (now + LOCK_MS)
-                else next to 0L
+            loginThrottle.recordFailure(
+                key = normalisedEmail,
+                nowMillis = now,
+                maxAttempts = MAX_FAILED_ATTEMPTS,
+                lockDurationMillis = LOCK_MS
+            )
             throw IllegalArgumentException("Email hoac mat khau khong dung")
         }
 
-        failedAttempts.remove(normalisedEmail)
+        loginThrottle.clear(normalisedEmail)
         userDao.touchLogin(user.id, System.currentTimeMillis())
         persistSession(user.id)
         user

@@ -12,6 +12,7 @@ import com.aistudy.aistudy.data.repository.QuestionRepositoryImpl
 import com.aistudy.aistudy.data.repository.QuizRepositoryImpl
 import com.aistudy.aistudy.data.security.AesGcmImageStore
 import com.aistudy.aistudy.data.security.EncryptedPrefsSessionStore
+import com.aistudy.aistudy.data.security.SharedPrefsLoginThrottle
 import com.aistudy.aistudy.domain.ai.AiClient
 import com.aistudy.aistudy.domain.ai.FakeAiClient
 import com.aistudy.aistudy.domain.ai.GeminiAiClient
@@ -87,7 +88,8 @@ internal object ServiceGraph {
         ServiceLocator.authRepository = AuthRepositoryImpl(
             database = database,
             userDao = database.userDao(),
-            sessionStore = sessionStore
+            sessionStore = sessionStore,
+            loginThrottle = SharedPrefsLoginThrottle(context)
         )
     }
 }

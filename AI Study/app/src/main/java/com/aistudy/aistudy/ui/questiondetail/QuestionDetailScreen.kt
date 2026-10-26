@@ -35,16 +35,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -61,6 +62,7 @@ import com.aistudy.aistudy.ui.common.LoadingBox
 import com.aistudy.aistudy.ui.common.MarkdownText
 import com.aistudy.aistudy.ui.label
 import com.aistudy.aistudy.ui.root.AppDependencies
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -158,41 +160,27 @@ fun QuestionDetailScreen(
     )
     val state by vm.state.collectAsStateWithLifecycle()
 
-    // Track review time when screen is resumed and submit once on dispose
+    // Dem thoi gian doc theo tung khoi 15 giay, chi khi man hinh dang resumed.
+    // Ban cu ghi mot lan trong onDispose bang rememberCoroutineScope - scope da
+    // bi huy cung luc nen du lieu gan nhu khong bao gio duoc luu.
     val lifecycleOwner = LocalLifecycleOwner.current
-    val coroutineScope = rememberCoroutineScope()
-    DisposableEffect(lifecycleOwner, questionId) {
-        var startTime = System.currentTimeMillis()
-        var accumulatedSeconds = 0L
-
+    var isResumed by remember {
+        mutableStateOf(
+            lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
+        )
+    }
+    DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_RESUME -> {
-                    startTime = System.currentTimeMillis()
-                }
-                Lifecycle.Event.ON_PAUSE -> {
-                    if (startTime > 0) {
-                        accumulatedSeconds += (System.currentTimeMillis() - startTime) / 1000
-                        startTime = 0
-                    }
-                }
-                else -> {}
-            }
+            isResumed = event == Lifecycle.Event.ON_RESUME
         }
-
         lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-            if (startTime > 0) {
-                accumulatedSeconds += (System.currentTimeMillis() - startTime) / 1000
-            }
-            if (accumulatedSeconds > 0) {
-                val secondsToAdd = accumulatedSeconds.toInt()
-                coroutineScope.launch {
-                    deps.questionRepository.addReviewTime(questionId, secondsToAdd)
-                }
-            }
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+    LaunchedEffect(questionId, isResumed) {
+        if (!isResumed) return@LaunchedEffect
+        while (true) {
+            delay(15_000)
+            deps.questionRepository.addReviewTime(questionId, 15)
         }
     }
 
@@ -300,7 +288,7 @@ fun QuestionDetailScreen(
                             shape = MaterialTheme.shapes.large,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(
+                            MarkdownText(
                                 text = q.questionText.ifBlank { stringResource(R.string.ask_image_attached) },
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface,
