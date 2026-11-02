@@ -13,12 +13,30 @@ room {
     schemaDirectory("$projectDir/schemas")
 }
 
-// FR4 - đọc API key từ local.properties (KHÔNG commit file này).
+// FR4 - đọc API key (KHÔNG commit các file này).
+// Thứ tự ưu tiên: ai.properties > local.properties > biến môi trường GEMINI_API_KEY.
+// Vì sao có ai.properties: Android Studio ghi đè local.properties mỗi lần sync
+// ("YOUR CHANGES WILL BE ERASED") nên key dán vào đó sẽ bị xoá mất. ai.properties
+// không bị Android Studio chạm tới.
 // Thiếu key thì BuildConfig rỗng và app chạy FakeAiClient.
 val aiProperties = Properties().apply {
-    val f = rootProject.file("local.properties")
-    if (f.exists()) f.inputStream().use { load(it) }
+    listOf("ai.properties", "local.properties").forEach { name ->
+        val f = rootProject.file(name)
+        if (f.exists()) {
+            f.inputStream().use { stream ->
+                Properties().apply { load(stream) }.forEach { (k, v) -> putIfAbsent(k, v) }
+            }
+        }
+    }
 }
+
+fun geminiApiKey(): String =
+    aiProperties.getProperty("GEMINI_API_KEY")?.trim()?.takeIf { it.isNotEmpty() }
+        ?: System.getenv("GEMINI_API_KEY")?.trim().orEmpty()
+
+fun geminiModel(): String =
+    aiProperties.getProperty("GEMINI_MODEL")?.trim()?.takeIf { it.isNotEmpty() }
+        ?: "gemini-3.8-flash"
 
 android {
     namespace = "com.aistudy.aistudy"
@@ -35,8 +53,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "GEMINI_API_KEY", "\"${aiProperties.getProperty("GEMINI_API_KEY", "")}\"")
-        buildConfigField("String", "GEMINI_MODEL", "\"${aiProperties.getProperty("GEMINI_MODEL", "gemini-3.8-flash")}\"")
+        buildConfigField("String", "GEMINI_API_KEY", "\"${geminiApiKey()}\"")
+        buildConfigField("String", "GEMINI_MODEL", "\"${geminiModel()}\"")
     }
 
     buildTypes {

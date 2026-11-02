@@ -54,16 +54,24 @@ Chi tiết quyết định thiết kế: [`docs/PART1_M1_SOFTWARE_DESIGN.md`](do
 
 ### Cấu hình
 
-Copy `AI Study/local.properties.example` → `AI Study/local.properties`:
+**1. SDK** — copy `AI Study/local.properties.example` → `AI Study/local.properties`:
 
 ```properties
 sdk.dir=C\:\\Users\\<ban>\\AppData\\Local\\Android\\Sdk
+```
+
+**2. API key** — copy `AI Study/ai.properties.example` → `AI Study/ai.properties` (đã gitignore):
+
+```properties
 GEMINI_API_KEY=your_key_here
 GEMINI_MODEL=gemini-flash-lite-latest
 ```
 
-- Không commit `local.properties`.
+- Lấy key miễn phí tại https://aistudio.google.com/app/apikey
+- **Không** đặt key trong `local.properties`: Android Studio ghi đè file đó mỗi lần sync SDK (*"YOUR CHANGES WILL BE ERASED"*) và key sẽ mất. Thứ tự ưu tiên: `ai.properties` → `local.properties` → biến môi trường `GEMINI_API_KEY`.
 - Bỏ trống `GEMINI_API_KEY` → app tự dùng `FakeAiClient` để demo offline.
+- Sửa key xong phải build lại (`assembleDebug`): `BuildConfig` sinh lúc compile.
+
 
 ### Build & test
 
@@ -89,6 +97,14 @@ cd "AI Study"
 > `build.ps1` tự tạo ổ `R:` trỏ vào thư mục dự án vì AGP/gradlew không xử lý tốt đường dẫn có dấu tiếng Việt, đồng thời xếp hàng các build Gradle chạy song song.
 >
 > Nếu Windows báo `Address already in use: bind` khi Gradle mở daemon (cạn ephemeral port), chạy `R:\gradlew.bat -p R:\ --no-daemon :app:connectedDebugAndroidTest` hoặc `R:\gradlew.bat -p R:\ --stop` rồi thử lại.
+
+> **Emulator không gọi được AI (`Kiểm tra kết nối mạng`)**: DNS proxy của emulator đôi khi chết — `ping 8.8.8.8` vẫn được nhưng `ping generativelanguage.googleapis.com` báo `unknown host`, và `AiException.Network` chỉ được ném ra khi tên miền không phân giải được. Khởi động lại emulator kèm DNS tường minh:
+>
+> ```powershell
+> & "$env:LOCALAPPDATA\Android\Sdk\emulator\emulator.exe" -avd Medium_Phone -dns-server 8.8.8.8,1.1.1.1
+> ```
+>
+> Lỗi này **không liên quan tới API key**. Nếu key sai/bị khoá thì log `GeminiAPI` hiện `← HTTP 403 API_KEY_SERVICE_BLOCKED` chứ không phải lỗi mạng.
 
 ## Test & CI
 

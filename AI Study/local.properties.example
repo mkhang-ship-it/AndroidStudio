@@ -4,8 +4,12 @@
 # Cách dùng:
 #   1. Copy file này thành `local.properties` (cùng thư mục).
 #   2. Điền sdk.dir đúng máy của bạn.
-#   3. Điền GEMINI_API_KEY nếu muốn gọi AI thật; để trống thì app tự chạy
-#      FakeAiClient (chế độ mô phỏng) — unit test vẫn xanh.
+#   3. (Tuỳ chọn) Copy `ai.properties.example` thành `ai.properties` ở cùng thư
+#      mục để điền GEMINI_API_KEY. Không có file đó thì app tự chạy FakeAiClient
+#      (chế độ mô phỏng) — unit test vẫn xanh.
+#
+# Vì sao key KHÔNG nằm trong local.properties: Android Studio ghi đè file này
+# mỗi lần sync SDK ("YOUR CHANGES WILL BE ERASED") và key dán vào đây sẽ mất.
 #
 # `local.properties` nằm trong .gitignore → TUYỆT ĐỐI không commit file thật.
 # ---------------------------------------------------------------------------
@@ -15,7 +19,3 @@
 # macOS  : sdk.dir=/Users/<ten ban>/Library/Android/sdk
 # Linux  : sdk.dir=/home/<ten ban>/Android/Sdk
 sdk.dir=
-
-# Lấy key miễn phí tại https://aistudio.google.com/app/apikey
-GEMINI_API_KEY=
-GEMINI_MODEL=gemini-3.8-flash

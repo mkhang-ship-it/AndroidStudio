@@ -96,7 +96,7 @@
     <string name="ask_error_malformed">Câu trả lời AI không đúng định dạng. Thử lại.</string>
     <string name="ask_answer_loading">AI đang suy nghĩ…</string>
     <string name="ask_fake_mode_banner">Chế độ mô phỏng — chưa có API key Gemini.</string>
-    <string name="ask_fake_mode_body">Đặt GEMINI_API_KEY trong AI Study/local.properties rồi build lại để dùng AI thật.</string>
+    <string name="ask_fake_mode_body">Đặt GEMINI_API_KEY trong AI Study/ai.properties rồi build lại để dùng AI thật.</string>
     <string name="ask_cached_badge">Từ bộ nhớ đệm</string>
     <string name="ask_matched_note">Câu hỏi này gần giống câu bạn đã hỏi, nên không tốn phí gọi AI.</string>
     <string name="ask_difficulty_label">Độ khó</string>

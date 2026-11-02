@@ -1,0 +1,18 @@
+# ---------------------------------------------------------------------------
+# ai.properties.example — bản mẫu, AN TOÀN để commit.
+#
+# Cách dùng: copy file này thành `ai.properties` (cùng thư mục) rồi điền key.
+#
+# Vì sao tách khỏi local.properties: Android Studio ghi đè local.properties mỗi
+# lần sync SDK ("YOUR CHANGES WILL BE ERASED"), nên key dán vào đó sẽ bị xoá.
+# `ai.properties` không bị Android Studio chạm tới.
+#
+# Thứ tự ưu tiên khi build: ai.properties → local.properties → biến môi trường
+# GEMINI_API_KEY. Không có key ở đâu cả → app chạy FakeAiClient (mô phỏng).
+#
+# `ai.properties` nằm trong .gitignore → TUYỆT ĐỐI không commit file thật.
+# ---------------------------------------------------------------------------
+
+# Lấy key miễn phí tại https://aistudio.google.com/app/apikey
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-flash-lite-latest
