@@ -70,7 +70,7 @@
 | D-6 | Mật khẩu | **PBKDF2-HMAC-SHA256**, 120.000 vòng, salt 16 byte ngẫu nhiên | Không lưu plaintext, chống rainbow table, không cần BCrypt ngoài | Chậm ~80 ms/lần → phải chạy ngoài luồng chính |
 | D-7 | Khoá phiên | **EncryptedSharedPreferences** | `PREFS_AUTH` trong tài liệu, đồng thời thoả "encrypted storage" | Phụ thuộc `androidx.security:security-crypto` |
 | D-8 | Ảnh câu hỏi | **AES-GCM-256**, khoá trong **Android Keystore**, file trong `filesDir` | NFR "encrypted storage for uploaded images" | Phải xử lý khi user đổi máy (không backup được khoá) |
-| D-9 | Cache AI | **SHA-256 hash + Jaccard similarity ≥ 0.85** | Brief **bắt buộc** "reduce repeated AI calls through caching" | Trả nhầm câu trả lời nếu ngưỡng quá thấp → cần hiển thị badge "tái dùng" |
+| D-9 | Cache AI | **SHA-256 hash + containment ≥ 0.85, jaccard ≥ 0.6, chỉ được khác từ nối** | Brief **bắt buộc** "reduce repeated AI calls through caching" | Trả nhầm câu trả lời nếu ngưỡng quá thấp → cần hiển thị badge "tái dùng" |
 | D-10 | Enum trong DB | Room tự lưu `String` | Đọc DB được (không phải số 1/2/3 vô nghĩa) | Đổi tên enum = đổi dữ liệu → phải có migration |
 | D-11 | Môn học | `Subject` là enum, lưu dạng `String` | 5 môn cố định trong brief, không cần bảng riêng | Thêm môn mới = migration + logic AI |
 | D-12 | Leaderboard | **Placeholder local** | Không có server trong MVP | Không đúng nghĩa "global" → phải ghi rõ trong design doc |
@@ -237,7 +237,7 @@ Quan hệ đều **1-n**, không có bảng nối nào ngoài `user_badges` (com
 2.  → StudyRepository.submitQuestion()
 3.     a) chuẩn hoá text → questionHash = SHA256
 4.     b) QuestionAnswerDao.findByHash(hash)        ─┐
-5.     c) QuestionSimilarity.findSimilar(text, 0.85) ├─ HIT  → trả QuestionAnswer cũ, servedFromCache=true, XẾT bước 9
+5.     c) ReusePolicy.select(exact, candidates)      ├─ HIT  → trả QuestionAnswer cũ, servedFromCache=true, XẾT bước 9
 6.     d) ImageStore.encrypt(uri) → path + iv       │        (KHÔNG tốn tiền AI)
 7.     e) AiClient.generateAnswer(AiRequest)        │
 8.     f) parse AiResponse → AiAnswer               ┘

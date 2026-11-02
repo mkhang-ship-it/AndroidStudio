@@ -229,4 +229,105 @@ class QuestionSimilarityTest {
         assertEquals("dai hoc", QuestionSimilarity.stripDiacritics("đại học"))
         assertEquals("Da Nang", QuestionSimilarity.stripDiacritics("Đà Nẵng"))
     }
+
+    // ----- Hồi quy: KHÔNG được nhận nhầm câu "na ná" nhưng khác nghĩa -----
+    //
+    // Mười cặp dưới đây từng bị isSimilar trả về true ở ngưỡng 0.85, khiến app
+    // trả đáp án của câu này cho câu khác. Nguyên nhân: STOP_WORDS ăn mất từ mang
+    // nội dung ("vẽ", "đồ thị", "nhất"…) nên hai câu khác nghĩa trở thành tập con
+    // của nhau và containment = 1.0.
+
+    @Test
+    fun `isSimilar phan biet thu nhat va thu hai`() {
+        assertFalse(
+            QuestionSimilarity.isSimilar(
+                "Nguyên nhân chiến tranh thế giới thứ nhất",
+                "Nguyên nhân chiến tranh thế giới thứ hai"
+            )
+        )
+    }
+
+    @Test
+    fun `isSimilar phan biet dao ham va ve do thi`() {
+        assertFalse(
+            QuestionSimilarity.isSimilar(
+                "Tính đạo hàm của hàm số f(x) = x^2",
+                "Vẽ đồ thị của hàm số f(x) = x^2"
+            )
+        )
+    }
+
+    @Test
+    fun `isSimilar phan biet dao ham va tich phan`() {
+        assertFalse(
+            QuestionSimilarity.isSimilar(
+                "Tính đạo hàm của hàm số f(x) = x^2",
+                "Tính tích phân của hàm số f(x) = x^2"
+            )
+        )
+    }
+
+    @Test
+    fun `isSimilar phan biet phuong trinh va bat phuong trinh`() {
+        assertFalse(
+            QuestionSimilarity.isSimilar(
+                "Giải phương trình x^2 - 5x + 6 = 0",
+                "Giải bất phương trình x^2 - 5x + 6 = 0"
+            )
+        )
+    }
+
+    @Test
+    fun `isSimilar phan biet dien tro va hieu dien the`() {
+        assertFalse(
+            QuestionSimilarity.isSimilar(
+                "Công thức tính điện trở của dây dẫn",
+                "Công thức tính hiệu điện thế của dây dẫn"
+            )
+        )
+    }
+
+    @Test
+    fun `isSimilar phan biet thu do cac nuoc`() {
+        assertFalse(
+            QuestionSimilarity.isSimilar("Thủ đô của Việt Nam là gì", "Thủ đô của Lào là gì")
+        )
+    }
+
+    @Test
+    fun `isSimilar phan biet van toc va quang duong`() {
+        assertFalse(
+            QuestionSimilarity.isSimilar(
+                "Một xe đi 60km trong 2 giờ, tính vận tốc",
+                "Một xe đi 60km trong 2 giờ, tính quãng đường"
+            )
+        )
+    }
+
+    @Test
+    fun `isSimilar phan biet hoa tri cua hai kim loai`() {
+        assertFalse(
+            QuestionSimilarity.isSimilar(
+                "Tính hóa trị của sắt trong hợp chất Fe2O3",
+                "Tính hóa trị của đồng trong hợp chất CuO"
+            )
+        )
+    }
+
+    /** Ngược lại: thêm từ chức năng vào cùng một bài thì VẪN phải trúng cache. */
+    @Test
+    fun `isSimilar van trung khi cau khong doi noi dung`() {
+        assertTrue(
+            QuestionSimilarity.isSimilar(
+                "Tính đạo hàm của hàm số f(x) = x^2",
+                "Tính đạo hàm hàm số f(x) bằng x^2"
+            )
+        )
+        assertTrue(
+            QuestionSimilarity.isSimilar(
+                "Giải thích định lý Pythagore",
+                "Giải thích định lý Pythagore?"
+            )
+        )
+    }
 }

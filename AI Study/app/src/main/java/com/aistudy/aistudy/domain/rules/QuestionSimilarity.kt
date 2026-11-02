@@ -19,6 +19,9 @@ object QuestionSimilarity {
      *
      * Cao quá thì miss nhiều câu nên lãng phí tiền; thấp quá thì trả nhầm câu trả
      * lời của câu hỏi khác — rủi ro nghiêm trọng hơn nhiều với app học tập.
+     *
+     * Lưu ý: chỉ ngưỡng này KHÔNG đủ để chặn câu "na ná nhưng khác nghĩa" — xem
+     * [CONNECTOR_TOKENS] và [isSimilar].
      */
     const val SIMILARITY_THRESHOLD = 0.85
 
@@ -81,6 +84,21 @@ object QuestionSimilarity {
         Regex("(?<![\\p{L}\\p{N}])c\\s*\\+\\+") to "cpp",
         Regex("(?<![\\p{L}\\p{N}])f\\s*#") to "fsharp",
         Regex("\\.net") to "dotnet"
+    )
+
+    /**
+     * Từ nối được phép khác nhau mà vẫn coi là cùng một câu hỏi.
+     *
+     * Tách khỏi [STOP_WORDS] có chủ ý: stop word bị bỏ **hẳn** khỏi tập token nên
+     * không ảnh hưởng điểm số, còn những từ ở đây vẫn được tính là token thật
+     * (giữ nguyên hành vi đo độ giống của Jaccard/containment) nhưng nếu chúng là
+     * **phần duy nhất** chênh lệch thì vẫn cho phép tái dùng đáp án.
+     *
+     * Chỉ nhận từ nối thật sự. TUYỆT ĐỐI không thêm từ mang nội dung như "bat"
+     * (bất), "hai" (hai), "nhat" (nhất), "ve" (vẽ) — thêm vào là trả nhầm đáp án.
+     */
+    private val CONNECTOR_TOKENS = setOf(
+        "bang", "theo"
     )
 
     private fun keyTokens(text: String): Set<String> = tokenize(text)
@@ -164,7 +182,29 @@ object QuestionSimilarity {
     fun isSimilar(a: String, b: String, threshold: Double = SIMILARITY_THRESHOLD): Boolean =
         containment(a, b) >= threshold &&
             jaccard(a, b) >= MIN_JACCARD_GUARD &&
-            keyTokens(a) == keyTokens(b)
+            keyTokens(a) == keyTokens(b) &&
+            onlyConnectorsDiffer(a, b)
+
+    /**
+     * Chặn cuối — chặn đúng loại sai nguy hiểm nhất: **câu na ná nhưng khác nghĩa**.
+     *
+     * Hai ngưỡng trên không phân biệt được "cùng một bài, khác một từ nối" với
+     * "khác một từ khoá", vì cả hai đều lệch đúng một token:
+     *
+     *  - "Tính đạo hàm ... f(x) = x^2" vs "... f(x) **bằng** x^2"  → cùng bài
+     *  - "Giải phương trình ... = 0"   vs "Giải **bất** phương trình ... = 0" → khác bài
+     *  - "... chiến tranh thế giới thứ **nhất**" vs "thứ **hai**"     → khác bài
+     *
+     * Quy tắc: phần chênh lệch giữa hai tập token **chỉ được chứa từ nối**. Khác
+     * một từ nội dung — dù chỉ một — là từ chối và gọi AI lại, vì trả nhầm đáp án
+     * tệ hơn nhiều so với tốn thêm một lần gọi.
+     */
+    private fun onlyConnectorsDiffer(a: String, b: String): Boolean {
+        val setA = tokenize(a)
+        val setB = tokenize(b)
+        return (setA - setB).all { it in CONNECTOR_TOKENS } &&
+            (setB - setA).all { it in CONNECTOR_TOKENS }
+    }
 
     /**
      * Hệ số bao phủ = |A ∩ B| / min(|A|, |B|).

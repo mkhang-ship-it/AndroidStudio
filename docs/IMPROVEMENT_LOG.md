@@ -28,6 +28,7 @@
 | 19 | Schema trả lời | JSON cũ gộp mọi thứ vào `answerText` | Schema `steps[{title,body,expr}]` + `finalAnswer`; render công thức thành block | `GeminiAiClient.kt`, `GeminiParsingTest.kt` |
 | 20 | Nhận diện môn | "hàm số trong Java" bị trả về Toán dù detector đã thấy "java" | Ưu tiên subject người dùng chọn / keyword detector; prompt thêm hint + quy tắc code | `QuestionRepositoryImpl.kt`, `GeminiAiClient.kt`, `SubjectDetector.kt` |
 | 21 | Cache nhầm câu | Hỏi "hàm số trong C#" bị trả đáp án Java do `C#`/`C++` mất token | Chuẩn hoá `c#→csharp`, `c++→cpp`; key-token guard cho số liệu + tên ngôn ngữ | `QuestionSimilarity.kt`, `ReusePolicyTest.kt`, `QuestionSimilarityTest.kt` |
+| 22 | Cache nhầm câu "na ná" | "chiến tranh thế giới thứ **nhất**" vs "thứ **hai**", "phương trình" vs "**bất** phương trình", "tính **điện trở**" vs "**hiệu điện thế**"… bị coi là cùng một câu (containment = 1.0 vì câu này là tập con của câu kia) ⇒ trả nhầm đáp án | Thêm `CONNECTOR_TOKENS`: phần chênh lệch giữa hai tập token **chỉ được chứa từ nối** ("bằng", "theo"); khác một từ nội dung là gọi AI lại. 8 cặp câu na ná + 2 ca phải trúng cache thành test hồi quy | `QuestionSimilarity.kt`, `QuestionSimilarityTest.kt` |
 
 ## 2. Chi tiết kỹ thuật
 
