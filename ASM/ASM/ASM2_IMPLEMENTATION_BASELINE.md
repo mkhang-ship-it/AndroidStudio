@@ -6,6 +6,8 @@
 **Platform for ASM2 evidence:** Pixel emulator, Android 15 (API 35), English report.
 **Rule:** every non-verified item is marked **PENDING**. Do not promote a PENDING item to a fact without the artefact listed in `ASM2_EVIDENCE_LOG.md`.
 
+> **Superseded baseline (2026-11-09).** Iterated evidence now exists: 16 authoritative real-final images, real Gemini ask/quiz HTTP 200, 159 JVM tests and 39/39 instrumented tests after the fix, plus cold start and Ask round-trip measurements. Use `ASM2_REPORT_COMPACT.md`, `FINAL_QA.md` and `REPORT_FINAL_QA.md` for current claims.
+
 ---
 
 ## 0. Truth rules for this baseline
@@ -14,7 +16,7 @@
 2. "Implemented" means the code path exists and compiles. It does **not** mean the behaviour was observed on a device.
 3. No peer-review participant, response, rating, screenshot, test result, GitHub action run, or performance number may be invented.
 4. Existing project documents contain historical claims that no longer match the repository (see §8). The repository is the source of truth.
-5. Pixel API 35 evidence is **not yet captured**; no claim in ASM2 may say otherwise.
+5. Pixel API 35 evidence was captured on 2026-11-09 (`real-final/`); this baseline predates it.
 
 ---
 
@@ -33,7 +35,7 @@ Source: `C:\Users\ADMIN\orca\AndroidStudio\ASM\ASM\Assignment part 2.docx` and `
 | 3 | M5 | Critical review of design, development and testing stages including risks | Critical review section |
 | 3 | D2 | Justify improvements made and not made because of feedback; further development | Feedback decisions section |
 
-Submission constraints from the brief: group report, Calibri 12, 1.5 line spacing, margins left 1.25 cm / right 1 cm / top 1 cm / bottom 1 cm, page numbers, Harvard referencing, 2,000–2,500 words excluding tables/figures/appendices, front sheet 2, PDF upload.
+Submission constraints from the brief: group report in the brief's wording (this submission is individual, so group and member fields are N/A), Calibri 12, 1.5 line spacing, margins left 1.25 cm / right 1 cm / top 1 cm / bottom 1 cm, page numbers, Harvard referencing, 2,000–2,500 words excluding tables/figures/appendices, front sheet 2, PDF upload.
 
 ---
 
@@ -60,11 +62,11 @@ Source: `BC00720_KhangNM_Assignment_Part1.pdf` (Section 4, M1) and `docs/PART1_M
 
 | ID | Part 1 statement | As-built reality |
 |---|---|---|
-| NFR1 | UI ≤100 ms; progress during AI call | Loading UI and coroutines exist; **no measurement evidence** |
+| NFR1 | UI ≤100 ms; progress during AI call | Loading UI and coroutines exist; cold start and Ask round trip measured, 100 ms UI-frame timing pending (superseded baseline) |
 | NFR2 | Question submittable in ≤3 actions | UI supports it; **no usability measurement** |
-| NFR3 | Android 13 (API 33)+ | `minSdk = 33`, `targetSdk = 37`; API 35 runtime evidence **PENDING** |
+| NFR3 | Android 13 (API 33)+ | `minSdk = 33`, `targetSdk = 37`; executed on API 35 (real-final) |
 | NFR4 | Data encrypted at rest, minimised | Session and images encrypted; Room question/answer rows are **not** encrypted |
-| NFR5 | Saved answers readable offline | Room persistence provides this; **no aeroplane-mode evidence** |
+| NFR5 | Saved answers readable offline | Room persistence provides this; offline error/recovery observed; no queue or timing |
 | NFR6 | Password strength, optional 2FA, lockout after 5 failures | Hash + lockout implemented; **no 2FA flow** (nullable DB column only) |
 
 ### 2.3 Part 1 test plan (T1–T10)
@@ -291,7 +293,7 @@ This is the structure for P6. Do **not** mark "Met" without an executed test.
 
 | ID | Finding | Evidence | Consequence for report |
 |---|---|---|---|
-| L-01 | Test-count claims in existing docs are stale | Part 1 PDF says 120 tests; `docs/IMPROVEMENT_LOG.md` says 143; `docs/TEST_REPORT_NP5.md` says 76 (2026-10-15); current run = 152 in 12 classes | Use 152 with date and XML source; do not reuse old numbers |
+| L-01 | Test-count claims in existing docs are stale | Part 1 PDF says 120 tests; `docs/IMPROVEMENT_LOG.md` says 143; `docs/TEST_REPORT_NP5.md` says 76 (2026-10-15); baseline run = 152 in 12 classes; after the practice fix the current run is **159 in 13 classes** | Use 159 with date and XML source; do not reuse old numbers |
 | L-02 | No offline queue / connectivity observer | grep for `ConnectivityManager`, `WorkManager`, `pending` in `app/src/main` returns nothing; Part 1 §4.4 and NFR5 describe a pending queue | ASM2 must report partial offline support, not the designed behaviour |
 | L-03 | Room text is not encrypted | `QuestionAnswer` stores `questionText`/`answerText` as plain columns; only session and images are encrypted | NFR4 "encrypted at rest" is partial; `TC-SEC-02` would fail as written |
 | L-04 | `AbuseFilter` is not wired | Only `AbuseFilterTest` references it; ask/quiz flow never calls `isBlocked` | `TC-SEC-08` unproven; either test as absent or wire later (out of this scope) |

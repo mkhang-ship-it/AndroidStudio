@@ -6,6 +6,8 @@
 **Date:** 2026-11-09
 **Status:** PLANNING ONLY — no source changes, no report prose, no fabricated evidence.
 
+> **Superseded snapshot (2026-11-09).** Runtime evidence was captured after this plan was written. Current status: 16 authoritative real-final images, real Gemini ask/quiz HTTP 200, and cold start (n=5) and Ask round trip (n=3) measured. Use `ASM2_REPORT_COMPACT.md`, `FINAL_QA.md` and `REPORT_FINAL_QA.md` for current claims; the rows below are retained as the original plan.
+
 ---
 
 ## 0. Scope, rules and evidence policy
@@ -233,7 +235,7 @@ Fill the final "Test / actual outcome" and "Evidence" columns only with what you
 | FR8 | `ProgressRepositoryImpl`, `ProgressScreen`, `ProgressInsights` | Met | No measurement |
 | FR9 | `GamificationRepositoryImpl`, `XpRules`, `BadgeCatalog` | **Partial** | Local only, no leaderboard |
 | FR10 | `NotificationRepositoryImpl`, notification screens | **Partial** | No review reminders; English-only mistake keywords |
-| NFR1 | coroutines/IO, progress card | **Not tested** | Needs measurement |
+| NFR1 | coroutines/IO, progress card | **Partial (observation)** | Cold start n=5 and Ask round trip n=3 measured; 100 ms UI-frame timing pending |
 | NFR2 | Ask screen flow | **Not tested** | Count actions manually |
 | NFR3 | `minSdk = 33` | Met | Build config |
 | NFR4 | PBKDF2, AES-GCM, EncryptedPrefs, minimal permissions | **Partial** | SQLite columns unencrypted; image files not deleted on account removal |
@@ -376,7 +378,7 @@ Steps 4 and 5 can run in parallel with 1–3. Step 5 needs the instrumented suit
 |---|---|
 | G1 Evidence integrity | Every factual sentence in the final report maps to an entry in `ASM2_EVIDENCE_CHECKLIST.md`, or is explicitly labelled as a limitation. |
 | G2 P4 completeness | Questionnaire, participant table with real identities, raw responses, aggregation — all present. |
-| G3 P5 completeness | APK installs on Pixel API 35; all 20 screenshots present; build + run instructions reproduce a working install. |
+| G3 P5 completeness | APK installs on Pixel API 35; the 16 authoritative final screenshots are present (optional captures are supplementary); build and run instructions reproduce a working install. |
 | G4 M4 strength | Each selected tool has activity-level evidence, not a name in a table. |
 | G5 P6 integrity | ≥20 test cases with expected/actual; no "Met" without a result; "Not tested" used where appropriate. |
 | G6 M5 depth | Risk table shows observed evidence and residual risk; testing critique names real coverage gaps. |

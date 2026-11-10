@@ -3,7 +3,7 @@
 **Scope:** source-only software ZIP and sanitised debug APK for the Unit 22 Assignment Part 2 submission.
 **Target branch for verified copies:** `Assignment_Report`.
 **Prepared:** 2026-11-10 in the AUDIT worktree.
-**Status:** checklist only. The ZIP, the packaged APK, `SOFTWARE_PACKAGE_DRAFT.md` and `PACKAGE_QA.md` are being produced in the Assigment worktree and are **not present in AUDIT**, so every item below is `PENDING` until the coordinator copies the archive here and it is inspected. Nothing in this file asserts that a package exists.
+**Status:** checklist only. The archive was produced in the Assigment worktree: `ASM/ASM/deliverables/software/ASM2_Software_Package.zip` (243 files, 16,680,560 bytes, SHA-256 `340b92e27410090bdf05262e1674274eff1c141eb8ad9f32c87360355e816d90`) and its QA is in `PACKAGE_QA.md`. The package is **not present in AUDIT**; every item below stays `PENDING` until the coordinator copies the archive here and it is inspected. Nothing in this file asserts that AUDIT holds the package.
 
 **Rules:** do not modify app source; do not fabricate survey, consent, reference or rehearsal data; do not commit or push from AUDIT unless explicitly instructed.
 
@@ -49,7 +49,7 @@ Any hit is a `FAIL`, not a warning.
 |---|---|
 | `local.properties` | Local SDK path; machine-specific. |
 | `ai.properties` | Contains the Gemini key. |
-| `*.properties` containing `GEMINI_API_KEY=<value>` | Secret material. |
+| `*.properties` containing an assigned provider-key field | Secret material. |
 | `*.jks`, `*.keystore` | Signing material. |
 | `.git/` | History and remote metadata. |
 | `.gradle/`, `.kotlin/` | Local caches. |
@@ -71,7 +71,7 @@ Scan every text file and the APK. Expected result: **no key-shaped match and no 
 | Pattern | Expected |
 |---|---|
 | `AIza[0-9A-Za-z_-]{35}` | 0 matches |
-| `GEMINI_API_KEY\s*=\s*<value>` | 0 matches; the bare field name may appear in `BuildConfig` |
+| Provider-key assignment pattern | 0 matches; the bare field name may appear in `BuildConfig` |
 | `sk-[A-Za-z0-9]{20,}` | 0 matches |
 | `AKIA[0-9A-Z]{16}` | 0 matches |
 | `ghp_`, `gho_`, `ghs_`, `ghu_`, `ghr_` tokens | 0 matches |

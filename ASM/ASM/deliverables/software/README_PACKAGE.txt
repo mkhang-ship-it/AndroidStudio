@@ -165,8 +165,8 @@ Run locally:
 ------------------------------------------------------------------
 Archive:   ASM2_Software_Package.zip
 Members:   243 files
-Size:      16,680,495 bytes
-SHA-256:   836607729dde6b2f0e3b6cb924448c3a91ddeaead2ba2d1066369f213f2de820
+Size:      16,680,560 bytes
+SHA-256:   340b92e27410090bdf05262e1674274eff1c141eb8ad9f32c87360355e816d90
 
 Verification (performed 2026-11-10):
   - 243 member files listed after creation.

@@ -6,7 +6,7 @@
 **Evidence pack:** `ASM/ASM/ASM2_REPORT_DRAFT.md` (full tagged draft; keep for traceability and appendices)
 **Required inputs:** `ASM/ASM/ASM2_REPORT_INPUTS.md`
 **Checklist:** `ASM/ASM/ASM2_SUBMISSION_CHECKLIST.md`
-**Prepared:** 2026-11-09
+**Prepared:** 2026-11-09; **updated:** 2026-11-10 (draft exports and software archive verified)
 
 ## Front sheet metadata (copy into the supplied template)
 
@@ -152,7 +152,7 @@ Work in a copy. Do not edit the source draft in place after the writing pass beg
 4. Complete the front sheet using the metadata block at the top of this file; make it page 1 without a page number. Insert a section break (Next page) and restart numbering at 1 for the body.
 5. Paste sections 1–7 from `ASM2_REPORT_COMPACT.md` in order. Apply heading styles as you go so the contents page can be generated.
 6. Strip the tags per §4.
-7. Insert Figures 1–5 from §2.1 at the marked positions; centre each; set screenshot width to 6.0–6.5 cm. Insert Tables 1–9 where the compact source places them and keep their captions.
+7. Insert Figures 1–6 from §2.1 at the marked positions; centre each; set screenshot width to 6.0–6.5 cm. Insert Tables 1–9 where the compact source places them and keep their captions.
 8. Add captions with References → Insert Caption. Keep automatic numbering; a manual "Figure 1" typed as text will drift.
 9. Add cross-references to figures and tables in the prose (References → Cross-reference).
 10. Build the table of contents (References → Table of Contents) and the list of figures/tables.
@@ -172,7 +172,7 @@ Work in a copy. Do not edit the source draft in place after the writing pass beg
 3. Check that the table of contents page numbers match the body.
 4. Confirm no internal tag text survives: search the PDF for `[VERIFIED`, `[PENDING`, `[DOC-ONLY`, `[INSERT FIGURE`.
 5. Confirm the evidence gate holds: Figures 4–6 are `real-final/` captures, and every root-folder caption is marked `DEMO / NON-FINAL`.
-6. Confirm the API key does not appear: search for `AIza` and for `GEMINI_API_KEY=`.
+6. Confirm the API key does not appear: search for the Google key prefix and for an assigned provider-key field.
 7. Check the word count claim against 2,936 and confirm the exclusion method (tables, figures, references, appendices).
 8. Confirm tables are numbered 1–9 and figures 1–6 with no gaps.
 9. Open the PDF on a second machine or a different viewer.
@@ -182,22 +182,27 @@ Work in a copy. Do not edit the source draft in place after the writing pass beg
 
 ## 8. Software package contents
 
+Verified archive (2026-11-10): `ASM/ASM/deliverables/software/ASM2_Software_Package.zip`,
+243 files, 16,680,560 bytes, SHA-256
+`340b92e27410090bdf05262e1674274eff1c141eb8ad9f32c87360355e816d90`.
+
 ```
 ASM2_Software_Package.zip
-├── source/            AI Study source, no build folders, no local.properties, no ai.properties
-├── app-debug.apk      debug build, versionName 1.0
-├── README.md          build and run instructions
-├── USER_GUIDE.md      supplied at ASM/ASM/USER_GUIDE.md
-└── EVIDENCE/          JVM XML, instrumented XML, screenshot manifest
+├── AI Study/                    source, Gradle wrapper/config, tests, Room schemas
+├── docs/                        design/test docs and UML sources + PNGs
+├── ASM/ASM/                     user guide, NFR/runtime evidence, real-final set
+├── AIStudy-sanitized-debug.apk  offline debug build, no provider key
+├── README_PACKAGE.txt           build, install and Gemini configuration
+└── FILE_LIST.txt                exact member list
 ```
 
-Checks before zipping:
+Checks completed (see `PACKAGE_QA.md`):
 
-- [ ] List the archive contents and read them; do not trust the compression step
-- [ ] No `local.properties`, `ai.properties`, `.keystore`, `.jks` or token files
-- [ ] No `build/` directories, no `.gradle/` caches
-- [ ] APK installs from inside the archive on a clean emulator
-- [ ] README reproduces a runnable build without editing source
+- [x] Archive contents listed after creation (243 members)
+- [x] No `local.properties`, `ai.properties`, `.keystore`, `.jks` or token files
+- [x] No `build/` directories, no `.gradle/` caches
+- [x] Sanitized APK installed on `Pixel_6_API_35`; fixed keyed APK excluded
+- [x] 16 authoritative final PNGs; 0 parent demo PNGs; 0 key-like hits
 
 ---
 
@@ -206,15 +211,15 @@ Checks before zipping:
 | # | Input | Why it is needed | Owner | Blocks |
 |---|---|---|---|---|
 | 1 | Front-sheet completion: submission date, final scores, signatures | Student, ID, class and assessor supplied; group/member fields N/A — individual submission; date, scores and signatures `[PENDING]` | Student / assessor | Export |
-| 2 | Reviewer recruitment and real responses | P4, M3, D2, Appendices A–B | Group | Sections 2 and 6.1 |
-| 3 | Consent for names, roles and quotations | Ethical use of participant data | Group | Appendix B |
+| 2 | Reviewer recruitment and real responses | P4, M3, D2, Appendices A–B | Student | Sections 2 and 6.1 |
+| 3 | Consent for names, roles and quotations | Ethical use of participant data | Student | Appendix B |
 | 4 | Tutor decision on the word limit (`DEC-01`) | The compact body is 2,936 words, inside the Activity 2 limit; if the 2,000–2,500 whole-report limit governs, about 400 words must be cut | Tutor | Export |
 | 5 | Remaining measurements: action count, history open, offline timing | Cold start (median 3284 ms) and Ask round trip (median 913 ms) are measured; NFR2 and the remaining rows stay pending | Tester with the emulator | P6 completeness |
-| 6 | Remaining optional capture: OS-level push permission | Login-after-logout, image question and offline error/recovery are captured in `real-final/optional/` as supplementary evidence | Group | Nothing mandatory |
-| 7 | Demo-account procedure only (the user guide is supplied) | Completes P5 support documentation | Group | Package |
-| 8 | Presentation rehearsal and live demo (12-slide DRAFT deck and PDF supplied) | Activity 2 delivery | Group | Presentation |
-| 9 | Reference verification: 17 external entries plus project documents in `ASM2_HARVARD_REFERENCES.md` | Confirm URLs, access dates and editions before export | Group | Section 10 |
-| 10 | Final read-through and sign-off by every member | Ownership of the submitted text | Group | Upload |
+| 6 | Remaining optional capture: OS-level push permission | Login-after-logout, image question and offline error/recovery are captured in `real-final/optional/` as supplementary evidence | Student | Nothing mandatory |
+| 7 | Demo-account procedure only (the user guide is supplied) | Completes P5 support documentation | Student | Package |
+| 8 | Presentation rehearsal and live demo (12-slide DRAFT deck and PDF supplied) | Activity 2 delivery | Student | Presentation |
+| 9 | Reference verification: 17 external entries plus project documents in `ASM2_HARVARD_REFERENCES.md` | Confirm URLs, access dates and editions before export | Student | Section 10 |
+| 10 | Final read-through and sign-off by the student | Ownership of the submitted text | Student | Upload |
 
 Item 5 is needed only for the unmeasured NFR2/history rows; item 6 is optional. Items 1, 2, 4, 7 and 8 are required.
 

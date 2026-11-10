@@ -5,7 +5,9 @@
 **Environment:** Windows 11, Python 3.14.5, PowerShell 5.1.
 **Rule:** read-only checks. No app source was modified, and no commit or push was performed.
 
-**What this record does not cover:** the software ZIP and the packaged APK are being produced in the Assigment worktree. Neither exists in AUDIT, so ZIP inspection, APK install and packaged-APK key scanning remain `PENDING` in `PACKAGE_HANDOVER_CHECKLIST.md` and `PACKAGE_REVIEW_TEMPLATE.md`.
+> **Follow-up (2026-11-10):** rows below describe the earlier snapshot. Current stale-claim corrections, binary inspection and the open gates are recorded in `REPORT_FINAL_QA.md`.
+
+**What this record does not cover:** the software ZIP and packaged APK now exist in the Assigment worktree (`ASM2_Software_Package.zip`, recorded in `PACKAGE_QA.md`). They are not present in AUDIT, so ZIP inspection, APK install and packaged-APK key scanning remain `PENDING` in `PACKAGE_HANDOVER_CHECKLIST.md` and `PACKAGE_REVIEW_TEMPLATE.md`.
 
 ---
 

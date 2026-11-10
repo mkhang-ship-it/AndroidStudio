@@ -2,6 +2,7 @@
 
 **Scope:** `ASM/ASM/ASM2_REPORT_COMPACT.md`, `ASM/ASM/ASM2_REPORT_DRAFT.md`, `ASM/ASM/FINAL_REPORT_PACKAGE.md`, `ASM/ASM/ASM2_SUBMISSION_CHECKLIST.md`, evidence set `ASM/ASM/evidence/`.
 **Date:** 2026-11-10.
+**Follow-up:** binary inspection and stale-claim corrections are recorded in `REPORT_FINAL_QA.md`.
 **Rule applied:** verification and evidence-gate labelling only. No prose was invented, no screenshot was fabricated, and no application source was touched by this worktree. Draft DOCX, PDF and PPTX now exist under `deliverables/draft/` and are labelled DRAFT.
 
 ---

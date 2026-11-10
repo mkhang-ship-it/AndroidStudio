@@ -118,7 +118,7 @@ Included instead:
   `e7391113c18907d71b84e8e9856e02a0e3ece9ee447bebb32fdb526e82e18700`).
 - Rebuilt from an isolated copy with no `ai.properties`, no key in
   `local.properties`, and `GEMINI_API_KEY` unset.
-- `BuildConfig.GEMINI_API_KEY == ""`; the app runs offline `FakeAiClient`.
+- The provider-key field in `BuildConfig` is empty; the app runs offline `FakeAiClient`.
 - Scan of all 170 APK entries: 0 provider-key-like hits.
 - Installed successfully on Pixel_6_API_35 (Android 15 / API 35).
 

@@ -42,7 +42,7 @@ Every factual statement is tagged so that the final edit cannot silently promote
 | Document | ASM2 final report — AI Study Mentor |
 | Version | 0.1 (source draft) |
 | Baseline commit | `79c523a` — “feat: đọc API key từ ai.properties để không bị Android Studio xoá”, 2026-11-02 `[VERIFIED: git log -1]` |
-| Branch | `mkhang-ship-it/AUDIT` `[VERIFIED: git rev-parse --abbrev-ref HEAD]` |
+| Branch | `Assignment_Report` (report QA branch); audit baseline `mkhang-ship-it/AUDIT` `[VERIFIED: git rev-parse --abbrev-ref HEAD]` |
 | Evidence register | `ASM2_EVIDENCE_CHECKLIST.md` |
 | Change rule | No sentence in the final PDF may assert a fact that lacks a `[VERIFIED]` source or an appendix reference |
 
@@ -50,7 +50,7 @@ Every factual statement is tagged so that the final edit cannot silently promote
 
 ## Front sheet (Assignment front sheet 2 — GROUP)
 
-`[PENDING: complete from "FRONTSHEET ASM FINAL REPORT (GROUP).docx" — do not guess]`
+Completed from the supplied template; group and member fields are N/A — individual submission.
 
 | Field | Entry |
 |---|---|
@@ -65,11 +65,11 @@ Every factual statement is tagged so that the final edit cannot silently promote
 | Academic year | 2025–2026 `[VERIFIED: Assignment part 2 brief]` |
 | Issue date | 1/12/2025 `[VERIFIED: Assignment part 2 brief]` |
 | Submission date | `[PENDING: date set by the centre]` |
-| Word count (body) | `[PENDING: compute after final edit — see DEC-01]` |
+| Word count (body) | 2,936 (tables, figures, appendices and references excluded; Word raw count including front sheet and tables 4,406) — see DEC-01 |
 
 **Student declaration.** Insert the declaration printed on the front sheet verbatim, including the sentence on AI-tool use, and sign.
 
-`[PENDING: signatures and dates for every member]`
+`[PENDING: student and assessor signatures and dates; group/member fields N/A — individual submission]`
 
 ---
 
@@ -380,11 +380,11 @@ Application size at the baseline: 98 Kotlin files and 12,103 lines in `app/src/m
 | PlantUML | 13 `.puml` sources | `docs/uml/` `[VERIFIED]` |
 | Gemini API | `generateContent`, 20 s timeout, retry with backoff | `GeminiAiClient.kt` `[VERIFIED]` |
 
-M4 asks for evidence that the preferred tools were *used*, not merely chosen. The strongest artefact here is the test suite: 12 JUnit classes that exercise the domain rules, the JSON parser, the similarity guard, the LaTeX renderer and the abuse filter `[VERIFIED: test directory]`. The weaker artefacts are the sprint log (10 empty weeks) `[VERIFIED]` and the absence of a review trail on the audited branch `[VERIFIED]`; both must be stated plainly rather than glossed.
+M4 asks for evidence that the preferred tools were *used*, not merely chosen. The strongest artefact here is the test suite: 13 JUnit classes that exercise the domain rules, the JSON parser, the similarity guard, the LaTeX renderer and the abuse filter `[VERIFIED: test directory]`. The weaker artefacts are the sprint log (10 empty weeks) `[VERIFIED]` and the absence of a review trail on the audited branch `[VERIFIED]`; both must be stated plainly rather than glossed.
 
 ### 3.7 Methodology in practice
 
-The team worked in one-week increments with a phase Definition of Done and a rule that every logic change ships with a test `[DOC-ONLY: AI Study/CONTRIBUTING.md]`. That rule is visible in the artefact set: twelve test classes for a codebase of this size, and an explicit prohibition on calling the real AI provider from tests, with a hand-written fake client instead `[VERIFIED: CONTRIBUTING.md; FakeAiClientTest exists]`.
+The team worked in one-week increments with a phase Definition of Done and a rule that every logic change ships with a test `[DOC-ONLY: AI Study/CONTRIBUTING.md]`. That rule is visible in the artefact set: thirteen test classes for a codebase of this size, and an explicit prohibition on calling the real AI provider from tests, with a hand-written fake client instead `[VERIFIED: CONTRIBUTING.md; FakeAiClientTest exists]`.
 
 What the history does and does not show matters for M4. Across all refs there are per-developer branches and six merge commits, which is genuine evidence of branch-based integration `[VERIFIED]`. The audited branch itself is linear, with a single author and no merges `[VERIFIED]`, and no pull-request record can be confirmed from a local clone `[PENDING: check GitHub]`. The report should therefore describe branch-and-merge integration as real, and should not claim a pull-request review workflow that the evidence does not show.
 
@@ -416,7 +416,7 @@ Number discipline: the project documents disagree with each other. `docs/IMPROVE
 | Architecture decisions D-1…D-12 | `docs/PART1_M1_SOFTWARE_DESIGN.md` | `[VERIFIED: file]` |
 | Test plan | `docs/PART1_M1_TEST_PLAN.md` | `[VERIFIED: file]` |
 | UML set | `docs/uml/` (13 sources) | `[VERIFIED]` |
-| Debug APK | `AI Study/app/build/outputs/apk/debug/app-debug.apk`, 33.53 MB, written 2026-11-09 16:19 | `[VERIFIED]` |
+| Debug APK | `AI Study/app/build/outputs/apk/debug/app-debug.apk`, 35,596,239 bytes (33.95 MiB), written 2026-11-09 16:19 | `[VERIFIED]` |
 | User guide | `ASM/ASM/USER_GUIDE.md` | `[VERIFIED: supplied]` |
 | Demo account procedure | `[PENDING: not supplied]` | — |
 | Screenshot set | 16 final in `real-final/`; root 01–22 demo archive | `[VERIFIED: ASM/ASM/evidence/pixel-api-35/real-final/]` |
@@ -437,7 +437,7 @@ The application is evaluated at commit `79c523a` `[VERIFIED]` against the requir
 |---|---|---|
 | Automated test result | Correctness of pure logic (rules, parsing, similarity) | 159 JVM tests, 0 failures; 39 instrumented after the fix `[VERIFIED]` |
 | Code inspection | Existence and shape of a behaviour | Performed for the findings in §4.6 `[VERIFIED]` |
-| Runtime observation | Whether a feature works for a user | Sixteen final flows (real-final) `[VERIFIED]`; performance timings `[PENDING]` |
+| Runtime observation | Whether a feature works for a user | Sixteen final flows (real-final) `[VERIFIED]`; cold start and Ask round trip measured, action count and history timing `[PENDING]` |
 
 A requirement is marked **Met** only when a test or an observed run demonstrates the end-to-end behaviour. Where only code exists, the status is **Implemented, unverified**. Where the code demonstrably does not do the thing, the status is **Partial** or **Not met** with the file reference.
 
@@ -555,7 +555,7 @@ The weaknesses are equally clear and should be stated without euphemism:
 
 | Weakness | Why it matters | Evidence |
 |---|---|---|
-| The instrumented suite has been executed twice, on an emulator only | The happy path is demonstrated twice; there is no evidence from physical hardware | 39 tests, 0 failures on `Pixel_6_API_35`, pre- and post-key `[VERIFIED]`; physical device `[PENDING]` |
+| The instrumented suite has been executed three times, on an emulator only | The happy path is demonstrated on three runs; there is no evidence from physical hardware | 39 tests, 0 failures on `Pixel_6_API_35`, pre-key, post-key and post-fix `[VERIFIED]`; physical device `[PENDING]` |
 | The smoke test is structural, not behavioural | `MainShellSmokeTest` asserts destination metadata rather than user journeys, which is why the practice grading inconsistency escaped both suites | Test names in the JUnit XML `[VERIFIED]` |
 | No test asserts the onboarding subject set | Allowed FR2 to be delivered incomplete | `OnboardingScreen.kt:132` `[VERIFIED]` |
 | No Compose behaviour test for the ask-to-answer path | The most important journey is covered only by a manual run | Test directory listing `[VERIFIED]`; runtime flow 4 `[VERIFIED]` |
@@ -618,7 +618,7 @@ Separate from peer feedback, several improvements were made in response to the t
 | Token usage capture | Cost could not be measured because tokens were always zero | `GeminiAiClient.usageTokens` reads `usageMetadata` `[VERIFIED: line 379]` | No budget enforcement |
 | Offline progress insights | Progress was numbers only, with no interpretation | `domain/rules/ProgressInsights.kt`; `ProgressInsightsTest` `[VERIFIED]` | Template-based, not model-generated |
 | Duplicate-aware history deletion | Deleting merged questions left duplicates behind | `deleteByHashes` and its DAO test `[DOC-ONLY]` | — |
-| Dependency and secret hygiene | API key could be lost or committed | Key read from `ai.properties` → `local.properties` → environment; `BuildConfig` field `[VERIFIED: app/build.gradle.kts]` | Key still present in a debug binary `[PENDING: release-build check]` |
+| Dependency and secret hygiene | API key could be lost or committed | Key read from `ai.properties` → `local.properties` → environment; `BuildConfig` field `[VERIFIED: app/build.gradle.kts]` | Fixed debug APK embeds the key at build time; the package ships a sanitized offline APK with no key `[VERIFIED: PACKAGE_QA.md]` |
 | Practice answer-key normalisation | A correct option could be marked wrong when the key was a letter | `PracticeViewModel` normalisation; 7 `PracticeAnswerTest` cases; fixed APK `c7c8f9e2…`; real-final screenshot 12 | Letter-key path is unit-tested, not UI-tested |
 
 ### 6.3 Items not acted upon
@@ -675,9 +675,9 @@ Three defects remain: onboarding captures no subjects, images are stored but nev
 |---|---|---|---|---|
 | **P4** | Conduct a peer review of problem definition, solution and strategy; document feedback | §2.1–2.7; Appendix A, B | **Not yet met** — instrument ready, review not conducted | Live draft form, 16 required items `[VERIFIED]`; participant table `[PENDING]` |
 | **M3** | Interpret peer feedback and identify opportunities not previously considered | §2.5–2.6, §6.4 | **Not yet met** — blocked on responses | Method fixed; findings `[PENDING]` |
-| **P5** | Develop a functional business application with support documentation | §3.2–3.9; Appendix E | **Partial** — application runs on the target device and the real-final loop is verified; support documentation incomplete | APK installed and exercised on API 35; 159/159 unit and 39/39 connected after the fix `[VERIFIED]`; user guide and demo procedure `[PENDING]` |
+| **P5** | Develop a functional business application with support documentation | §3.2–3.9; Appendix E | **Partial** — application runs on the target device and the real-final loop is verified; support documentation incomplete | APK installed and exercised on API 35; 159/159 unit and 39/39 connected after the fix `[VERIFIED]`; user guide supplied; demo procedure `[PENDING]` |
 | **M4** | Evidence of preferred tools, techniques and methodologies | §3.3, §3.6, §3.7, Appendix E | **Met on tools; partial on methodology evidence** | Versions, CI workflow, 13 UML sources, 13 test classes `[VERIFIED]`; sprint log 10/14 empty `[VERIFIED]` |
-| **P6** | Review performance against problem definition and initial requirements | §4.1–4.6, §9 | **Partial** — runtime evidence for core flows; NFR measurements pending | Device flows and code-level matrix `[VERIFIED]`; timings and action counts `[PENDING]` |
+| **P6** | Review performance against problem definition and initial requirements | §4.1–4.6, §9 | **Partial** — runtime evidence for core flows; NFR measurements pending | Device flows and code-level matrix `[VERIFIED]`; cold start and Ask round trip measured; action count and history timing `[PENDING]` |
 | **M5** | Critically review design, development and testing, including risks | §5.1–5.6 | **Drafted** | Findings grounded in file references `[VERIFIED]` |
 | **D2** | Justify improvements made because of feedback, and feedback not acted upon | §6.1–6.5 | **Partial** — self-evidenced improvements complete, peer feedback pending | Change table with file references `[VERIFIED]`; FB rows `[PENDING]` |
 
@@ -699,7 +699,7 @@ Consolidated view for P6. Statuses follow the vocabulary in §4.3.
 | FR8 | Progress tracking | **Met** | Progress observed after real activity `[VERIFIED]` | C, D |
 | FR9 | XP, levels, badges, leaderboard | **Partial** | XP, level, streak and badge observed; leaderboard absent `[VERIFIED]` | C, D |
 | FR10 | Reminders, mistake alerts, summaries | **Partial** | Notification list observed; reminder generation unverified `[DOC-ONLY]` | C, D |
-| NFR1 | UI response within 100 ms during AI call | **Not tested** | No UI-response timing captured; cold start and Ask round trip are measured but do not test this requirement `[PENDING]` | F |
+| NFR1 | UI response within 100 ms during AI call | **Partial (observation)** | Cold start n=5 (median 3284 ms) and Ask round trip n=3 (median 913 ms, 3/3 HTTP 200) are measured; a dedicated 100 ms UI-frame measurement is still pending `[PENDING: UI-frame timing]` | F |
 | NFR2 | ≤3 actions to submit | **Not tested** | No action count captured `[PENDING]` | F |
 | NFR3 | Android 13+ | **Met** | `minSdk = 33`; executed on API 35 `[VERIFIED]` | E |
 | NFR4 | Encryption and data minimisation | **Partial** | Body columns plaintext; abuse filter unused; images not deleted `[VERIFIED]` | C |
@@ -815,7 +815,7 @@ An earlier set of eleven images in `docs/screenshots/` came from a `Medium_Phone
 | E-06 | CI workflow | `.github/workflows/android-test.yml`, `./gradlew test` | `[VERIFIED]` |
 | E-07 | Toolchain versions | AGP 9.3.3, Kotlin 2.2.10, Compose BOM 2026.02.01, Room 2.7.2, KSP 2.3.12 | `[VERIFIED]` |
 | E-08 | SDK levels | compile/target 37, min 33, versionName 1.0 | `[VERIFIED]` |
-| E-09 | APK | 33.53 MB, debug | `[VERIFIED]` |
+| E-09 | APK | 35,596,239 bytes, debug | `[VERIFIED]` |
 | E-10 | UML | 13 `.puml` sources | `[VERIFIED]` |
 | E-11 | Schema | version 1, 7 tables | `[VERIFIED]` |
 | E-12 | Tags | none | `[VERIFIED: git tag]` |

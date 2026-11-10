@@ -3,8 +3,10 @@
 **Purpose:** single index of every claim ASM2 will make. If a claim is not in this file with status `VERIFIED`, it cannot appear in the report.
 **Baseline date:** 2026-11-09
 **Branch / commit:** `mkhang-ship-it/Assigment` / `79c523a`
-**Device target:** Pixel emulator, Android 15 (API 35) — **not yet captured**
+**Device target:** Pixel emulator, Android 15 (API 35) — captured 2026-11-09; see `real-final/`
 **Companion document:** `ASM2_IMPLEMENTATION_BASELINE.md`
+
+> **Superseded snapshot (2026-11-09).** This log records the baseline before runtime evidence. Later artefacts supersede any `PENDING` row below: 16 authoritative `real-final/` images, real Gemini ask/quiz HTTP 200, 159 JVM tests, 39/39 instrumented tests after the fix, and cold start / Ask round-trip measurements. Current claims are in `ASM2_REPORT_COMPACT.md` and `REPORT_FINAL_QA.md`.
 
 ---
 
@@ -92,8 +94,8 @@
 | EV-115 | Notification read/detail/deep-link work | open list, open detail, tap deep link | `evidence/screenshots/17_notifications.png`, `18_notification_detail.png` | PENDING |
 | EV-116 | Lockout after 5 failed logins persists across restart | 5 bad logins, kill app, retry | `evidence/logs/lockout.txt` | PENDING |
 | EV-117 | Image question end-to-end | pick image, submit, receive answer | `evidence/screenshots/21_image_question.png` | PENDING |
-| EV-118 | Startup time (cold start) | `adb shell am start -W`; 3 runs | `evidence/logs/startup.txt` | PENDING |
-| EV-119 | AI response latency | timestamp before/after one non-cached call; note network | `evidence/logs/ai_latency.txt` | PENDING |
+| EV-118 | Startup time (cold start) | `adb shell am start -W`; 5 runs | `ASM/ASM/NFR_MEASUREMENTS.md` — 3041, 3108, 3284, 3310, 5139 ms; median 3284 | VERIFIED |
+| EV-119 | AI response latency | POST → HTTP 200 timestamps; 3 real calls | `ASM/ASM/NFR_MEASUREMENTS.md` — 861, 913, 2207 ms; median 913; 3/3 HTTP 200 | VERIFIED |
 | EV-120 | History with larger dataset (e.g. 200+ rows) remains usable | seed records or repeat questions; record scroll/load | `evidence/logs/history_perf.txt` | PENDING |
 | EV-121 | Accessibility basic check (font scale, content descriptions) | system font largest; TalkBack optional | `evidence/logs/a11y.md` | PENDING |
 

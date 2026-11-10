@@ -1,7 +1,7 @@
 # ASM2 — Draft Export QA
 
 **Scope:** the generated draft binaries in `ASM/ASM/deliverables/draft/`.
-**Status:** DRAFT — NOT FOR FINAL SUBMISSION. No DOCX/PDF was produced for final submission, and no survey findings or verified references are claimed.
+**Status:** DRAFT — NOT FOR FINAL SUBMISSION. Draft DOCX/PDF exist (23 pages); no FINAL submission binary has been produced, and no survey findings or verified references are claimed.
 **Date:** 2026-11-10.
 
 ---

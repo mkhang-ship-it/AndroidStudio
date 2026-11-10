@@ -1,6 +1,6 @@
 # ASM2 — Draft Presentation QA
 
-**Status:** DRAFT — NOT FOR FINAL SUBMISSION. The deck is built and exported; it has not been rehearsed and no survey findings are claimed.
+**Status:** DRAFT — NOT FOR FINAL SUBMISSION. The deck is built and exported; it has not been rehearsed and no survey findings are claimed. Slide 1 metadata was corrected and the deck re-exported on 2026-11-10; current checks are in `PRESENTATION_FINAL_QA.md`.
 **Date:** 2026-11-10.
 
 ---
@@ -9,8 +9,8 @@
 
 | File | Size |
 |---|---|
-| `deliverables/draft/BC00720_KhangNM_ASM2_DRAFT_PRESENTATION.pptx` | 1,639.7 KB |
-| `deliverables/draft/BC00720_KhangNM_ASM2_DRAFT_PRESENTATION.pdf` | 788.4 KB |
+| `deliverables/draft/BC00720_KhangNM_ASM2_DRAFT_PRESENTATION.pptx` | 1,639.8 KB |
+| `deliverables/draft/BC00720_KhangNM_ASM2_DRAFT_PRESENTATION.pdf` | 788.7 KB |
 | `deliverables/draft/BC00720_KhangNM_ASM2_DRAFT_PRESENTATION.export-log.json` | 0.5 KB |
 
 **Rerun:** `python ASM/ASM/scripts/build_asm2_presentation.py`
@@ -86,7 +86,7 @@ No SLO or compliance claim is made for NFR1; the slide says “observations only
 
 ## 6. Pending content
 
-- Group number and presentation date: `[PENDING]` on slide 1.
+- Group/member fields: N/A — Individual submission; presentation date `[PENDING]` on slide 1.
 - Peer-review responses and adopted decisions: `[PENDING]` on slide 12.
 - Rehearsal and timing: not performed; not claimed.
 - Front-sheet signatures/scores: outside the deck.
@@ -98,7 +98,7 @@ No SLO or compliance claim is made for NFR1; the slide says “observations only
 | Pattern | PPTX | PDF |
 |---|---|---|
 | `AIza…` | Not found | Not found |
-| `provider key=` | Not found | Not found |
+| Assigned provider-key field | Not found | Not found |
 | `sk-…` | Not found | Not found |
 
 Only APK SHA-256 digests appear as evidence identifiers; they are not credentials.
@@ -115,7 +115,7 @@ Scanned: report DOCX, report PDF, deck PPTX, deck PDF, and all `ASM/ASM/*.md` fi
 | Report PDF | None | No |
 | Presentation PPTX | None | No — 0 root-image hashes embedded |
 | Presentation PDF | None | No |
-| Markdown sources | No assigned credential; 3 files contain the literal scan string `provider key=` in QA instructions/results, and the evidence note records `length=39` only | No — root 01–22 labelled DEMO / NON-FINAL |
+| Markdown sources | No assigned credential; the scan used an assigned provider-key pattern over QA instructions/results and found no value | No — root 01–22 labelled DEMO / NON-FINAL |
 
 No `AIza…`, `sk-…`, `AKIA…`, `ghp_…`, `xox…` or private-key block matched any binary or Markdown file.
 
@@ -123,4 +123,4 @@ No `AIza…`, `sk-…`, `AKIA…`, `ghp_…`, `xox…` or private-key block matc
 
 ## 9. Blockers
 
-Survey responses, presentation date, group number, rehearsal and final reference verification remain outstanding. No app source change, commit or push was made.
+Survey responses, presentation date, rehearsal and final reference verification remain outstanding. Group/member fields are N/A — Individual submission. No app source change, commit or push was made.

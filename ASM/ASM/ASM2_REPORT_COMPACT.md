@@ -36,7 +36,7 @@ Evidence tags are kept only where a statement is not yet supportable. `[PENDING]
 
 This report concludes the BrightPath Learning project begun in Assignment Part 1. Part 1 defined the problem, the target users, ten functional requirements, six non-functional requirements, a layered architecture and a fourteen-week Scrum plan. Part 2 reports the peer review of that plan (P4, M3), the development of the application (P5, M4), its evaluation against the initial requirements (P6), a critical review of the process (M5) and the decisions taken on feedback (D2).
 
-The application is a local-first Android app that lets a student ask a question by text or image, receive a structured AI explanation, keep it, practise with generated questions and track progress. It is evaluated at commit `79c523a`, with one post-freeze fix to practice scoring applied and tested separately. Three evidence classes are kept separate: automated tests (159 JVM tests, 13 classes; 39 instrumented tests, green after the fix), code inspection, and device behaviour. Final runtime evidence is the sixteen-image real-final set captured with real Gemini on the fixed build; earlier root screenshots are demo material and are not cited as final. Survey responses, participant data, front-sheet metadata, performance measurements, the presentation and the final reference list remain `[PENDING]`.
+The application is a local-first Android app that lets a student ask a question by text or image, receive a structured AI explanation, keep it, practise with generated questions and track progress. It is evaluated at commit `79c523a`, with one post-freeze fix to practice scoring applied and tested separately. Three evidence classes are kept separate: automated tests (159 JVM tests, 13 classes; 39 instrumented tests, green after the fix), code inspection, and device behaviour. Final runtime evidence is the sixteen-image real-final set captured with real Gemini on the fixed build; earlier root screenshots are demo material and are not cited as final. Survey responses, participant data, front-sheet date, scores and signatures, the presentation rehearsal and the final reference list remain `[PENDING]`.
 
 ---
 
@@ -119,7 +119,7 @@ The delivered codebase is 98 Kotlin files and 12,103 lines in `app/src/main`. Th
 
 ### 3.3 Process and methodology
 
-Development followed one-week increments with a Definition of Done per phase and a rule that every logic change ships with a test. The rule is visible: twelve JVM test classes and a ban on calling the real provider from tests, with a hand-written fake client.
+Development followed one-week increments with a Definition of Done per phase and a rule that every logic change ships with a test. The rule is visible: thirteen JVM test classes and a ban on calling the real provider from tests, with a hand-written fake client.
 
 The record is weaker than the process. The sprint log contains fourteen weeks; four entries are complete and ten are empty. The audited branch carries thirteen commits between 30 September and 2 November 2026 by a single author, in a straight line. The wider repository holds thirty-six commits from four authors and six merges, but the delivered code is a consolidated snapshot that cannot be attributed commit by commit. There are no tags, and pull requests cannot be confirmed from a local clone `[PENDING: check the GitHub remote]`. Continuous integration runs the JVM suite with no API key present, so it builds against the offline fake client.
 
@@ -181,7 +181,7 @@ The defect register records twenty-two entries, eighteen fixed and four open at 
 
 ### 3.8 Support documentation
 
-Build and test instructions, contribution rules, the design document, the test plan, thirteen UML sources, a user guide (`USER_GUIDE.md`) and a debug APK of 33.53 MiB are present. A demonstration-account procedure remains `[PENDING]`.
+Build and test instructions, contribution rules, the design document, the test plan, thirteen UML sources, a user guide (`USER_GUIDE.md`) and a debug APK (fixed build, 35,596,239 bytes) are present. A demonstration-account procedure remains `[PENDING]`.
 
 ---
 
@@ -358,10 +358,11 @@ Table 9: Assessment criteria coverage in this report.
 | NFR1 UI-response timing, NFR2 action count and the remaining Appendix F rows | `[PENDING]` |
 | Presentation rehearsal and live demo (12-slide DRAFT deck and PDF exist) | `[PENDING]` |
 | Reference list | `[PENDING]` |
-| User guide and demo-account procedure | `[PENDING]` |
+| User guide | Supplied: `ASM/ASM/USER_GUIDE.md` |
+| Demo-account procedure | `[PENDING]` |
 | Pull-request history on the remote | `[PENDING]` |
-| Login-after-logout capture | `[PENDING]` |
-| Image/camera question flow | `[PENDING]` |
+| Login-after-logout capture | Supplementary: `real-final/optional/login-01…03`; not part of the 16-image gate |
+| Image/camera question flow | Supplementary: `real-final/optional/image-01…02`; image redisplay still missing |
 | OS-level notification permission | `[PENDING]` |
 | Subject-mapping fix (model returned `other`, UI showed “Toán học”) | `[PENDING]` |
 | Answer-quality or accuracy study | `[PENDING]` |

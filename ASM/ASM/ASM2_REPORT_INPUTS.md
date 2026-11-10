@@ -1,6 +1,6 @@
 # ASM2 — Report Inputs Required Before Export
 
-**Purpose:** the single list of what the user must still supply before the working report can be exported to DOCX/PDF.
+**Purpose:** the single list of what the user must still supply before the working report can be exported to its final DOCX/PDF (draft exports already exist).
 **Working report:** `ASM/ASM/ASM2_REPORT_COMPACT.md` — English only, 2,936 prose words (tables, figures, appendices and references excluded).
 **Status:** inputs below are `[PENDING]` unless marked supplied. Nothing in this file may be filled with invented values.
 
@@ -86,7 +86,7 @@ A verified record exists at `ASM/ASM/NFR_MEASUREMENTS.md`. Cold start and Gemini
 |---|---|---|
 | User guide | How to register, ask, read, save, practise, view progress, manage the profile | `[SUPPLIED: ASM/ASM/USER_GUIDE.md]` |
 | Demo account procedure | Controlled demo account and how to reproduce the walkthrough | `[PENDING]` |
-| Package contents | Source archive, debug APK, README, user guide | `[PENDING: assemble]` |
+| Package contents | Source archive, sanitized debug APK, README, user guide | `[VERIFIED: ASM/ASM/deliverables/software/ASM2_Software_Package.zip]` |
 
 ### 2.7 Optional evidence gaps
 

@@ -14,7 +14,7 @@
 
 3. Android Developers (2025c) *Gemini API in Android*. Available at: https://developer.android.com/ai/gemini (Accessed: 26 October 2026). `[PENDING: verify URL and access date]`
 
-4. Beck, K., Beedle, M., van Bennekum, A., Cockburn, A., Cunningham, W., Fowler, M., Grenning, J., Highsmith, J., Hunt, A., Jeffries, R., Kern, J., Marick, B., Martin, R.C., Mellor, S., Schwaber, K., Sutherland, J. and Thomas, D. (2001) *Manifesto for Agile Software Development*. Available at: https://agilemanifesto.org (Accessed: 26 October 2026). `[PENDING: verify access date]`
+4. Beck, K. et al. (2001) *Manifesto for Agile Software Development*. Available at: https://agilemanifesto.org (Accessed: 26 October 2026). `[PENDING: verify access date]`
 
 5. European Parliament and Council (2016) ‘Regulation (EU) 2016/679 on the protection of natural persons with regard to the processing of personal data and on the free movement of such data (GDPR)’, *Official Journal of the European Union*, L119, pp. 1–88.
 

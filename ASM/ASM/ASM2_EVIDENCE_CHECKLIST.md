@@ -6,7 +6,7 @@
 
 **Status:** `HAVE` (verified this session) · `DOC-ONLY` (claimed in a doc, unverified) · `PENDING` (must be produced) · `BLOCKED` (external decision)
 
-> **Phase 3 update (2026-11-09):** runtime evidence now exists. Instrumented suite executed on `Pixel_6_API_35` (Android 15 / API 35): **39 tests, 0 failures**, XML retained; **19 screenshots** captured. See `ASM/ASM/evidence/PIXEL_API35_RUNTIME_EVIDENCE.md`, `ASM/ASM/evidence/AVD_API35_SETUP.md` and `ASM/ASM/evidence/pixel-api-35/`. Any row below that still marks those two artefacts `PENDING` is superseded by this note and by `ASM2_REPORT_DRAFT.md` §3.5.1. Peer-review responses, performance measurements and real-Gemini evidence remain outstanding.
+> **Phase 3 update (2026-11-09; revised 2026-11-10):** runtime evidence exists. Instrumented suite executed on `Pixel_6_API_35` (Android 15 / API 35): **39 tests, 0 failures**, XML retained; **16 authoritative real-final screenshots** plus 8 optional captures. Real Gemini ask and quiz were verified (HTTP 200), and cold start (n=5) and Ask round trip (n=3) are measured. Any row below still marking those artefacts `PENDING` is superseded by this note, `ASM2_REPORT_DRAFT.md` §3.5.1 and `REPORT_FINAL_QA.md`. Remaining: peer-review responses, action count, history and offline timing.
 
 ---
 
@@ -293,10 +293,10 @@ Each is verified; none should be silently omitted or silently "fixed".
 
 | # | Blocker | Blocks | Owner |
 |---|---|---|---|
-| 1 | No peer reviewers recruited | P4, M3, D2, §1.4, §5.1–5.3, Appendix B | Group |
-| 2 | No API 35 system image / AVD | S01–S20, Appendix D, G3 | Whoever has SDK write access |
-| 3 | Instrumented suite not executed | B-05, T6/T7 claims, §4.4 | Whoever has a device |
-| 4 | No measurements (M-01…M-04, M-07…M-10) | §3.4, NFR1/NFR2 judgement | Tester |
+| 1 | No peer reviewers recruited | P4, M3, D2, §1.4, §5.1–5.3, Appendix B | Student |
+| 2 | RESOLVED 2026-11-09 — `Pixel_6_API_35` used for all final runs | S01–S20, Appendix D, G3 | Student |
+| 3 | RESOLVED — 39/39 instrumented tests on `Pixel_6_API_35` | B-05, T6/T7 claims, §4.4 | Student |
+| 4 | PARTIAL — cold start (n=5) and Ask round trip (n=3) measured; action count, history and offline timing pending | §3.4, NFR1/NFR2 judgement | Student |
 | 5 | Word limit conflict | Whole document (DEC-01) | Tutor |
-| 6 | Sprint log S04–S13 empty | §2.2.1, ME-03, M4 strength | Group |
-| 7 | `GEMINI_API_KEY` unavailable | Real-AI screenshots (S07, S08, S14, S15), M-09 | Group |
+| 6 | Sprint log S04–S13 empty | §2.2.1, ME-03, M4 strength | Student |
+| 7 | RESOLVED — real Gemini ask and quiz returned HTTP 200 | Real-AI screenshots (S07, S08, S14, S15), M-09 | Student |

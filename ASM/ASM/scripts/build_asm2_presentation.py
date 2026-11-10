@@ -250,7 +250,8 @@ def build() -> Presentation:
     for i, line in enumerate([
         "Nguyen Minh Khang (BC00720) · SE08201",
         "Assessor: Mr. Le Nhat Quang",
-        "Group number and presentation date [PENDING]",
+        "Group/member fields: N/A — Individual submission",
+        "Presentation date: [PENDING]",
     ]):
         p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
         r = p.add_run()

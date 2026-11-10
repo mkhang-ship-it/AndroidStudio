@@ -10,7 +10,7 @@ Status: **staging verified, ZIP created and inspected.**
 | Check | Command / method | Actual result | Verdict |
 |---|---|---|---|
 | Staging files | recursive file count | **243 files / 87 directories** | Staged |
-| Staging bytes | recursive size sum | 41,152,858 bytes | Recorded |
+| Staging bytes | recursive size sum | 41,168,661 bytes | Recorded |
 | `ai.properties` in staging | recursive file check | absent | Clean |
 | `local.properties` in staging | recursive file check | absent | Clean |
 | Keystores/keys | `*.jks,*.keystore,*.p12,*.pem,*.key` | 0 files | Clean |
@@ -22,7 +22,7 @@ Status: **staging verified, ZIP created and inspected.**
 | Final evidence files | `real-final/` root | 16 PNG + 10 TXT + 1 XML = 27 | Recorded |
 | Sanitized APK | isolated rebuild, no key file/env | `app-debug.apk` 35,174,179 bytes | Built |
 | Sanitized APK key scan | regex over all 170 extracted entries | **0 provider-key-like hits** | Clean |
-| Sanitized `BuildConfig` | generated `BuildConfig.java` | `GEMINI_API_KEY = ""` | Offline |
+| Sanitized `BuildConfig` | generated `BuildConfig.java` | provider-key field empty | Offline |
 | Sanitized APK install | `adb install -r` on emulator-5554 | `Success`; package + versionCode 1 / versionName 1.0 | Installs |
 | APK SHA-256 | .NET SHA-256 over packaged APK | `e7391113c18907d71b84e8e9856e02a0e3ece9ee447bebb32fdb526e82e18700` | Matches staging copy |
 | Staging secret scan | regex over every staged file | 0 hits | Clean |
@@ -49,8 +49,8 @@ Status: **staging verified, ZIP created and inspected.**
 |---|---|
 | Archive | `ASM/ASM/deliverables/software/ASM2_Software_Package.zip` |
 | ZIP members | **243 files** |
-| ZIP size | **16,680,495 bytes** |
-| ZIP SHA-256 | `836607729dde6b2f0e3b6cb924448c3a91ddeaead2ba2d1066369f213f2de820` |
+| ZIP size | **16,680,560 bytes** |
+| ZIP SHA-256 | `340b92e27410090bdf05262e1674274eff1c141eb8ad9f32c87360355e816d90` |
 | ZIP secret scan | 0 hits (matches never printed) |
 | Parent demo PNG in ZIP | 0 |
 | Final PNG in ZIP | exactly 16 (plus 8 optional supplementary) |

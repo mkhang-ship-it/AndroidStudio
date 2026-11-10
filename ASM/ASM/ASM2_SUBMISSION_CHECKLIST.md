@@ -25,6 +25,7 @@
 | NFR measurements | **Record only** | Cold start (n=5, median 3284 ms) and Ask round trip (n=3, median 913 ms, 3/3 HTTP 200) measured in `NFR_MEASUREMENTS.md`; action count, history and offline timing pending |
 | Front sheet | **Partial** | Student, ID, class and assessor supplied; group/member fields N/A — individual submission; date, scores and signatures `[PENDING]` |
 | DOCX / PDF | **Draft exported** | `deliverables/draft/` — final export gated on pending inputs |
+| Software package | **Verified** | `deliverables/software/ASM2_Software_Package.zip` — 243 files, 16,680,560 bytes, SHA-256 `340b92e2…`; see `PACKAGE_QA.md` |
 
 ---
 
@@ -108,7 +109,7 @@ URL: `https://docs.google.com/forms/d/16Hd08rqT475PtOu46Kmxi554dX3TwuaiSb9xiNZ_W
 - [x] Sixteen final captures exist in `real-final/`; root 01–22 are DEMO / NON-FINAL
 - [x] Captions state: screen, requirement, device, API level, APK hash, provider mode and status
 - [ ] Formula-rendering capture — **not available**, observed answers are plain text
-- [ ] Offline capture — **not taken**
+- [x] Offline capture — supplementary `real-final/optional/offline-01-error.png`, `offline-02-recovered.png`; no queue
 - [x] No API key, token or personal data visible in any capture
 - [x] Existing 11 images in `docs/screenshots/` kept out of the Pixel set
 
@@ -182,24 +183,24 @@ URL: `https://docs.google.com/forms/d/16Hd08rqT475PtOu46Kmxi554dX3TwuaiSb9xiNZ_W
 - [x] User guide written: how to ask, read, save, practise, view progress, manage the profile (`ASM/ASM/USER_GUIDE.md`)
 - [ ] Demo account procedure documented (how to create or sign in to a demonstration account) `[PENDING]`
 - [ ] Known limitations section agreed with the report's §4.6
-- [ ] Software package assembled: source archive, debug APK, README, user guide
-- [ ] No API key, keystore, token or `.properties` file with secrets inside the archive
-- [ ] Archive checked by listing its contents, not by trusting the compression step
-- [ ] APK installs on the target device from the package `[VERIFIED in place: install and launch succeeded on Pixel_6_API_35; re-check from the final archive]`
+- [x] Software package assembled: `ASM/ASM/deliverables/software/ASM2_Software_Package.zip` (243 files, 16,680,560 bytes, SHA-256 `340b92e27410090bdf05262e1674274eff1c141eb8ad9f32c87360355e816d90`)
+- [x] No API key, keystore, token or `.properties` file with secrets inside the archive `[VERIFIED: PACKAGE_QA.md, 0 key-like hits]`
+- [x] Archive checked by listing its contents, not by trusting the compression step `[VERIFIED: 243 members listed]`
+- [x] APK installs on the target device from the package `[VERIFIED: sanitized APK installed on Pixel_6_API_35; fixed APK verified earlier]`
 
-`[PENDING: user guide and demo-account procedure not written]`
+`[PENDING: demo-account procedure not written; user guide is supplied]`
 
 ---
 
 ## 9. Presentation
 
-- [ ] Slide deck produced (brief requires a presentation for Activity 2)
-- [ ] Deck covers: problem, requirements, architecture, demo journey, evidence, limitations, future work
+- [x] Slide deck produced — 12-slide DRAFT PPTX/PDF in `deliverables/draft/`
+- [x] Deck covers: problem, requirements, architecture, demo journey, evidence, limitations, future work
 - [ ] Live demo path rehearsed on the same build and device used for screenshots
 - [ ] Fallback prepared in case the device or network fails (recorded walkthrough or screenshots)
 - [ ] Timing checked against the presentation slot
-- [ ] Every team member has a speaking part
-- [ ] Deck and notes stored in the repository or submission package
+- [x] Individual presenter identified: Nguyen Minh Khang (BC00720)
+- [x] Deck and notes stored in the repository (`ASM/ASM/deliverables/draft/`)
 
 `[PARTIAL: 12-slide DRAFT PPTX/PDF exist; rehearsal, demo and timing checks remain PENDING]`
 
@@ -261,7 +262,7 @@ URL: `https://docs.google.com/forms/d/16Hd08rqT475PtOu46Kmxi554dX3TwuaiSb9xiNZ_W
 
 ## 12. Export and upload (do not start yet)
 
-This phase stops at the source draft. When the gates above are met:
+Draft DOCX/PDF and deck exist under `deliverables/draft/`; final submission artefacts stop until the gates above are met. Then:
 
 - [ ] Export DOCX with the front sheet as page 1
 - [ ] Export PDF from the DOCX, not from a different editor
@@ -280,15 +281,15 @@ This phase stops at the source draft. When the gates above are met:
 
 | # | Blocker | Blocks | Owner |
 |---|---|---|---|
-| 1 | No peer reviewers recruited | P4, M3, D2, Appendices A–B | Group |
+| 1 | No peer reviewers recruited | P4, M3, D2, Appendices A–B | Student |
 | 2 | Partial measurements: cold start and Ask round trip done; action count and history open pending | NFR2, M-03/M-04, Appendix F remainder | Tester |
-| 3 | Remaining optional capture: OS push; login-after-logout, image and offline error/recovery are supplementary in `real-final/optional/` | Not blocking; stated as limitations | Group |
-| 4 | Subject-mapping defect observed on a real response, unfixed | FR4 quality claim | Group |
+| 3 | Remaining optional capture: OS push; login-after-logout, image and offline error/recovery are supplementary in `real-final/optional/` | Not blocking; stated as limitations | Student |
+| 4 | Subject-mapping defect observed on a real response, unfixed | FR4 quality claim | Student |
 | 5 | Word-limit conflict unresolved (`DEC-01`) | Whole document | Tutor |
-| 6 | Sprint log S04–S13 empty | M4 strength | Group |
-| 7 | Demo-account procedure missing (user guide supplied) | P5 support documentation | Group |
-| 8 | Front-sheet data missing | Cover page | Group |
-| 9 | Presentation rehearsal and live demo not completed (12-slide DRAFT deck and PDF exist) | Activity 2 delivery | Group |
+| 6 | Sprint log S04–S13 empty | M4 strength | Student |
+| 7 | Demo-account procedure missing (user guide supplied) | P5 support documentation | Student |
+| 8 | Front-sheet data missing | Cover page | Student |
+| 9 | Presentation rehearsal and live demo not completed (12-slide DRAFT deck and PDF exist) | Activity 2 delivery | Student |
 
 ---
 
@@ -299,7 +300,7 @@ This phase stops at the source draft. When the gates above are met:
 | G1 Format | Every formatting item in §1 ticked | Partly — draft DOCX/PDF exist (23 pages); final formatting checks pending |
 | G2 Front sheet | Complete, signed, unnumbered first page | Not met |
 | G3 P4 | Questionnaire plus real participant table plus raw responses | Not met — instrument only |
-| G4 P5 | APK installs on target device; screenshots complete; support docs written | Partly — fixed APK verified; 16 final captures; support docs missing |
+| G4 P5 | APK installs on target device; screenshots complete; support docs written | Partly — fixed APK verified; 16 final captures; user guide supplied, demo-account procedure pending |
 | G5 M4 | Each tool has activity-level evidence; sprint gaps acknowledged | Partly |
 | G6 P6 | Matrix with expected and actual results; no unevidenced "Met" | Partly — real-final loop verified; cold start and Ask round trip measured; NFR2 pending |
 | G7 M5 | Risk and testing critique names real gaps | Drafted |

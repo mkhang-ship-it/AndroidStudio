@@ -1,6 +1,6 @@
 # ASM2 — Presentation Outline
 
-**Status:** deck built — `deliverables/draft/BC00720_KhangNM_ASM2_DRAFT_PRESENTATION.pptx` and `.pdf` (12 slides, DRAFT). Rehearsal, presentation date, group number and final scores are `[PENDING]`.
+**Status:** deck built — `deliverables/draft/BC00720_KhangNM_ASM2_DRAFT_PRESENTATION.pptx` and `.pdf` (12 slides, DRAFT). Rehearsal, presentation date and final scores are `[PENDING]`; group/member fields are N/A — Individual submission.
 **Language:** English. **Target:** 12 slides, 10–12 minutes, followed by questions and a demo.
 **Source of facts:** `ASM2_REPORT_COMPACT.md` and the real-final evidence set. A slide must not claim more than the report does.
 **Final images:** only `ASM/ASM/evidence/pixel-api-35/real-final/` may appear. Root images 01–22 are DEMO / NON-FINAL and must not be used.
@@ -11,7 +11,7 @@
 - Unit 22: Application Development — Assignment Part 2.
 - AI Study Mentor for BrightPath Learning.
 - Student: Nguyen Minh Khang (BC00720), class SE08201.
-- Assessor: Mr. Le Nhat Quang. Group number and presentation date `[PENDING]`.
+- Assessor: Mr. Le Nhat Quang. Group/member fields: N/A — Individual submission. Presentation date `[PENDING]`.
 - Speaker note: this is an evaluation of a built application against the Part 1 design, not a proposal.
 
 ## Slide 2 — Problem definition and target users
@@ -125,9 +125,9 @@ Fallback: if the device or network fails, use the real-final screenshots in the 
 
 ## Production checklist
 
-- [ ] Group number and presentation date confirmed `[PENDING]`.
+- [ ] Group/member fields recorded as N/A — Individual submission; presentation date confirmed `[PENDING]`.
 - [x] Deck built from this outline; no slide claims more than the report.
-- [ ] Real-final screenshots inserted at 1080×2400; only status-bar cropping allowed.
+- [x] Real-final screenshots inserted at 1080×2400; only status-bar cropping allowed (verified by media hash).
 - [ ] Demo account prepared and the fixed APK installed.
 - [ ] Live demo rehearsed; fallback screenshots ready.
 - [ ] Survey responses added to slide 12 once available `[PENDING]`.
