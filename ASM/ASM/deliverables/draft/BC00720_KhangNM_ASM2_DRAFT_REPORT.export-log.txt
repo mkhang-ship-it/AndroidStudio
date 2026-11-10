@@ -1,0 +1,22 @@
+ASM2 DRAFT EXPORT LOG
+Generated: 2026-11-10T02:48:44
+Source: C:\Users\ADMIN\orca\workspaces\AndroidStudio\AUDIT\ASM\ASM\ASM2_REPORT_COMPACT.md
+Source SHA-256: dab06f32f13a2d43561d83389ac357556f20582f34a272822cc018e2e28378a4
+Template: C:\Users\ADMIN\orca\AndroidStudio\ASM\ASM\FRONTSHEET ASM FINAL REPORT (GROUP).docx
+DOCX: C:\Users\ADMIN\orca\workspaces\AndroidStudio\AUDIT\ASM\ASM\deliverables\draft\BC00720_KhangNM_ASM2_DRAFT_REPORT.docx
+PDF: C:\Users\ADMIN\orca\workspaces\AndroidStudio\AUDIT\ASM\ASM\deliverables\draft\BC00720_KhangNM_ASM2_DRAFT_REPORT.pdf
+PDF method: Microsoft Word COM ExportAsFixedFormat (PDF)
+Pages: 23
+Words (DOCX incl. tables): 4406
+Markdown prose words: 2936
+Pending markers in source: 30
+Body figures: 6 (missing 0)
+Appendix D images: 16
+NFR cold start (ms): 5139, 3284, 3108, 3310, 3041 (median 3284; min 3041; max 5139; mean 3576.4; n=5)
+NFR Gemini round trip (ms): 2207, 913, 861 (median 913; min 861; max 2207; mean 1327.0; n=3; 3/3 HTTP 200)
+NFR note: observations only; no SLO. NFR2 action count and history/offline timing PENDING.
+Optional evidence PNG (supplementary): 8
+Optional evidence status: SUPPLEMENTARY — image, offline error/recovery, login after logout; excluded from the 16-image final gate
+Python: 3.14.5
+python-docx: 1.2.0
+Platform: Windows-11-10.0.26200-SP0

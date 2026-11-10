@@ -1,0 +1,46 @@
+﻿# Cold start measurement
+# Date: 2026-11-10T00:46:49.6190165+07:00
+# Device: Pixel_6_API_35 / SDK 35
+# Component: com.aistudy.aistudy/.MainActivity
+# Method: am force-stop, 1.5s wait, am start -W
+--- run 1 ---
+Starting: Intent { cmp=com.aistudy.aistudy/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.aistudy.aistudy/.MainActivity
+TotalTime: 5139
+WaitTime: 5141
+Complete
+--- run 2 ---
+Starting: Intent { cmp=com.aistudy.aistudy/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.aistudy.aistudy/.MainActivity
+TotalTime: 3284
+WaitTime: 3286
+Complete
+--- run 3 ---
+Starting: Intent { cmp=com.aistudy.aistudy/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.aistudy.aistudy/.MainActivity
+TotalTime: 3108
+WaitTime: 3116
+Complete
+--- run 4 ---
+Starting: Intent { cmp=com.aistudy.aistudy/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.aistudy.aistudy/.MainActivity
+TotalTime: 3310
+WaitTime: 3311
+Complete
+--- run 5 ---
+Starting: Intent { cmp=com.aistudy.aistudy/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.aistudy.aistudy/.MainActivity
+TotalTime: 3041
+WaitTime: 3051
+Complete
+SUMMARY: n=5 min=3041 median=3284 max=5139 mean=3576.4 ms

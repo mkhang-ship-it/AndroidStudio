@@ -76,6 +76,8 @@ import com.aistudy.aistudy.ui.label
 import com.aistudy.aistudy.ui.practice.PracticeUiState
 import com.aistudy.aistudy.ui.practice.PracticeViewModel
 import com.aistudy.aistudy.ui.practice.answerOptions
+import com.aistudy.aistudy.ui.practice.correctAnswerText
+import com.aistudy.aistudy.ui.practice.isCorrectAnswer
 import com.aistudy.aistudy.ui.root.AppDependencies
 import com.aistudy.aistudy.ui.theme.Spacing
 import com.aistudy.aistudy.ui.theme.AppMotion
@@ -266,7 +268,7 @@ private fun QuestionState(
     onNext: () -> Unit
 ) {
     val item = state.currentItem ?: return
-    val isCorrect = state.userAnswer.trim().equals(item.correctAnswer.trim(), ignoreCase = true)
+    val isCorrect = item.isCorrectAnswer(state.userAnswer)
 
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -320,7 +322,7 @@ private fun QuestionState(
                     letter = stringResource(OPTION_LETTER_RES[index]),
                     text = optionText,
                     isChosen = state.userAnswer.trim().equals(optionText.trim(), ignoreCase = true),
-                    isCorrectOption = optionText.trim().equals(item.correctAnswer.trim(), ignoreCase = true),
+                    isCorrectOption = optionText.trim().equals(item.correctAnswerText(), ignoreCase = true),
                     submitted = state.submitted,
                     onClick = { onAnswerChange(optionText) }
                 )
@@ -359,7 +361,7 @@ private fun QuestionState(
         } else {
             FeedbackCard(
                 isCorrect = isCorrect,
-                correctAnswer = item.correctAnswer,
+                correctAnswer = item.correctAnswerText(),
                 explanation = item.explanation
             )
             Spacer(Modifier.height(Spacing.lg))

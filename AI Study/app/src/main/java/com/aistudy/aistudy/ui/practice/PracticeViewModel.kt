@@ -238,7 +238,7 @@ class PracticeViewModel(
     }
 
     private fun checkAnswer(item: QuizItem, answer: String): Boolean =
-        answer.equals(item.correctAnswer, ignoreCase = true)
+        item.isCorrectAnswer(answer)
 
     private fun reportError(message: String?) {
         _state.value = _state.value.copy(
@@ -253,3 +253,37 @@ class PracticeViewModel(
 internal val QuizItem.answerOptions: List<Pair<Int, String>>
     get() = listOf(optionA, optionB, optionC, optionD)
         .mapIndexedNotNull { index, text -> text?.let { index to it } }
+
+/**
+ * MULTIPLE_CHOICE co the luu `correctAnswer` duoi dang chu cai (A-D hoac 1-4)
+ * hoac nguyen van text cua option, tuy client sinh cau hoi. UI chi luu option
+ * text khi nguoi dung chon, nen phai quy doi answer key ve text truoc khi so
+ * sanh - neu khong, chon dung option van bi bao sai.
+ *
+ * Cau khong phai MULTIPLE_CHOICE tra ve nguyen `correctAnswer`.
+ */
+internal fun QuizItem.correctAnswerText(): String {
+    val raw = correctAnswer.trim()
+    if (questionType != QuestionType.MULTIPLE_CHOICE) return raw
+
+    val options = answerOptions
+    if (options.isEmpty()) return raw
+
+    options.firstOrNull { it.second.trim().equals(raw, ignoreCase = true) }
+        ?.let { return it.second.trim() }
+
+    val index = optionIndexFromKey(raw) ?: return raw
+    return options.firstOrNull { it.first == index }?.second?.trim() ?: raw
+}
+
+internal fun QuizItem.isCorrectAnswer(answer: String): Boolean =
+    answer.trim().equals(correctAnswerText(), ignoreCase = true)
+
+private fun optionIndexFromKey(value: String): Int? {
+    if (value.length != 1) return null
+    return when (val letter = value[0].uppercaseChar()) {
+        in 'A'..'D' -> letter - 'A'
+        in '1'..'4' -> letter - '1'
+        else -> null
+    }
+}

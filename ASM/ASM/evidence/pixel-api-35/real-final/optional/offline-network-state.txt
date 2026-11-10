@@ -1,0 +1,28 @@
+﻿# Offline test - network disabled
+# Date: 2026-11-10T02:17:40.3129348+07:00
+=== ping after disable ===
+adb.exe : ping: unknown host generativelanguage.googleapis.com
+At line:2 char:680
++ ... nds 3; $p = & $adb shell ping -c 2 generativelanguage.googleapis.com  ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ping: unknown h....googleapis.com:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+=== restore ===
+=== ping after restore ===
+adb.exe : ping: unknown host generativelanguage.googleapis.com
+At line:2 char:597
++ ... nds 5; $p = & $adb shell ping -c 2 generativelanguage.googleapis.com  ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ping: unknown h....googleapis.com:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+=== wifi toggle attempt ===
+=== ping after wifi toggle ===
+PING generativelanguage.googleapis.com (172.217.117.4) 56(84) bytes of data.
+64 bytes from 172.217.117.4: icmp_seq=1 ttl=255 time=485 ms
+64 bytes from 172.217.117.4: icmp_seq=2 ttl=255 time=497 ms
+
+--- generativelanguage.googleapis.com ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 999ms
+rtt min/avg/max/mdev = 485.877/491.595/497.314/5.761 ms

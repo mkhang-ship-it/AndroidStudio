@@ -1,0 +1,61 @@
+{
+  "generated_at": "2026-11-10T02:48:44",
+  "source": "C:\\Users\\ADMIN\\orca\\workspaces\\AndroidStudio\\AUDIT\\ASM\\ASM\\ASM2_REPORT_COMPACT.md",
+  "source_sha256": "dab06f32f13a2d43561d83389ac357556f20582f34a272822cc018e2e28378a4",
+  "template": "C:\\Users\\ADMIN\\orca\\AndroidStudio\\ASM\\ASM\\FRONTSHEET ASM FINAL REPORT (GROUP).docx",
+  "output_docx": "C:\\Users\\ADMIN\\orca\\workspaces\\AndroidStudio\\AUDIT\\ASM\\ASM\\deliverables\\draft\\BC00720_KhangNM_ASM2_DRAFT_REPORT.docx",
+  "output_pdf": "C:\\Users\\ADMIN\\orca\\workspaces\\AndroidStudio\\AUDIT\\ASM\\ASM\\deliverables\\draft\\BC00720_KhangNM_ASM2_DRAFT_REPORT.pdf",
+  "pdf_method": "Microsoft Word COM ExportAsFixedFormat (PDF)",
+  "docx_pages": 23,
+  "docx_words_including_tables": 4406,
+  "markdown_prose_words": 2936,
+  "pending_markers_in_source": 30,
+  "body_headings": 40,
+  "body_tables": 11,
+  "body_figures": 6,
+  "missing_figures": 0,
+  "appendix_d_images": 16,
+  "nfr_cold_start_ms": [
+    5139,
+    3284,
+    3108,
+    3310,
+    3041
+  ],
+  "nfr_cold_start_summary": {
+    "n": 5,
+    "min": 3041,
+    "median": 3284,
+    "max": 5139,
+    "mean": 3576.4
+  },
+  "nfr_gemini_round_trip_ms": [
+    2207,
+    913,
+    861
+  ],
+  "nfr_gemini_summary": {
+    "n": 3,
+    "min": 861,
+    "median": 913,
+    "max": 2207,
+    "mean": 1327.0,
+    "http_200": 3
+  },
+  "nfr_note": "Measured observations on Pixel_6_API_35; no SLO defined. NFR2 action count and history/offline timing remain PENDING.",
+  "nfr_source": "C:\\Users\\ADMIN\\orca\\workspaces\\AndroidStudio\\AUDIT\\ASM\\ASM\\NFR_MEASUREMENTS.md",
+  "optional_evidence_png": [
+    "image-01-attached.png",
+    "image-02-answer.png",
+    "image-question-input.png",
+    "login-01-screen.png",
+    "login-02-success.png",
+    "login-03-profile.png",
+    "offline-01-error.png",
+    "offline-02-recovered.png"
+  ],
+  "optional_evidence_status": "SUPPLEMENTARY — image, offline error/recovery, login after logout; excluded from the 16-image final gate",
+  "python": "3.14.5",
+  "python_docx": "1.2.0",
+  "platform": "Windows-11-10.0.26200-SP0"
+}

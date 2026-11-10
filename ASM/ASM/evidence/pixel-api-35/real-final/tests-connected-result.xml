@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuites tests="39" failures="0" errors="0" skipped="0" time="12.305" timestamp="2026-11-09T16:03:27" hostname="localhost">
+  <testsuite name="com.aistudy.aistudy.ExampleInstrumentedTest" tests="1" failures="0" errors="0" skipped="0" time="0.023" timestamp="2026-11-09T16:03:27" hostname="localhost">
+    <properties>
+      <property name="device" value="Pixel_6_API_35(AVD) - 15" />
+      <property name="flavor" value="" />
+      <property name="project" value=":app" />
+    </properties>
+    <testcase name="useAppContext" classname="com.aistudy.aistudy.ExampleInstrumentedTest" time="0.023" />
+  </testsuite>
+  <testsuite name="com.aistudy.aistudy.db.QuestionAnswerDaoTest" tests="11" failures="0" errors="0" skipped="0" time="0.345" timestamp="2026-11-09T16:03:27" hostname="localhost">
+    <properties>
+      <property name="device" value="Pixel_6_API_35(AVD) - 15" />
+      <property name="flavor" value="" />
+      <property name="project" value=":app" />
+    </properties>
+    <testcase name="deleteByHashes_removesAllDuplicateRowsOfSameQuestion" classname="com.aistudy.aistudy.db.QuestionAnswerDaoTest" time="0.136" />
+    <testcase name="addReviewTime_increasesRowAndTotal" classname="com.aistudy.aistudy.db.QuestionAnswerDaoTest" time="0.004" />
+    <testcase name="search_matchesKeywordInsideQuestionText" classname="com.aistudy.aistudy.db.QuestionAnswerDaoTest" time="0.032" />
+    <testcase name="deleteByIds_removesOnlySelectedRows" classname="com.aistudy.aistudy.db.QuestionAnswerDaoTest" time="0.006" />
+    <testcase name="bySubject_returnsOnlyMatchingSubject" classname="com.aistudy.aistudy.db.QuestionAnswerDaoTest" time="0.031" />
+    <testcase name="totalReviewSeconds_noRows_returnsZero" classname="com.aistudy.aistudy.db.QuestionAnswerDaoTest" time="0.005" />
+    <testcase name="totalReviewSeconds_sumsAcrossRows" classname="com.aistudy.aistudy.db.QuestionAnswerDaoTest" time="0.032" />
+    <testcase name="countBySubject_groupsAndCountsPerSubject" classname="com.aistudy.aistudy.db.QuestionAnswerDaoTest" time="0.044" />
+    <testcase name="setBookmarked_togglesFlagAndBookmarkedFlow" classname="com.aistudy.aistudy.db.QuestionAnswerDaoTest" time="0.005" />
+    <testcase name="findByHash_returnsMostRecentWithThatHash" classname="com.aistudy.aistudy.db.QuestionAnswerDaoTest" time="0.045" />
+    <testcase name="insert_thenObserveByUser_returnsNewestFirst" classname="com.aistudy.aistudy.db.QuestionAnswerDaoTest" time="0.005" />
+  </testsuite>
+  <testsuite name="com.aistudy.aistudy.db.UserDaoTest" tests="5" failures="0" errors="0" skipped="0" time="0.091" timestamp="2026-11-09T16:03:27" hostname="localhost">
+    <properties>
+      <property name="device" value="Pixel_6_API_35(AVD) - 15" />
+      <property name="flavor" value="" />
+      <property name="project" value=":app" />
+    </properties>
+    <testcase name="touchLogin_secondCall_overwritesPreviousValue" classname="com.aistudy.aistudy.db.UserDaoTest" time="0.005" />
+    <testcase name="touchLogin_updatesLastLoginAt" classname="com.aistudy.aistudy.db.UserDaoTest" time="0.037" />
+    <testcase name="findByEmail_unknownEmail_returnsNull" classname="com.aistudy.aistudy.db.UserDaoTest" time="0.005" />
+    <testcase name="insert_duplicateEmail_throwsConstraintException" classname="com.aistudy.aistudy.db.UserDaoTest" time="0.006" />
+    <testcase name="insert_thenFindByEmail_returnsInsertedUser" classname="com.aistudy.aistudy.db.UserDaoTest" time="0.038" />
+  </testsuite>
+  <testsuite name="com.aistudy.aistudy.repo.AuthRepositoryTest" tests="13" failures="0" errors="0" skipped="0" time="10.734" timestamp="2026-11-09T16:03:27" hostname="localhost">
+    <properties>
+      <property name="device" value="Pixel_6_API_35(AVD) - 15" />
+      <property name="flavor" value="" />
+      <property name="project" value=":app" />
+    </properties>
+    <testcase name="register_displayNameTrong_thaiBai" classname="com.aistudy.aistudy.repo.AuthRepositoryTest" time="0.043" />
+    <testcase name="login_sai5Lan_lienTiep_biKhoaTamThoi" classname="com.aistudy.aistudy.repo.AuthRepositoryTest" time="2.526" />
+    <testcase name="login_dungSauKhiBiKhoa_vanBiKhoa" classname="com.aistudy.aistudy.repo.AuthRepositoryTest" time="2.582" />
+    <testcase name="register_matKhauKhongCoChuHoacSo_thaiBai" classname="com.aistudy.aistudy.repo.AuthRepositoryTest" time="0.005" />
+    <testcase name="register_emailTrung_thaiBai" classname="com.aistudy.aistudy.repo.AuthRepositoryTest" time="0.438" />
+    <testcase name="logout_xoaSession" classname="com.aistudy.aistudy.repo.AuthRepositoryTest" time="0.447" />
+    <testcase name="login_dungEmailMatKhau_thanhCong" classname="com.aistudy.aistudy.repo.AuthRepositoryTest" time="0.853" />
+    <testcase name="login_emailKhongTonTai_thaiBai" classname="com.aistudy.aistudy.repo.AuthRepositoryTest" time="0.005" />
+    <testcase name="register_matKhauNgan_thaiBai" classname="com.aistudy.aistudy.repo.AuthRepositoryTest" time="0.005" />
+    <testcase name="register_emailKhongHopLe_thaiBai" classname="com.aistudy.aistudy.repo.AuthRepositoryTest" time="0.006" />
+    <testcase name="login_lockout_vanConSauKhiTaoRepositoryMoi" classname="com.aistudy.aistudy.repo.AuthRepositoryTest" time="2.591" />
+    <testcase name="login_saiMatKhau_thaiBai" classname="com.aistudy.aistudy.repo.AuthRepositoryTest" time="0.816" />
+    <testcase name="register_taoUserVaProfile_moiKhiThanhCong" classname="com.aistudy.aistudy.repo.AuthRepositoryTest" time="0.417" />
+  </testsuite>
+  <testsuite name="com.aistudy.aistudy.ui.MainShellSmokeTest" tests="9" failures="0" errors="0" skipped="0" time="0.08" timestamp="2026-11-09T16:03:27" hostname="localhost">
+    <properties>
+      <property name="device" value="Pixel_6_API_35(AVD) - 15" />
+      <property name="flavor" value="" />
+      <property name="project" value=":app" />
+    </properties>
+    <testcase name="topLevelDestinations_coDung5Tab" classname="com.aistudy.aistudy.ui.MainShellSmokeTest" time="0.042" />
+    <testcase name="topLevelDestinations_routeASK" classname="com.aistudy.aistudy.ui.MainShellSmokeTest" time="0.005" />
+    <testcase name="topLevelDestinations_moiTabDeuCoIconVaOutlinedIcon" classname="com.aistudy.aistudy.ui.MainShellSmokeTest" time="0.006" />
+    <testcase name="topLevelDestinations_routePRACTICE" classname="com.aistudy.aistudy.ui.MainShellSmokeTest" time="0.005" />
+    <testcase name="topLevelDestinations_routePROFILE" classname="com.aistudy.aistudy.ui.MainShellSmokeTest" time="0.004" />
+    <testcase name="topLevelDestinations_routePROGRESS" classname="com.aistudy.aistudy.ui.MainShellSmokeTest" time="0.005" />
+    <testcase name="topLevelDestinations_labelResKhongTrung" classname="com.aistudy.aistudy.ui.MainShellSmokeTest" time="0.003" />
+    <testcase name="topLevelDestinations_routeHISTORY" classname="com.aistudy.aistudy.ui.MainShellSmokeTest" time="0.006" />
+    <testcase name="topLevelDestinations_thuTuDung" classname="com.aistudy.aistudy.ui.MainShellSmokeTest" time="0.004" />
+  </testsuite>
+</testsuites>

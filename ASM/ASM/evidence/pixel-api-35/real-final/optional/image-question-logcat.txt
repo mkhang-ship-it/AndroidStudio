@@ -1,0 +1,5 @@
+﻿11-10 02:17:05.495  9827 10134 D GeminiAPI: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent (attempt 1)
+11-10 02:17:08.859  9827 10134 D GeminiAPI: ← HTTP 200 responseLen=1187
+11-10 02:17:08.859  9827 10134 D GeminiAPI:       "finishReason": "STOP",
+11-10 02:17:08.859  9827 10134 D GeminiAPI:     "totalTokenCount": 1444,
+11-10 02:17:08.859  9827 10134 D GeminiAPI:   "modelVersion": "gemini-3.5-flash-lite",

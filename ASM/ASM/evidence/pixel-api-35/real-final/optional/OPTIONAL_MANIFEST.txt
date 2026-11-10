@@ -1,0 +1,45 @@
+PIXEL_6_API_35 — OPTIONAL / SUPPLEMENTARY EVIDENCE
+==================================================
+Device: Pixel_6_API_35 (emulator-5554), Android 15 / API 35
+APK SHA-256: c7c8f9e2b3bc1307d0840502cdae6b27bdc2012c68d15da3831e1f4f50bd3c71
+App account: local measurement account (credentials not recorded in evidence)
+AI mode: real Gemini via ai.properties; key value never printed
+Captured: 2026-11-10 (approx. 02:16–02:20 +07:00)
+
+These captures are SUPPLEMENTARY. The authoritative 16-image final set is the
+parent `real-final/` directory (files 01–16). These optional files do not replace
+or expand that gate.
+
+filename                    | flow                     | action                                   | observed result                                                        | Gemini/network
+----------------------------|--------------------------|------------------------------------------|------------------------------------------------------------------------|---------------
+image-question-input.png    | Image question input     | Generated/pushed a simple "2 + 2 = ?" PNG| Input fixture pushed to /sdcard/Pictures and picked via system picker   | No (fixture)
+image-01-attached.png       | Image attached           | Picked the image in the system photo picker | App showed "Đã đính kèm ảnh"                                         | No
+image-02-answer.png         | Image question answer    | Submitted with image only                 | Real Gemini answer: 2 + 2 = 4, saved to History                         | Yes (HTTP 200)
+offline-01-error.png        | Offline Ask error        | Airplane mode + Wi-Fi/data disabled, submitted question | UI error: "Không gọi được AI. Kiểm tra kết nối mạng rồi thử lại." | No (request failed)
+offline-02-recovered.png    | Offline recovery         | Restored Wi-Fi (DNS recovered after toggle), retried | Real Gemini answer: 9 + 9 = 18, saved to History            | Yes (HTTP 200)
+login-01-screen.png         | Login screen             | Logged out, opened Đăng nhập              | Empty email/password form (no credentials in screenshot)                | No
+login-02-success.png        | Login success            | Submitted local account credentials      | Main shell opened on Hỏi AI; session restored                           | No
+login-03-profile.png        | Profile after login      | Opened Hồ sơ                             | Local account display name, level, XP, badges shown (no credentials)    | No
+
+Network/log evidence
+--------------------
+image-question-logcat.txt       | POST generativelanguage → HTTP 200, modelVersion, token usage
+offline-network-state.txt       | airplane/Wi-Fi disable, ping unknown host, restore, Wi-Fi toggle recovery ping
+offline-logcat.txt              | POST attempt while offline; no HTTP success line
+offline-recovery-logcat.txt     | retry after restore → HTTP 200
+
+Observed blockers / notes
+-------------------------
+- Image question required a pushed fixture image because the emulator gallery had
+  no user photos; the app's picker and real Gemini image request were exercised.
+- Offline error was observed after disabling airplane/Wi-Fi; after re-enabling,
+  IP connectivity returned but DNS initially failed (emulator DNS proxy). A Wi-Fi
+  off/on toggle restored DNS, and the retry succeeded. This DNS flakiness is an
+  environment limitation, not an app failure.
+- Login credentials are intentionally not written to any evidence file. A
+  controlled demo account still has to be supplied separately.
+
+Final-evidence gate
+-------------------
+Parent `real-final/` files 01–16 remain the only authoritative final screenshot
+set. This `optional/` folder is supplementary and clearly labelled as such.

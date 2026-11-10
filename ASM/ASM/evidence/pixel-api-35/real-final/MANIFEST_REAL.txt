@@ -1,0 +1,72 @@
+PIXEL_6_API_35 — REAL FINAL EVIDENCE MANIFEST
+==============================================
+Device: Pixel_6_API_35 (emulator-5554)
+Android: 15 / API 35
+Model: sdk_gphone64_x86_64 (emu64xa, x86_64)
+Package: com.aistudy.aistudy 1.0 (debug)
+APK SHA-256: c7c8f9e2b3bc1307d0840502cdae6b27bdc2012c68d15da3831e1f4f50bd3c71
+App account used: local measurement account (credentials not recorded)
+AI mode: real Gemini via ai.properties (GEMINI_API_KEY configured, value never printed)
+Captured: 2026-11-09
+
+All rows below were captured only after the screen/state was actually observed
+on the running emulator with `adb screencap` + `adb pull`.
+
+filename                        | flow                     | action                                        | observed result                                                                 | SDK | Gemini/network
+--------------------------------|--------------------------|-----------------------------------------------|---------------------------------------------------------------------------------|-----|---------------
+01-welcome.png                  | Launch / welcome         | Cold launch after reinstall                   | Welcome title + subtitle, no fake-mode banner                                   | 35  | No
+02-register-filled.png          | Registration             | Filled display name/email/password/confirm    | Form accepted local input (password masked)                                     | 35  | No
+03-onboarding-step1.png         | Onboarding step 1/2      | Opened after registration                     | Education level options shown                                                   | 35  | No
+04-onboarding-step2.png         | Onboarding step 2/2      | Selected level, tapped Tiếp                   | Explanation style options shown                                                 | 35  | No
+05-ask-input.png                | Ask input                | Typed "Explain the Pythagorean theorem"       | Question text present in input, suggestions hidden                              | 35  | No
+06-ask-gemini-answer.png        | Ask answer (real AI)     | Tapped Hỏi ngay, waited for response          | Real Gemini answer with steps + "Đã lưu vào Lịch sử."                           | 35  | Yes (HTTP 200)
+07-history-real-question.png    | History                  | Opened History tab                            | "1 kết quả" with "Explain the Pythagorean theorem"                              | 35  | No (data from Gemini)
+08-question-detail.png          | Question detail          | Tapped history row                            | Full question + real answer, "Hỏi lúc 09/11/2026 22:58"                          | 35  | No (data from Gemini)
+09-progress-real.png            | Progress                 | Opened Progress tab                           | 1 question, 15s review, 0%, +7 XP, Toán học 1 câu                               | 35  | No (derived from real data)
+10-practice-generate.png        | Practice generate setup  | Opened Practice tab                           | Source picker + count control                                                   | 35  | No
+11-practice-question.png        | Practice question (AI)   | Selected source, count=1, generated quiz      | Real Gemini MULTIPLE_CHOICE question with A-D options                           | 35  | Yes (HTTP 200)
+12-practice-correct-feedback.png| Practice correct answer  | Selected option B, tapped Nộp bài             | Option B marked correct and feedback "Chính xác!"                               | 35  | No (quiz from Gemini)
+13-profile.png                  | Profile                  | Opened Profile tab                            | Local test account, level 1, 22 XP, streak, badge                                      | 35  | No
+14-notifications.png            | Notifications            | Profile -> Xem thông báo                      | 1 unread motivational notification generated from real activity                 | 35  | No
+15-logout-confirm.png           | Logout confirmation      | Profile -> Đăng xuất                          | Confirm dialog shown                                                            | 35  | No
+16-logged-out-welcome.png       | Logout result            | Confirmed logout                              | Returned to Welcome screen                                                      | 35  | No
+
+Network/log evidence (no API key included)
+------------------------------------------
+06-gemini-network-logcat.txt    | Ask call: POST generativelanguage, HTTP 200, modelVersion, token usage
+11-gemini-quiz-logcat.txt       | Quiz call: POST generativelanguage, HTTP 200, correctAnswer/options, modelVersion
+
+Observed answer-key representation
+----------------------------------
+- Ask answer: real Gemini text (Pythagorean theorem, HTTP 200).
+- Quiz: correctAnswer was the option TEXT "a^2 + b^2 = c^2" (option B), not a letter.
+  The corrected UI still showed "Chính xác!" for the selected correct option.
+  The letter-key regression path ("A".."D") is covered by PracticeAnswerTest.
+
+Optional supplementary evidence (2026-11-10, NOT part of the 16-image gate)
+---------------------------------------------------------------------------
+real-final/optional/OPTIONAL_MANIFEST.txt
+real-final/optional/image-question-input.png   | fixture input image (800x600)
+real-final/optional/image-01-attached.png      | app shows "Đã đính kèm ảnh"
+real-final/optional/image-02-answer.png        | real Gemini answer 2+2=4 (HTTP 200)
+real-final/optional/offline-01-error.png       | offline error message
+real-final/optional/offline-02-recovered.png   | retry after restore: 9+9=18 (HTTP 200)
+real-final/optional/login-01-screen.png        | login screen (no credentials shown)
+real-final/optional/login-02-success.png       | main shell after login
+real-final/optional/login-03-profile.png       | profile after login
+real-final/optional/*.txt                      | image/offline/recovery logs
+
+The 16 authoritative final screenshots above are unchanged. Optional files are
+supplementary and must not be renumbered into the 16-image gate.
+
+Remaining PENDING
+-----------------
+- OS-level push notification permission was not exercised.
+- Formal history-open timing and action counts (see NFR_MEASUREMENTS.md).
+- A controlled demo account must be supplied later.
+- Package APK is PENDING: current APK embeds key material (see PACKAGE_QA.md).
+
+Old evidence
+------------
+Screenshots 02-19 in the parent evidence folder are DEMO / FakeAiClient and are
+NON-FINAL. They are kept for history and are not part of this real-final set.

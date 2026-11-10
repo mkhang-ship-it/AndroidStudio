@@ -1,0 +1,21 @@
+﻿# Network condition
+# Date: 2026-11-10T00:51:00.4105363+07:00
+# Emulator: Pixel_6_API_35
+=== ping 8.8.8.8 ===
+PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+64 bytes from 8.8.8.8: icmp_seq=1 ttl=255 time=40.2 ms
+64 bytes from 8.8.8.8: icmp_seq=2 ttl=255 time=47.9 ms
+64 bytes from 8.8.8.8: icmp_seq=3 ttl=255 time=60.5 ms
+
+--- 8.8.8.8 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2020ms
+rtt min/avg/max/mdev = 40.215/49.560/60.535/8.379 ms
+=== ping generativelanguage.googleapis.com ===
+PING generativelanguage.googleapis.com (172.217.116.4) 56(84) bytes of data.
+64 bytes from 172.217.116.4: icmp_seq=1 ttl=255 time=397 ms
+64 bytes from 172.217.116.4: icmp_seq=2 ttl=255 time=424 ms
+64 bytes from 172.217.116.4: icmp_seq=3 ttl=255 time=436 ms
+
+--- generativelanguage.googleapis.com ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2001ms
+rtt min/avg/max/mdev = 397.893/419.816/436.899/16.296 ms
