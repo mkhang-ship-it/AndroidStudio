@@ -101,7 +101,7 @@ Part 1 also states the MoSCoW cut explicitly: **FR1–FR4, FR6, FR8 are MVP; FR5
 Word-budget conflict to resolve with the tutor: the brief's Submission Format says **2,000–2,500 words**, Activity 2 says the development report alone is **2,500–3,000 words**. Recorded as decision **DEC-01** (see §10). Recommended: follow Activity 2 for the development chapter and keep the whole document at 2,500–3,000, noting the overlap in the introduction.
 
 ### Front matter
-- Assignment front sheet 2 (group) — `FS-01` `PENDING`: group number, member names + codes, class, assessor. Source template: `FRONTSHEET ASM FINAL REPORT (GROUP).docx`.
+- Assignment front sheet 2 — `FS-01`: student name and code, class, assessor; group/member fields N/A — individual submission. Source template: `FRONTSHEET ASM FINAL REPORT (GROUP).docx`.
 - Table of contents, list of tables, list of figures.
 
 ### 1. Peer Review of Requirements and Proposed Solution (P4 + M3) — ~500 words

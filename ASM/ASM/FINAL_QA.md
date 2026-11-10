@@ -19,7 +19,7 @@
 | Prose word count | **2,936** by the documented method (inside 2,500–3,000) |
 | Package word-count consistency | **PASS** — five references, all 2,936 |
 | Rubric sections P4, M3, P5, M4, P6, M5, D2 | **PASS** — all present in the compact |
-| Front-sheet metadata block | **PASS** — student, ID, class, assessor and unit supplied; group, date, scores and signatures marked PENDING |
+| Front-sheet metadata block | **PASS** — student, ID, class, assessor and unit supplied; group/member fields N/A — individual submission; date, scores and signatures marked PENDING |
 | Working-source status | **PASS** — compact remains the single report source; DRAFT DOCX/PDF exported from it (`deliverables/draft/`) |
 | Reference list | **PASS** — `ASM2_HARVARD_REFERENCES.md`: 17 external entries from Part 1 plus 13 project documents; verification `[PENDING]` |
 | Presentation | **PASS (draft)** — 12-slide PPTX and PDF exported from `ASM2_PRESENTATION_OUTLINE.md`; rehearsal `[PENDING]` |
@@ -29,7 +29,7 @@
 | Application source modified in AUDIT | **None** — zero changes under `AI Study/` |
 | Commit / push | **None** |
 
-No blocking defect found. Remaining inputs are catalogued in `ASM2_REPORT_INPUTS.md`: survey export, front-sheet group/date/scores/signatures, Harvard references, presentation rehearsal, remaining NFR rows and demo-account procedure. Cold start and the Gemini Ask round trip are now measured.
+No blocking defect found. Remaining inputs are catalogued in `ASM2_REPORT_INPUTS.md`: survey export, front-sheet date/scores/signatures, Harvard references, presentation rehearsal, remaining NFR rows and demo-account procedure. Cold start and the Gemini Ask round trip are now measured.
 
 ---
 
@@ -147,7 +147,7 @@ Earlier in the compact pass, a PowerShell `Get-Content -Raw` / `WriteAllText` ro
 | JVM result | 159 tests, 13 classes, 0 failures | Match |
 | Real provider | Ask and quiz calls verified, HTTP 200 | Match |
 | Practice fix | 7 regression tests; screenshot 12 | Match |
-| No DOCX/PDF yet | Package states planning only | Match |
+| Draft DOCX/PDF and PPTX/PDF exist | `deliverables/draft/`; final export gated on the pending inputs | Match |
 
 ---
 

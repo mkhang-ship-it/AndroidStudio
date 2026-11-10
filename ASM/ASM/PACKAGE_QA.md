@@ -2,43 +2,63 @@
 
 QA date: 2026-11-10 (local)
 Worktree: `C:\Users\ADMIN\orca\workspaces\AndroidStudio\Assigment`
-Status: **checks performed, but no ZIP created or inspected.** A clean ZIP is
-therefore NOT claimed.
+Branch: `Assignment_Report`
+Status: **staging verified, ZIP created and inspected.**
 
 ## Actual checks
 
 | Check | Command / method | Actual result | Verdict |
 |---|---|---|---|
-| Fixed APK present | `Get-Item app-debug.apk` | 35,596,239 bytes | Present |
-| APK SHA-256 | `certutil -hashfile app-debug.apk SHA256` | `c7c8f9e2b3bc1307d0840502cdae6b27bdc2012c68d15da3831e1f4f50bd3c71` | Matches verified build |
-| `ai.properties` exists | file check | Yes, 470 bytes | **Must be excluded** |
-| `ai.properties` gitignored | `git check-ignore -v` | `AI Study/.gitignore:16:/ai.properties` | Ignored |
-| `local.properties` | file check | Absent; only `local.properties.example` | No machine path to remove |
-| Keystores/keys | recursive `*.jks,*.keystore,*.p12,*.pem,*.key` | 0 files | Clean |
-| Source file counts | recursive `.kt` | main 98, test 13, androidTest 5 | Present |
-| Key-pattern scan (source/docs) | regex for Gemini-key-like material over `AI Study/app/src`, `README.md`, `docs` | 0 files | Clean |
-| Key-pattern scan (APK) | extract DEX entries, search for Gemini-key-like material | **found in 2 DEX files** (classes12.dex, classes15.dex) | **APK NOT package-safe** |
-| Final evidence PNGs | count in `real-final/*.png` | **16** | Matches the 16-image gate |
-| Final evidence files (parent) | count in `real-final/` | 16 PNG + 10 TXT + 1 XML = 27 | Recorded |
-| Optional evidence | `real-final/optional/` | 8 PNG + 5 TXT = 13 | Supplementary, labelled |
-| Old demo screenshots | count in parent evidence folder | 22 PNG (`01`, `02`–`22`) | Excluded from package |
-| Focused unit tests | `PracticeAnswerTest` | 7/7 passed, 0 failures | Verified |
-| Connected tests | `connectedDebugAndroidTest` | 39/39 passed, 0 failures/skipped | Verified |
-| Full unit suite | `testDebugUnitTest` | 159/159 passed, 0 failures | Verified |
-| ZIP existence | file check | No ZIP created in this phase | **PENDING** |
+| Staging files | recursive file count | **243 files / 87 directories** | Staged |
+| Staging bytes | recursive size sum | 41,152,858 bytes | Recorded |
+| `ai.properties` in staging | recursive file check | absent | Clean |
+| `local.properties` in staging | recursive file check | absent | Clean |
+| Keystores/keys | `*.jks,*.keystore,*.p12,*.pem,*.key` | 0 files | Clean |
+| Build/IDE caches | `build`, `.gradle`, `.idea`, `.kotlin`, `.git`, `.commandcode` | 0 directories | Clean |
+| Demo screenshots | parent `evidence/pixel-api-35/*.png` | 0 PNGs staged | Clean |
+| Docs screenshots | `docs/screenshots` | excluded | Clean |
+| Final evidence PNGs | count in `real-final/*.png` | **16** | Matches 16-image gate |
+| Optional evidence PNGs | count in `real-final/optional/*.png` | 8 (supplementary) | Labelled, not gate |
+| Final evidence files | `real-final/` root | 16 PNG + 10 TXT + 1 XML = 27 | Recorded |
+| Sanitized APK | isolated rebuild, no key file/env | `app-debug.apk` 35,174,179 bytes | Built |
+| Sanitized APK key scan | regex over all 170 extracted entries | **0 provider-key-like hits** | Clean |
+| Sanitized `BuildConfig` | generated `BuildConfig.java` | `GEMINI_API_KEY = ""` | Offline |
+| Sanitized APK install | `adb install -r` on emulator-5554 | `Success`; package + versionCode 1 / versionName 1.0 | Installs |
+| APK SHA-256 | .NET SHA-256 over packaged APK | `e7391113c18907d71b84e8e9856e02a0e3ece9ee447bebb32fdb526e82e18700` | Matches staging copy |
+| Staging secret scan | regex over every staged file | 0 hits | Clean |
+| ZIP members | archive entry listing | see ZIP rows below | Inspected |
+| ZIP member secret scan | regex over every member | 0 hits | Clean |
+| ZIP SHA-256 / size | computed after archive creation | recorded below | Recorded |
 
-## APK finding (blocking clean APK inclusion)
+## APK verdict
 
-The current debug APK was built with the local `ai.properties`, so
-`BuildConfig.GEMINI_API_KEY` is embedded in the DEX. The scan found key-like
-material in two DEX files. The key value was not printed.
+- The original real-key APK (SHA-256
+  `c7c8f9e2b3bc1307d0840502cdae6b27bdc2012c68d15da3831e1f4f50bd3c71`) is
+  **excluded**: it embeds `GEMINI_API_KEY` in DEX.
+- The included `AIStudy-sanitized-debug.apk` was built from an isolated copy
+  with no `ai.properties`, no key in `local.properties`, and
+  `GEMINI_API_KEY` unset.
+- Generated `BuildConfig.GEMINI_API_KEY` is empty; the app runs offline
+  `FakeAiClient`.
+- All 170 APK entries scanned: 0 provider-key-like hits.
+- Installed successfully on Pixel_6_API_35 (Android 15 / API 35).
 
-Consequences:
+## ZIP rows (actual)
 
-- Do **not** publish the current APK as a clean package.
-- A sanitized APK (empty/placeholder key → offline `FakeAiClient`) or a
-  source-only package is required.
-- This is recorded as PENDING, not as a clean result.
+| Item | Actual result |
+|---|---|
+| Archive | `ASM/ASM/deliverables/software/ASM2_Software_Package.zip` |
+| ZIP members | **243 files** |
+| ZIP size | **16,680,495 bytes** |
+| ZIP SHA-256 | `836607729dde6b2f0e3b6cb924448c3a91ddeaead2ba2d1066369f213f2de820` |
+| ZIP secret scan | 0 hits (matches never printed) |
+| Parent demo PNG in ZIP | 0 |
+| Final PNG in ZIP | exactly 16 (plus 8 optional supplementary) |
+
+The SHA-256 above is computed over the archive after it is finalized. Because a
+file cannot contain its own archive hash, the archived copy of this QA file
+records the same staging/ZIP facts with the hash line pointing to this
+repository copy and `README_PACKAGE.txt` delivered beside the archive.
 
 ## Evidence gate
 
@@ -51,14 +71,12 @@ Consequences:
 
 | Item | Reason |
 |---|---|
-| Sanitized APK (no embedded key) | Current APK contains key material; rebuild needed |
-| Actual ZIP creation and file listing | Not performed in this phase |
-| ZIP SHA-256 and post-ZIP secret scan | Cannot be claimed until the ZIP is inspected |
-| Controlled demo account | Not supplied; must be provided separately |
+| Controlled demo account | Not supplied; create a local account in the app |
+| OS-level push notification permission | Not exercised |
+| Real-Gemini APK distribution | Deliberately excluded (key embedded) |
 
 ## Verdict
 
-Source, docs, tests, and real-final evidence are ready to stage under the
-manifest in `SOFTWARE_PACKAGE_DRAFT.md`. The package is **not yet a verified
-clean ZIP** because (a) the APK contains embedded key material and (b) no ZIP
-has been created and inspected.
+Source, docs, tests, sanitized APK, and real-final evidence are staged and
+archived. The ZIP was listed and scanned after creation: no secrets, no demo
+screenshots, exactly 16 authoritative final PNGs.

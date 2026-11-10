@@ -76,7 +76,7 @@ Supplied values (copy exactly): student **Nguyen Minh Khang**, ID **BC00720**, c
 - [x] Qualification and unit title match the template
 - [ ] No member name appears anywhere in the report body without consent
 
-`[PENDING: group allocation, member codes, submission date, scores, signatures]`
+`[PENDING: submission date, scores, signatures; group/member fields are N/A — individual submission]`
 
 ---
 
@@ -288,7 +288,7 @@ This phase stops at the source draft. When the gates above are met:
 | 6 | Sprint log S04–S13 empty | M4 strength | Group |
 | 7 | Demo-account procedure missing (user guide supplied) | P5 support documentation | Group |
 | 8 | Front-sheet data missing | Cover page | Group |
-| 9 | Presentation not produced | Activity 2 deliverable | Group |
+| 9 | Presentation rehearsal and live demo not completed (12-slide DRAFT deck and PDF exist) | Activity 2 delivery | Group |
 
 ---
 

@@ -21,7 +21,7 @@ Every factual statement is tagged so that the final edit cannot silently promote
 | `[PENDING]` or `[PENDING: reason]` | Evidence does not exist yet. Must be produced by a human, a device run, or a participant. Do **not** replace with an estimate. |
 | `[INSERT FIGURE n: description]` | Placeholder for a figure that must exist before export. |
 
-**Formatting rules fixed by the brief** `[VERIFIED: Assignment part 2.docx]`: group report, Calibri 12, 1.5 line spacing, page numbers, margins left 1.25 cm and right/top/bottom 1 cm, Harvard in-text citation and reference list, final submission as PDF on CMS, cover page = *Assignment front sheet 2*.
+**Formatting rules fixed by the brief** `[VERIFIED: Assignment part 2.docx]`: the brief says “group report”; this submission is individual, so the front-sheet group and member fields are N/A. Calibri 12, 1.5 line spacing, page numbers, margins left 1.25 cm and right/top/bottom 1 cm, Harvard in-text citation and reference list, final submission as PDF on CMS, cover page = *Assignment front sheet 2*.
 
 **Word budget conflict (decision DEC-01, unresolved)**
 
@@ -699,7 +699,7 @@ Consolidated view for P6. Statuses follow the vocabulary in §4.3.
 | FR8 | Progress tracking | **Met** | Progress observed after real activity `[VERIFIED]` | C, D |
 | FR9 | XP, levels, badges, leaderboard | **Partial** | XP, level, streak and badge observed; leaderboard absent `[VERIFIED]` | C, D |
 | FR10 | Reminders, mistake alerts, summaries | **Partial** | Notification list observed; reminder generation unverified `[DOC-ONLY]` | C, D |
-| NFR1 | UI response within 100 ms during AI call | **Not tested** | No timings captured `[PENDING]` | F |
+| NFR1 | UI response within 100 ms during AI call | **Not tested** | No UI-response timing captured; cold start and Ask round trip are measured but do not test this requirement `[PENDING]` | F |
 | NFR2 | ≤3 actions to submit | **Not tested** | No action count captured `[PENDING]` | F |
 | NFR3 | Android 13+ | **Met** | `minSdk = 33`; executed on API 35 `[VERIFIED]` | E |
 | NFR4 | Encryption and data minimisation | **Partial** | Body columns plaintext; abuse filter unused; images not deleted `[VERIFIED]` | C |

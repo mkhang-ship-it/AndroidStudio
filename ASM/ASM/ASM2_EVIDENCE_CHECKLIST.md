@@ -280,7 +280,7 @@ Each is verified; none should be silently omitted or silently "fixed".
 - [ ] `PENDING` — Calibri 12, 1.5 line spacing
 - [ ] `PENDING` — margins left 1.25 cm, right/top/bottom 1 cm
 - [ ] `PENDING` — page numbers
-- [ ] `PENDING` — front sheet 2 completed (group, names, codes, class, assessor)
+- [ ] `PENDING` — front sheet 2 completed (student name and code, class, assessor; group/member fields N/A — individual submission)
 - [ ] `PENDING` — Harvard in-text citations + reference list
 - [ ] `PENDING` — ≥20 test cases in §3.3
 - [ ] `PENDING` — word count within the agreed limit (see DEC-01)

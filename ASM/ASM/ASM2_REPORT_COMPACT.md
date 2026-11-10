@@ -354,9 +354,9 @@ Table 9: Assessment criteria coverage in this report.
 | Item | Status |
 |---|---|
 | Peer-review participants, responses and analysis | `[PENDING]` |
-| Front sheet: group, members, class, assessor, date, signatures | `[PENDING]` |
-| NFR1 and NFR2 measurements; Appendix F | `[PENDING]` |
-| Presentation deck | `[PENDING]` |
+| Front sheet: submission date, scores and signatures; student, class and assessor supplied; group/member fields N/A — individual submission | `[PENDING]` |
+| NFR1 UI-response timing, NFR2 action count and the remaining Appendix F rows | `[PENDING]` |
+| Presentation rehearsal and live demo (12-slide DRAFT deck and PDF exist) | `[PENDING]` |
 | Reference list | `[PENDING]` |
 | User guide and demo-account procedure | `[PENDING]` |
 | Pull-request history on the remote | `[PENDING]` |

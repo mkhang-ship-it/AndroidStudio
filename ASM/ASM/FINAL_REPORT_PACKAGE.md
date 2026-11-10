@@ -30,11 +30,11 @@
 
 | Deliverable | Form | Source |
 |---|---|---|
-| Group report | DOCX → PDF | `ASM2_REPORT_COMPACT.md` |
+| Report (individual submission) | DOCX → PDF | `ASM2_REPORT_COMPACT.md` |
 | Software package | ZIP | `AI Study/` source, debug APK, README, user guide |
 | Presentation | 12 slides → PDF | Draft PPTX/PDF exist; rehearsal `[PENDING]` |
 
-The report is a *group* submission and must open with Assignment front sheet 2.
+The report is an individual submission and must open with Assignment front sheet 2; the group and member fields are N/A.
 
 ---
 
@@ -172,7 +172,7 @@ Work in a copy. Do not edit the source draft in place after the writing pass beg
 3. Check that the table of contents page numbers match the body.
 4. Confirm no internal tag text survives: search the PDF for `[VERIFIED`, `[PENDING`, `[DOC-ONLY`, `[INSERT FIGURE`.
 5. Confirm the evidence gate holds: Figures 4–6 are `real-final/` captures, and every root-folder caption is marked `DEMO / NON-FINAL`.
-6. Confirm the API key does not appear: search for provider-key-like material and for a key assignment pattern.
+6. Confirm the API key does not appear: search for `AIza` and for `GEMINI_API_KEY=`.
 7. Check the word count claim against 2,936 and confirm the exclusion method (tables, figures, references, appendices).
 8. Confirm tables are numbered 1–9 and figures 1–6 with no gaps.
 9. Open the PDF on a second machine or a different viewer.
@@ -212,7 +212,7 @@ Checks before zipping:
 | 5 | Remaining measurements: action count, history open, offline timing | Cold start (median 3284 ms) and Ask round trip (median 913 ms) are measured; NFR2 and the remaining rows stay pending | Tester with the emulator | P6 completeness |
 | 6 | Remaining optional capture: OS-level push permission | Login-after-logout, image question and offline error/recovery are captured in `real-final/optional/` as supplementary evidence | Group | Nothing mandatory |
 | 7 | Demo-account procedure only (the user guide is supplied) | Completes P5 support documentation | Group | Package |
-| 8 | Presentation deck and rehearsal | Activity 2 deliverable | Group | Presentation |
+| 8 | Presentation rehearsal and live demo (12-slide DRAFT deck and PDF supplied) | Activity 2 delivery | Group | Presentation |
 | 9 | Reference verification: 17 external entries plus project documents in `ASM2_HARVARD_REFERENCES.md` | Confirm URLs, access dates and editions before export | Group | Section 10 |
 | 10 | Final read-through and sign-off by every member | Ownership of the submitted text | Group | Upload |
 
